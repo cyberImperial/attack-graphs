@@ -23,7 +23,7 @@ def inspect_network(network):
     return json.loads(out)
 
 def create_container(build_id, command):
-    out = wait("docker run -d " + str(build_id) + " " + command)
+    out = wait("docker run -d " + build_id + " " + command)
     cid = out.split("\n")[0]
     return cid
 
@@ -34,15 +34,26 @@ def stop_container(container_id):
     wait("docker stop " + container_id)
     wait("docker rm " + container_id)
 
+def create_gateway(build_id, my_port, docker_port, command):
+    bind = str(my_port) + ":" + str(docker_port)
+    out = wait("docker run -d -p "
+        + bind + " "
+        + build_id + " "
+        + command)
+    cid = out.split("\n")[0]
+    return cid
+
 network = "test_network"
 print("Building containter...")
-iid = build_image("metasploitable")
+
+metasploitable = build_image("metasploitable")
+gateway = build_image("nginx")
 
 build_network(network)
 pprint(inspect_network(network))
 
-c1 = create_container(iid, "")
-c2 = create_container(iid, "")
+c1 = create_container(metasploitable, "")
+c2 = create_container(metasploitable, "")
 print(c1)
 print(c2)
 
@@ -51,5 +62,9 @@ pprint(inspect_network(network))
 connect_to_network(network, c2)
 pprint(inspect_network(network))
 
+c3 = create_gateway(gateway, 3000, 80, "nginx")
+connect_to_network(network, c3)
+
 stop_container(c1)
 stop_container(c2)
+stop_container(c3)
