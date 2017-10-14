@@ -62,7 +62,7 @@ pprint(inspect_network(network))
 connect_to_network(network, c2)
 pprint(inspect_network(network))
 
-c3 = create_gateway(gateway, 3000, 80, "nginx")
+c3 = create_gateway(gateway, 3006, 80, "nginx -g \"daemon off;\"")
 connect_to_network(network, c3)
 
 print("Containers:")
