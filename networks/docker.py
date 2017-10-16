@@ -43,32 +43,32 @@ def create_gateway(build_id, my_port, docker_port, command):
     cid = out.split("\n")[0]
     return cid
 
-network = "test_network"
-print("Building containter...")
-
-metasploitable = build_image("metasploitable")
-gateway = build_image("nginx")
-
-build_network(network)
-pprint(inspect_network(network))
-
-c1 = create_container(metasploitable, "")
-c2 = create_container(metasploitable, "")
-print(c1)
-print(c2)
-
-connect_to_network(network, c1)
-pprint(inspect_network(network))
-connect_to_network(network, c2)
-pprint(inspect_network(network))
-
-c3 = create_gateway(gateway, 3006, 80, "nginx -g \"daemon off;\"")
-connect_to_network(network, c3)
-
-print("Containers:")
-print(c1)
-print(c2)
-print(c3)
+# network = "test_network"
+# print("Building containter...")
+#
+# metasploitable = build_image("metasploitable")
+# gateway = build_image("nginx")
+#
+# build_network(network)
+# pprint(inspect_network(network))
+#
+# c1 = create_container(metasploitable, "")
+# c2 = create_container(metasploitable, "")
+# print(c1)
+# print(c2)
+#
+# connect_to_network(network, c1)
+# pprint(inspect_network(network))
+# connect_to_network(network, c2)
+# pprint(inspect_network(network))
+#
+# c3 = create_gateway(gateway, 3006, 80, "nginx -g \"daemon off;\"")
+# connect_to_network(network, c3)
+#
+# print("Containers:")
+# print(c1)
+# print(c2)
+# print(c3)
 # stop_container(c1)
 # stop_container(c2)
 # stop_container(c3)
