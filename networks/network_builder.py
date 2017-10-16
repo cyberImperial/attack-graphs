@@ -1,3 +1,6 @@
+from pprint import pprint
+import json
+
 from docker import build_image
 from docker import build_network
 from docker import inspect_network
@@ -46,7 +49,11 @@ class Network():
         return self
 
     def export(self):
-        pass
+        return json.dumps({
+            "nodes" : self.nodes,
+            "subnets" : self.subnets,
+            "connections" : self.connections
+        })
 
 if __name__ == "__main__":
     network = Network()
@@ -56,4 +63,5 @@ if __name__ == "__main__":
         .add_subnet("test_subnet") \
         .connect_to_subnet(network.nodes[0], network.subnets[0]) \
         .connect_to_subnet(network.nodes[1], network.subnets[0])
-    network.stop_network
+    pprint(network.export())
+    network.stop_network()
