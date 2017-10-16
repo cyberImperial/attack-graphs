@@ -1,0 +1,31 @@
+{
+  "name": "attack-graphs",
+  "version": "1.0.0",
+  "description": "Attack graphs construction and analysis.",
+  "main": "./main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cyberImperial/attack-graphs.git"
+  },
+  "keywords": [
+    "attack",
+    "graphs",
+    "cybersecurity"
+  ],
+  "author": "Ioan Budea",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cyberImperial/attack-graphs/issues"
+  },
+  "homepage": "https://github.com/cyberImperial/attack-graphs#readme",
+  "devDependencies": {
+    "electron-prebuilt": "^1.4.13"
+  },
+  "dependencies": {
+    "electron-prebuilt": "^1.4.13"
+  }
+}
