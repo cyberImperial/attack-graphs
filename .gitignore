@@ -35,3 +35,4 @@
 *.pyc
 attack_graphs.egg-info
 __pycache__
+.coverage
