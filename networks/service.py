@@ -36,8 +36,9 @@ def cli():
             for net in network.subnets:
                 print(network.inspect_subnet(net))
         if "exit" in line:
-            network.stop_network()
             exit(0)
+        if "delete" in line:
+            network.stop_network()
         if "add node" in line:
             network.add_node(Network.metasploitable, "")
             network.connect_to_subnet(network.nodes[-1], network.subnets[0])
@@ -50,8 +51,7 @@ def cli():
                 print(e)
 
 if __name__ == "__main__":
-    network = None
-    # network = default_network()
+    network = default_network()
 
     # Starting a thread that runs the server
     threading.Thread(target=run_server).start()
