@@ -26,6 +26,7 @@
     "electron-prebuilt": "^1.4.13"
   },
   "dependencies": {
-    "electron-prebuilt": "^1.4.13"
+    "electron-prebuilt": "^1.4.13",
+    "jquery": "^3.2.1"
   }
 }

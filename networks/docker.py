@@ -9,9 +9,7 @@ def wait(command):
 
 def build_image(component):
     out = wait("docker build components/" + component)
-    print(out)
     iid = out.split(" ")[-1].split("\n")[0]
-    print(iid)
     return iid
 
 def build_network(network):
