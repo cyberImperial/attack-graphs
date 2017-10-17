@@ -1,5 +1,4 @@
 import sys
-import zerorpc
 import threading
 import requests
 
@@ -7,27 +6,25 @@ from network import Network
 from network import default_network
 import sys
 
-def get_addr():
+from flask import Flask, request
+
+app = Flask(__name__)
+
+def get_port():
     port = 4242
     try:
         port = int(sys.argv[1])
     except Exception as e:
         pass
-    addr = 'tcp://127.0.0.1:' + str(port)
-    return addr
-
-class ServerApi(object):
-    def echo(self, text):
-        """echo any text"""
-        return text
+    return port
 
 def run_server():
-    s = zerorpc.Server(ServerApi())
-    addr = get_addr()
+    @app.route('/', methods=['GET'])
+    def healthy():
+        if request.method == 'GET':
+            return "healthy"
 
-    s.bind(addr)
-    print('$ Server started running on {}'.format(addr))
-    s.run()
+    app.run(host='0.0.0.0', port=get_port())
 
 def cli():
     while True:
@@ -46,15 +43,15 @@ def cli():
             network.connect_to_subnet(network.nodes[-1], network.subnets[0])
         if "request" in line:
             try:
-                c = zerorpc.Client()
-                c.connect(get_addr())
-                print(c.echo("echo"))
+                r = requests.get("http://127.0.0.1:" + str(get_port()) + "/")
+                print(r.text)
             except Exception as e:
                 print("Error: request failed.")
-                pass
+                print(e)
 
 if __name__ == "__main__":
-    network = default_network()
+    network = None
+    # network = default_network()
 
     # Starting a thread that runs the server
     threading.Thread(target=run_server).start()
