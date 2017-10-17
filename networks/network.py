@@ -24,11 +24,11 @@ class Network():
         self.subnets.append(subnet_name)
         return self
 
-    def add_node(self, node, command):
+    def add_node(self, node, command=""):
         self.nodes.append(create_container(node, command))
         return self
 
-    def add_gateway(self, external_port, internal_port, command):
+    def add_gateway(self, node, external_port, internal_port, command="nginx -g \"daemon off;\""):
         self.nodes.append(create_gateway(node, external_port, internal_port, command))
         return self
 
@@ -59,8 +59,9 @@ class Network():
 def default_network():
     network = Network()
     return network \
-        .add_node(Network.metasploitable, "") \
-        .add_node(Network.metasploitable, "") \
+        .add_node(Network.metasploitable) \
+        .add_node(Network.metasploitable) \
+        .add_gateway(Network.gateway, 3000, 80) \
         .add_subnet("test_subnet") \
         .connect_to_subnet(network.nodes[0], network.subnets[0]) \
         .connect_to_subnet(network.nodes[1], network.subnets[0])
