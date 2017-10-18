@@ -64,4 +64,5 @@ def default_network():
         .add_gateway(Network.gateway, 3000, 80) \
         .add_subnet("test_subnet") \
         .connect_to_subnet(network.nodes[0], network.subnets[0]) \
-        .connect_to_subnet(network.nodes[1], network.subnets[0])
+        .connect_to_subnet(network.nodes[1], network.subnets[0]) \
+        .connect_to_subnet(network.nodes[2], network.subnets[0])
