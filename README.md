@@ -7,9 +7,10 @@ Run tests:
 coverage run setup.py test
 ```
 
-Run networks:
+Run cli and server(can specify port or not):
 ```
-python run networks.py
+python3 run service.py
+python3 run service.py [port]
 ```
 
 NPM package:

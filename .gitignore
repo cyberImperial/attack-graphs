@@ -38,3 +38,4 @@ node_modules
 attack_graphs.egg-info
 __pycache__
 .coverage
+*.eggs
