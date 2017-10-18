@@ -30,30 +30,28 @@ void Host::load() {
        if( node.first == "port" )
        {
            // Port
-           string portid = subtree.get<std::string>("<xmlattr>.portid");
-           string protocol = subtree.get<std::string>("<xmlattr>.protocol");
+           Port port;
+           Service service;
+           
+           port.portid = tryGet(node, "portid");
+           port.protocol = tryGet(node, "protocol");
 
-           cout << portid << " " << protocol << endl;
-
-           //State
-           string* state_open;
-           string* reason;
-
-           //Service
-           string* name;
-           string* product;
-           string* version;
-           BOOST_FOREACH( boost::property_tree::ptree::value_type const& v, subtree)
+     BOOST_FOREACH( boost::property_tree::ptree::value_type const& v, subtree)
            {
               string label = v.first;
               if(label == "state") {
-                 state_open = tryGet(v, "state");
-                 reason =  tryGet(v, "reason");
+                 service.state_open = tryGet(v, "state");
+                 service.reason =  tryGet(v, "reason");
               }
               if(label == "service") {
-                 name = tryGet(v, "name");
-                 product = tryGet(v, "product");
-                 version = tryGet(v, "version");
+                 service.name = tryGet(v, "name");
+                 service.product = tryGet(v, "product");
+                 service.version = tryGet(v, "version");
+                 service.servicepf = tryGet(v, "servicepf");
+                 service.extrainfo = tryGet(v, "extrainfo");
+                 service.tunnel = tryGet(v, "tunnel");
+                 service.method = tryGet(v, "method");
+                 service.conf = tryGet(v, "conf");
               }
            }
            std::cout <<  std::endl;

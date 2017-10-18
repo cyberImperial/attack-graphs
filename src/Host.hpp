@@ -8,6 +8,8 @@
 #include <exception>
 #include <iostream>
 #include <unordered_map>
+#include "Port.hpp"
+#include "Service.hpp"
 
 using namespace boost::property_tree;
 using namespace std;
@@ -20,7 +22,7 @@ public:
 private:
    string host_scan_file;
    // shared_ptr<Port>, shared_ptr<Service>
-   unordered_map<string, string> open_port_assignment;
+   unordered_map<Port, Service> open_port_assignment;
    string os;
 };
 
