@@ -5,7 +5,6 @@
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/foreach.hpp>
 #include <string>
-#include <set>
 #include <exception>
 #include <iostream>
 
@@ -15,12 +14,9 @@ using namespace std;
 class Topology {
 public:
   Topology(string);
-  string topology_file;
-  
-
-
   void load();
-
+private:
+  string topology_file;
 };
 
 #endif
