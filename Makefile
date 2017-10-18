@@ -32,4 +32,10 @@ Service.o: topology/Service.cpp
 clean:
 	rm -rf build_topology *.o
 
+test: catch.o
+	$(CXX) tests/topology/HostTest.cpp $(CXXFLAGS) catch.o -o HostTest.o && ./HostTest.o
+
+catch.o:
+	$(CXX) $(CXXFLAGS) -c tests/frameworks/Runner.cpp -o catch.o
+
 .PHONY: clean
