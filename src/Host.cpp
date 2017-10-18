@@ -4,6 +4,14 @@ Host::Host(string host_scan_file) {
   this->host_scan_file = host_scan_file;
 }
 
+static string* tryGet(boost::property_tree::ptree::value_type const& v, string attr){
+  try {
+    return new string(v.second.get<string>("<xmlattr>." + attr));
+  }catch (...){
+    return nullptr;
+  }
+}
+
 void Host::load() {
   // Create empty property tree object
    ptree tree;
@@ -24,34 +32,35 @@ void Host::load() {
            // Port
            string portid = subtree.get<std::string>("<xmlattr>.portid");
            string protocol = subtree.get<std::string>("<xmlattr>.protocol");
-           
+
            cout << portid << " " << protocol << endl;
 
            //State
-           string state_open;
-           string reason;
+           string* state_open;
+           string* reason;
 
            //Service
-           string name;
-           string product;
-           string version;
+           string* name;
+           string* product;
+           string* version;
            BOOST_FOREACH( boost::property_tree::ptree::value_type const& v, subtree)
            {
-              std::string label = v.first;
+              string label = v.first;
               if(label == "state") {
-                 state_open = v.second.get<string>("<xmlattr>.state");
-                 reason =  v.second.get<string>("<xmlattr>.reason");
+                 state_open = tryGet(v, "state");
+                 reason =  tryGet(v, "reason");
               }
               if(label == "service") {
-                 name = v.second.get<string>("<xmlattr>.name");
-                 product = v.second.get<string>("<xmlattr>.product");
-                 version = v.second.get<string>("<xmlattr>.version");
+                 name = tryGet(v, "name");
+                 product = tryGet(v, "product");
+                 version = tryGet(v, "version");
               }
            }
-           std::cout << std::endl;
+           std::cout <<  std::endl;
        }
    }
 }
+
 
 void Host::print_vulnerabilities() {
     cout << "--------Ports and services------------" << endl;
