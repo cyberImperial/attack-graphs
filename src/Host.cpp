@@ -17,36 +17,47 @@ void Host::load() {
 
    BOOST_FOREACH( boost::property_tree::ptree::value_type const& node, tree.get_child("nmaprun.host.ports") )
    {
-     boost::property_tree::ptree subtree = node.second;
+       boost::property_tree::ptree subtree = node.second;
 
        if( node.first == "port" )
        {
            // Port
-           int portid = subtree.get<int>("<xmlattr>.portid");
-           string protocol = subtree.get<std::string>("<xmlattr>.protocol");
-           Port *port = new Port(portid, protocol);
+           boost::optional<int> portid = subtree.get_optional<int>("<xmlattr>.portid");
+           boost::optional<string> protocol = subtree.get_optional<string>("<xmlattr>.protocol");
+           if (portid == boost::optional<int>()) {
+             continue;
+           }
+
+           Port *port = new Port(
+             portid.get(),
+             protocol.get_value_or("attributeMissing"));
 
            //Service
-           string name;
-           string product;
-           string version;
+           boost::optional<string> name;
+           boost::optional<string> product;
+           boost::optional<string> version;
            //Service state
-           string state_open;
-           string reason;
+           boost::optional<string> state_open;
+           boost::optional<string> reason;
            BOOST_FOREACH( boost::property_tree::ptree::value_type const& v, subtree)
            {
-              std::string label = v.first;
+              string label = v.first;
               if(label == "state") {
-                 state_open = v.second.get<string>("<xmlattr>.state");
-                 reason =  v.second.get<string>("<xmlattr>.reason");
+                 state_open = v.second.get_optional<string>("<xmlattr>.state");
+                 reason =  v.second.get_optional<string>("<xmlattr>.reason");
               }
               if(label == "service") {
-                 name = v.second.get<string>("<xmlattr>.name");
-                 product = v.second.get<string>("<xmlattr>.product");
-                 version = v.second.get<string>("<xmlattr>.version");
+                 name = v.second.get_optional<string>("<xmlattr>.name");
+                 product = v.second.get_optional<string>("<xmlattr>.product");
+                 version = v.second.get_optional<string>("<xmlattr>.version");
               }
            }
-           Service *service = new Service(name, product, version, state_open, reason);
+           Service *service = new Service(
+             name.get_value_or("attributeMissing"),
+             product.get_value_or("attributeMissing"),
+             version.get_value_or("attributeMissing"),
+             state_open.get_value_or("attributeMissing"),
+             reason.get_value_or("attributeMissing"));
            running_services.insert({shared_ptr<Port>(port), shared_ptr<Service>(service)});
            std::cout << std::endl;
        }
