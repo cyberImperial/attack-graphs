@@ -5,17 +5,20 @@ let svg = d3.select("svg"),
 let graph = {
   "nodes": [
     {"id": "ip1"},
-    {"id": "ip2"}
+    {"id": "ip2"},
+    {"id": "ip3"},
+    {"id": "ip4"}
   ],
   "links": [
-    {"source": "ip1", "target": "ip2", "value": 1}
+    {"source": "ip1", "target": "ip2", "value": 1},
+    {"source": "ip3", "target": "ip2", "value": 1},
+    {"source": "ip4", "target": "ip1", "value": 1}
   ]
-} 
+}
 
 
-    
 let defs = svg.append("svg:defs");
-  
+
 defs.append("svg:pattern")
     .attr("width", 1)
     .attr("height", 1)
@@ -26,19 +29,20 @@ defs.append("svg:pattern")
     .attr("height", 100)
     .attr("x", 0)
     .attr("y", 0);
-        
+
 let simulation = d3.forceSimulation()
                 .force("link", d3.forceLink().id(function(d) {
                     return d.id;
-                }))
+                }).distance(150))
                 .force("charge", d3.forceManyBody().strength(-5))
-                .force("center", d3.forceCenter(width / 2, height / 2));
-    
+                .force("center", d3.forceCenter(width / 2, height / 2))
+                .force("collide", d3.forceCollide(100));
+
 
 let link = svg.selectAll(".link")
             .data(graph.links, function(d) {return d.target.id;})
             .enter().append("line").attr("class", "link");
-            
+
 let node = svg.selectAll(".node")
             .data(graph.nodes, function(d) {return d.id;})
             .enter().append("g").attr("class", "node")
@@ -46,7 +50,7 @@ let node = svg.selectAll(".node")
                 .on("start", dragstarted)
                 .on("drag", dragged)
                 .on("end", dragended));
-      
+
 node.append("circle")
     .attr("r", 50)
     .style("fill", "url(#server)");
@@ -59,6 +63,13 @@ simulation.nodes(graph.nodes)
 
 simulation.force("link")
     .links(graph.links);
+
+function initializeDistance() {
+  if (!nodes) return;
+  for (var i = 0, n = links.length; i < n; ++i) {
+    distances[i] = +distance(links[i], i, links);
+  }
+}
 
 function ticked() {
     link
