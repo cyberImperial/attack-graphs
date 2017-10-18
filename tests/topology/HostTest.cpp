@@ -1,4 +1,12 @@
 #include "../frameworks/Catch.hpp"
+#include "../../topology/Host.hpp"
+
+TEST_CASE("Vulnerabilities get loaded", "[load]") {
+  Host host("traceroute_all_subnet.xml");
+  host.load();
+
+  REQUIRE(1);
+}
 
 unsigned int Factorial( unsigned int number ) {
     return number <= 1 ? number : Factorial(number-1)*number;
