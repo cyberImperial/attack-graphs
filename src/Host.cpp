@@ -22,19 +22,17 @@ void Host::load() {
        if( node.first == "port" )
        {
            // Port
-           string portid = subtree.get<std::string>("<xmlattr>.portid");
+           int portid = subtree.get<int>("<xmlattr>.portid");
            string protocol = subtree.get<std::string>("<xmlattr>.protocol");
-           
-           cout << portid << " " << protocol << endl;
-
-           //State
-           string state_open;
-           string reason;
+           Port *port = new Port(portid, protocol);
 
            //Service
            string name;
            string product;
            string version;
+           //Service state
+           string state_open;
+           string reason;
            BOOST_FOREACH( boost::property_tree::ptree::value_type const& v, subtree)
            {
               std::string label = v.first;
@@ -48,6 +46,8 @@ void Host::load() {
                  version = v.second.get<string>("<xmlattr>.version");
               }
            }
+           Service *service = new Service(name, product, version, state_open, reason);
+           running_services.insert({shared_ptr<Port>(port), shared_ptr<Service>(service)});
            std::cout << std::endl;
        }
    }
@@ -55,9 +55,9 @@ void Host::load() {
 
 void Host::print_vulnerabilities() {
     cout << "--------Ports and services------------" << endl;
-    for(unordered_map<string, string>::iterator it = open_port_assignment.begin();
-       it != open_port_assignment.end(); ++it) {
-         cout << it->first << "  " << it->second << endl;
-       }
+    for(unordered_map<shared_ptr<Port>, shared_ptr<Service>>::iterator it = running_services.begin();
+       it != running_services.end(); ++it) {
+         cout << *it->first.get() << "  " << *it->second.get() << endl;
+    }
     cout << "Operating system version: " << os << endl;
 }
