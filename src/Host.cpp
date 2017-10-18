@@ -64,6 +64,7 @@ void Host::load() {
    }
 }
 
+
 void Host::print_vulnerabilities() {
     cout << "--------Ports and services------------" << endl;
     for(unordered_map<shared_ptr<Port>, shared_ptr<Service>>::iterator it = running_services.begin();
