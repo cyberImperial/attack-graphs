@@ -2,13 +2,13 @@ from pprint import pprint
 import json
 import sys
 
-from docker import build_image
-from docker import build_network
-from docker import inspect_network
-from docker import create_container
-from docker import connect_to_network
-from docker import stop_container
-from docker import create_gateway
+from networks.docker import build_image
+from networks.docker import build_network
+from networks.docker import inspect_network
+from networks.docker import create_container
+from networks.docker import connect_to_network
+from networks.docker import stop_container
+from networks.docker import create_gateway
 
 class Network():
     metasploitable = build_image("metasploitable")
