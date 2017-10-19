@@ -14,6 +14,14 @@ public:
   string getVersion() const;
   string getStateOpen() const;
   string getReason() const;
+
+  bool operator == (Service const& service) const {
+    return name == service.name
+        && product == service.product
+        && version == service.version
+        && state_open == service.state_open
+        && reason == service.reason;
+  }
 private:
   string name;
   string product;

@@ -28,7 +28,6 @@ TEST_CASE("Host loads the correct ports", "[load]") {
   Host host(project_path() + "sample_scan.xml");
   host.load();
 
-  host.print_vulnerabilities();
   auto vulenerabilities = host.get_vulnerabilities();
   REQUIRE(vulenerabilities.find(Port(3000, "")) != vulenerabilities.end());
   REQUIRE(vulenerabilities.find(Port(902, "")) != vulenerabilities.end());
@@ -43,4 +42,6 @@ TEST_CASE("Host contain correct information", "[load]") {
   auto vulenerabilities = host.get_vulnerabilities();
   REQUIRE(vulenerabilities.find(Port(3000, ""))->first.getProtocol() == "tcp");
   REQUIRE(vulenerabilities.find(Port(902, ""))->first.getProtocol() == "tcp");
+  REQUIRE(vulenerabilities.find(Port(3000, ""))->second == Service("http", "nginx", "1.13.5", "open", "syn-ack"));
+  REQUIRE(vulenerabilities.find(Port(902, ""))->second == Service("vmware-auth", "VMware Authentication Daemon", "1.10", "open", "syn-ack"));
 }
