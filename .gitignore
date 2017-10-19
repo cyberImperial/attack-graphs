@@ -38,3 +38,7 @@ node_modules
 attack_graphs.egg-info
 __pycache__
 .coverage
+*.eggs
+
+nvdcve-1.0-*.json
+*.idx
