@@ -8,8 +8,8 @@ PORT_SOURCES = topology/Port.cpp
 SERVICE_SOURCES = topology/Service.cpp
 OBJECT_FILES = Service.o Port.o Host.o Hop.o Topology.o
 
-all: $(OBJECT_FILES) Main.o
-	$(CXX) $(OBJECT_FILES) $(CXXFLAGS) -o build_topology
+all: Main.o $(OBJECT_FILES)
+	$(CXX) Main.o $(OBJECT_FILES) $(CXXFLAGS) -o build_topology
 
 test: catch.o $(OBJECT_FILES)
 	$(CXX) tests/topology/HostTest.cpp $(CXXFLAGS) catch.o -o HostTest.o $(OBJECT_FILES) && ./HostTest.o
