@@ -4,7 +4,10 @@ import requests
 
 from networks.network import Network
 from networks.network import default_network
+from database.db_service import MemoryDB
 import sys
+import json
+from pprint import pprint
 
 from flask import Flask, request
 
@@ -19,10 +22,22 @@ def get_port():
     return port
 
 def run_server():
+    DB = MemoryDB()
+
     @app.route('/', methods=['GET'])
     def healthy():
         if request.method == 'GET':
             return "healthy"
+
+    @app.route("/v", methods=['POST'])
+    def query():
+        if request.method == 'POST':
+            req = request.get_json()
+            outputs = []
+            pprint(req)
+            for entry in req:
+                outputs.append(DB.query(entry["product"], entry["version"]))
+            return outputs
 
     app.run(host='0.0.0.0', port=get_port())
 
@@ -49,6 +64,18 @@ def cli():
             except Exception as e:
                 print("Error: request failed.")
                 print(e)
+        if "query" in line:
+            rq = json.loads("""[{
+                "product" : "monkey_http_daemon",
+                "version" : "0.7.0"
+            }, {
+                "product" : "qemu",
+                "version" : "0.13.0"
+            }]""")
+            r = requests.post(
+                url = "http://127.0.0.1:" + str(get_port()) + "/v",
+                json = rq)
+            print(r.text)
 
 if __name__ == "__main__":
     network = default_network()
