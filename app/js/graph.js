@@ -1,4 +1,11 @@
-let svg = d3.select("svg"),
+let svg = d3.select("#graph-container")
+      .append("svg")
+      .attr("width", "1400px")
+      .attr("height", "800px")
+      .call(d3.zoom().on("zoom", function () {
+              svg.attr("transform", d3.event.transform)
+      }))
+      .append("g"),
     width = +svg.attr("width"),
     height = +svg.attr("height");
 
@@ -27,7 +34,7 @@ defs.append("svg:pattern")
     .attr("xlink:href", "img/server.png")
     .attr("width", 100)
     .attr("height", 100)
-    .attr("x", 0)
+    .attr("x", 12)
     .attr("y", 0);
 
 let simulation = d3.forceSimulation()
@@ -35,7 +42,7 @@ let simulation = d3.forceSimulation()
                     return d.id;
                 }).distance(150))
                 .force("charge", d3.forceManyBody().strength(-5))
-                .force("center", d3.forceCenter(width / 2, height / 2))
+                .force("center", d3.forceCenter(750, 400))
                 .force("collide", d3.forceCollide(100));
 
 
@@ -52,7 +59,7 @@ let node = svg.selectAll(".node")
                 .on("end", dragended));
 
 node.append("circle")
-    .attr("r", 50)
+    .attr("r", 60)
     .style("fill", "url(#server)");
 
 node.append("title")
