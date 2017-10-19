@@ -11,20 +11,22 @@ int main(int argc, char **argv)
   if(argc < 1)
   {
     cout << "Invalid number of program arguments: ";
-    cout << "Usage ./build_topology <traceroute_file.xml>" << endl;
+    cout << "Usage ./build_topology <host_info.xml> <traceroute_file.xml>" << endl;
     exit(EXIT_FAILURE);
   }
   Host host(argv[1]);
   Hop hop(argv[2]);
   host.load();
   hop.load();
-  ofstream services, topology;
-  services.open("services.json");
-  topology.open("topology.json");
+  //  ofstream services, topology;
+  //  services.open("services.json");
+  //  topology.open("topology.json");
   //host.print_vulnerabilities();
-  services << host.toJSON() << endl;
-  topology << hop.toJSON() << endl;
-  services.close();
-  topology.close();
+  //topology << hop.toJSON() << endl;
+
+  cout << host.toJSON() << endl;
+
+  // services.close();
+  // topology.close();
   return 0;
 }

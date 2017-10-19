@@ -30,6 +30,7 @@ private:
   string host_scan_file;
   unordered_map<Port, Service> running_services;
   string os;
+  string ip;
 };
 
 #endif

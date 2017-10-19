@@ -16,6 +16,3 @@ class MemoryDB():
         for idx in self.indexes[index]:
             output.append(self.data[idx])
         return output
-
-DB = MemoryDB()
-print(DB.query("monkey_http_daemon", "0.7.0"))

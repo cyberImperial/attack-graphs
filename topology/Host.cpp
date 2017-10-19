@@ -6,8 +6,8 @@ Host::Host(string host_scan_file) {
 
 string Host::toJSON() {
       ptree out;
-      out.put("Host.os",               this->os);
-
+      out.put("Host.os", this->os);
+      out.put("Host.ip", this->ip);
       ptree running_services_tree;
       for(auto& it : running_services) {
           ptree running_service_tree;
@@ -40,6 +40,7 @@ void Host::load() {
    // Use the throwing version of get to find the debug filename.
    // If the path cannot be resolved, an exception is thrown.
    os = tree.get<std::string>("nmaprun.host.os.osmatch.<xmlattr>.name");
+   ip = tree.get<std::string>("nmaprun.host.address.<xmlattr>.addr");
 
    BOOST_FOREACH( boost::property_tree::ptree::value_type const& node, tree.get_child("nmaprun.host.ports") )
    {
