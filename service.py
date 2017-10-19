@@ -5,9 +5,11 @@ import requests
 from networks.network import Network
 from networks.network import default_network
 from database.db_service import MemoryDB
-import sys
+import os
 import json
 from pprint import pprint
+import subprocess
+import signal
 
 from flask import Flask, request
 
@@ -76,8 +78,43 @@ def cli():
                 url = "http://127.0.0.1:" + str(get_port()) + "/v",
                 json = rq)
             print(r.text)
+        if "discovery" in line:
+            try:
+                subnet_mask = line.split(" ")[1]
+            except Exception as e:
+                subnet_mask = "172.18.0.0/29"
+            out = subprocess.getoutput("nmap -sP " + subnet_mask)
+
+            ips = [line.split(" ")[-1] for line in out.split("\n")[2::3]]
+            hosts = []
+            for ip in ips:
+                default = """{
+                    {
+                        "Host" : \"""" + ip + """\"
+                    }
+                }"""
+                # Getting host information for ip
+                try:
+                    subprocess.getoutput("nmap -oX host.xml -O -sV " + ip)
+                    subprocess.getoutput("nmap -oX trace.xml --traceroute " + ip)
+                    host_json = subprocess.getoutput("./build_topology host.xml trace.xml")
+                    if not "Aborted" in host_json:
+                        hosts.append(host_json)
+                    else:
+                        hosts.append(default)
+                except Exception as e:
+                    hosts.append(default)
+            pprint(hosts)
+
+
+def signal_handler(signal, frame):
+    os.system("docker rm -f $(docker ps -a -q)")
+    os.system("docker network rm test_subnet")
+    print("Docker network and containers removed.")
+    sys.exit(0)
 
 if __name__ == "__main__":
+    signal.signal(signal.SIGINT, signal_handler)
     network = default_network()
 
     # Starting a thread that runs the server

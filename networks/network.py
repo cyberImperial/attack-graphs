@@ -10,9 +10,12 @@ from networks.docker import connect_to_network
 from networks.docker import stop_container
 from networks.docker import create_gateway
 
+# docker run --rm -it -p 8022:22 vulnerables/cve-2016-6515
+
 class Network():
     metasploitable = build_image("metasploitable")
     gateway = build_image("nginx")
+    openssh = build_image("openssh-vulnerable")
 
     def __init__(self):
         self.nodes = []
@@ -65,4 +68,6 @@ def default_network():
         .add_subnet("test_subnet") \
         .connect_to_subnet(network.nodes[0], network.subnets[0]) \
         .connect_to_subnet(network.nodes[1], network.subnets[0]) \
-        .connect_to_subnet(network.nodes[2], network.subnets[0])
+        .connect_to_subnet(network.nodes[2], network.subnets[0]) \
+        .add_gateway(Network.openssh, 8022, 22, "") \
+        .connect_to_subnet(network.nodes[3], network.subnets[0])
