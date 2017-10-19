@@ -1,6 +1,7 @@
 #include "Topology.hpp"
 #include "Host.hpp"
 #include "Hop.hpp"
+#include <fstream>
 
 using namespace std;
 
@@ -17,8 +18,13 @@ int main(int argc, char **argv)
   Hop hop(argv[2]);
   host.load();
   hop.load();
-  host.print_vulnerabilities();
-  cout << host.toJSON() << endl;
-  cout << hop.toJSON() << endl;
+  ofstream services, topology;
+  services.open("services.json");
+  topology.open("topology.json");
+  //host.print_vulnerabilities();
+  services << host.toJSON() << endl;
+  topology << hop.toJSON() << endl;
+  services.close();
+  topology.close();
   return 0;
 }
