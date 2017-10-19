@@ -1,9 +1,9 @@
 from __future__ import print_function
 
 import json
+import os
 from pprint import pprint
-
-file_name = 'nvdcve-1.0-2002.json'
+import subprocess
 
 def process_version(raw_data):
     return [entry["version_value"] for entry in raw_data]
@@ -59,8 +59,24 @@ def parse(nvdcve_json):
 
             export_ctr += 1
 
-parse(file_name)
-with open('indexed.idx', 'w') as outfile:
-    json.dump(indexed_products, outfile)
-with open('exports.idx', 'w') as outfile:
-    json.dump(export_list, outfile)
+def call(command):
+    return subprocess.check_output(command, shell=True)
+
+if __name__=="__main__":
+    files = call("ls -a")
+    if "indexed.idx" in files and "exports.idx" in files:
+        print("Index files have already been created.")
+        exit(0)
+
+    os.system("./dw_nvd_json.sh")
+
+    print("Indexing files...")
+    for r in range(2002, 2018):
+        file_name = "nvdcve-1.0-{}.json".format(r)
+        print("Parsing file:" + file_name)
+        parse(file_name)
+
+    with open('indexed.idx', 'w') as outfile:
+        json.dump(indexed_products, outfile)
+    with open('exports.idx', 'w') as outfile:
+        json.dump(export_list, outfile)
