@@ -1,6 +1,6 @@
 let svg = d3.select("#graph-container")
       .append("svg")
-      .attr("width", "1400px")
+      .attr("width", "1278px")
       .attr("height", "800px")
       .call(d3.zoom().on("zoom", function () {
               svg.attr("transform", d3.event.transform)
@@ -11,7 +11,7 @@ let svg = d3.select("#graph-container")
 
 let graph = {
   "nodes": [
-    {"id": "ip1"},
+    {"id": "ip1", "os": "Windows", "services": [{"program":"1", "version":"2"}]},
     {"id": "ip2"},
     {"id": "ip3"},
     {"id": "ip4"}
@@ -22,7 +22,6 @@ let graph = {
     {"source": "ip4", "target": "ip1", "value": 1}
   ]
 }
-
 
 let defs = svg.append("svg:defs");
 

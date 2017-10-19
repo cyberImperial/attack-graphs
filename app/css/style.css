@@ -13,3 +13,9 @@
     margin: 0;
     padding: 7.5px 15px;
 }
+
+#graph-container {
+    margin-left: 10px;
+    border: 1.5px solid rgba(180, 180, 180, 1.0);
+    padding: 0px;
+}
