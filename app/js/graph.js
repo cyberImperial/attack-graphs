@@ -59,10 +59,10 @@ let node = svg.selectAll(".node")
                 .on("end", dragended));
 
 let tip = d3.tip()
-        .attr('class', 'tooltip')
+        .attr('class', 'd3-tip')
         .offset([-10, 0])
         .html(function(d) {
-            return "<div>" + d.id + "</div>";
+            return "<strong style='color:red'>Frequency : </strong><span>" + d.id + "</span><hr><strong style='color:red'>Operating System : </strong>" + d.os;
         });
 svg.call(tip);
             
