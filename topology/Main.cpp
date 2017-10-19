@@ -15,5 +15,6 @@ int main(int argc, char **argv)
   Host host(argv[1]);
   host.load();
   host.print_vulnerabilities();
+  cout << host.toJSON() << endl;
   return 0;
 }
