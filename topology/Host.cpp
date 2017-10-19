@@ -64,6 +64,9 @@ void Host::load() {
    }
 }
 
+unordered_map<shared_ptr<Port>, shared_ptr<Service>> Host::get_vulnerabilities() {
+  return running_services;
+}
 
 void Host::print_vulnerabilities() {
     cout << "--------Ports and services------------" << endl;

@@ -1,20 +1,25 @@
 #include "../frameworks/Catch.hpp"
 #include "../../topology/Host.hpp"
+#include <boost/filesystem.hpp>
+using namespace boost::filesystem;
 
-TEST_CASE("Vulnerabilities get loaded", "[load]") {
-  Host host("traceroute_all_subnet.xml");
+static string project_path() {
+  boost::filesystem::path path = boost::filesystem::current_path();
+  return path.string() + "/tests/topology/";
+}
+
+TEST_CASE("Can't open missing file", "[load]") {
+  try {
+    Host host("missing file");
+  } catch (const runtime_error& error) {
+    REQUIRE(true);
+  }
+}
+
+TEST_CASE("Correct number of vulenerabilities", "[load]") {
+  Host host(project_path() + "sample_scan.xml");
   host.load();
 
-  REQUIRE(1);
-}
-
-unsigned int Factorial( unsigned int number ) {
-    return number <= 1 ? number : Factorial(number-1)*number;
-}
-
-TEST_CASE( "Factorials are computed", "[factorial]" ) {
-    REQUIRE( Factorial(1) == 1 );
-    REQUIRE( Factorial(2) == 2 );
-    REQUIRE( Factorial(3) == 6 );
-    REQUIRE( Factorial(10) == 3628800 );
+  auto vulenerabilities = host.get_vulnerabilities();
+  REQUIRE(vulenerabilities.size() == 2);
 }
