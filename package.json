@@ -26,6 +26,7 @@
     "electron-prebuilt": "^1.4.13"
   },
   "dependencies": {
+    "d3-tip": "^0.7.1",
     "electron-prebuilt": "^1.4.13",
     "jquery": "^3.2.1"
   }
