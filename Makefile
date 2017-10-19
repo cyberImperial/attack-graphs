@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS += -std=c++11
+CXXFLAGS += -std=c++11 -lboost_system -lboost_filesystem
 LOADLIBES += -lstdc++ -I /usr/include/boost
 TOPOLOGY_SOURCES = topology/Topology.cpp
 HOP_SOURCES = topology/Hop.cpp

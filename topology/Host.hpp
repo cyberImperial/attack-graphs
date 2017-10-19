@@ -18,13 +18,14 @@ using namespace std;
 
 class Host {
 public:
-   Host(string);
-   void print_vulnerabilities();
-   void load();
+  Host(string);
+  void print_vulnerabilities();
+  unordered_map<shared_ptr<Port>, shared_ptr<Service>> get_vulnerabilities();
+  void load();
 private:
-   string host_scan_file;
-   unordered_map<shared_ptr<Port>, shared_ptr<Service>> running_services;
-   string os;
+  string host_scan_file;
+  unordered_map<shared_ptr<Port>, shared_ptr<Service>> running_services;
+  string os;
 };
 
 #endif
