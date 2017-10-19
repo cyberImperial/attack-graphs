@@ -5,10 +5,12 @@ from pprint import pprint
 
 def wait(command):
     print("> " + command)
-    return subprocess.check_output(command, shell=True)
+    return str(subprocess.getoutput(command))
+
+path = "networks/components/"
 
 def build_image(component):
-    out = wait("docker build components/" + component)
+    out = wait("docker build " + path + component)
     iid = out.split(" ")[-1].split("\n")[0]
     return iid
 
