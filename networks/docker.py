@@ -7,8 +7,10 @@ def wait(command):
     print("> " + command)
     return str(subprocess.getoutput(command))
 
+path = "networks/components/"
+
 def build_image(component):
-    out = wait("docker build components/" + component)
+    out = wait("docker build " + path + component)
     iid = out.split(" ")[-1].split("\n")[0]
     return iid
 

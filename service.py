@@ -2,8 +2,8 @@ import sys
 import threading
 import requests
 
-from network import Network
-from network import default_network
+from networks.network import Network
+from networks.network import default_network
 import sys
 
 from flask import Flask, request
