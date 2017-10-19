@@ -45,3 +45,15 @@ TEST_CASE("Host contain correct information", "[load]") {
   REQUIRE(vulenerabilities.find(Port(3000, ""))->second == Service("http", "nginx", "1.13.5", "open", "syn-ack"));
   REQUIRE(vulenerabilities.find(Port(902, ""))->second == Service("vmware-auth", "VMware Authentication Daemon", "1.10", "open", "syn-ack"));
 }
+
+TEST_CASE("Missing arguments error handling works", "[load]") {
+  Host host(project_path() + "sample_scan2.xml");
+  host.load();
+
+  auto vulenerabilities = host.get_vulnerabilities();
+  REQUIRE(vulenerabilities.find(Port(902, "")) != vulenerabilities.end());
+  REQUIRE(vulenerabilities.find(Port(3000, "")) == vulenerabilities.end());
+
+  REQUIRE(vulenerabilities.find(Port(902, ""))->first.getProtocol() == "attributeMissing");
+  REQUIRE(vulenerabilities.find(Port(902, ""))->second == Service("attributeMissing", "VMware Authentication Daemon", "1.10", "open", "syn-ack"));
+}
