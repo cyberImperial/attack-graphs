@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import json
 from pprint import pprint
 
@@ -50,6 +52,15 @@ def parse(nvdcve_json):
                     product_versions = process_version(product_versions)
 
                     for version in product_versions:
-                        indexed_products[(product_name, version)] = export_ctr
+                        index = str((product_name, version))
+                        if not index in indexed_products:
+                             indexed_products[index] = []
+                        indexed_products[index].append(export_ctr)
 
             export_ctr += 1
+
+parse(file_name)
+with open('indexed.idx', 'w') as outfile:
+    json.dump(indexed_products, outfile)
+with open('exports.idx', 'w') as outfile:
+    json.dump(export_list, outfile)
