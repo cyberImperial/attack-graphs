@@ -1,5 +1,6 @@
 #include "Topology.hpp"
 #include "Host.hpp"
+#include "Hop.hpp"
 
 using namespace std;
 
@@ -13,8 +14,11 @@ int main(int argc, char **argv)
     exit(EXIT_FAILURE);
   }
   Host host(argv[1]);
+  Hop hop(argv[2]);
   host.load();
+  hop.load();
   host.print_vulnerabilities();
   cout << host.toJSON() << endl;
+  cout << hop.toJSON() << endl;
   return 0;
 }
