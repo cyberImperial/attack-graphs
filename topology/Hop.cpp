@@ -38,15 +38,16 @@ void Hop::load() {
    // Parse the XML into the property tree.
    read_xml(hop_scan_file, tree);
 
-   BOOST_FOREACH( boost::property_tree::ptree::value_type const& node, tree.get_child("nmaprun.host.trace") )
-   {
-     if (node.first == "hop") {
-       boost::property_tree::ptree subtree = node.second;
-       boost::optional<string> ip = subtree.get_optional<string>("<xmlattr>.ipaddr");
-       boost::optional<string> hostname = subtree.get_optional<string>("<xmlattr>.host");
-       IPs.insert({ip.get_value_or("IPMissing"), hostname.get_value_or("HostMissing")});
-     }
-   }
+   if(tree.get_child("nmaprun.host").count("trace") != 0){
+        BOOST_FOREACH( boost::property_tree::ptree::value_type const& node, tree.get_child("nmaprun.host.trace") ){
+        if (node.first == "hop") {
+          boost::property_tree::ptree subtree = node.second;
+          boost::optional<string> ip = subtree.get_optional<string>("<xmlattr>.ipaddr");
+          boost::optional<string> hostname = subtree.get_optional<string>("<xmlattr>.host");
+          IPs.insert({ip.get_value_or("IPMissing"), hostname.get_value_or("HostMissing")});
+        }
+      }
+    }
 }
 
 int Hop::getTTL() {
