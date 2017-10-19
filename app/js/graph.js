@@ -53,23 +53,25 @@ let node = svg.selectAll(".node")
             .data(graph.nodes, function(d) {return d.id;})
             .enter().append("g").attr("class", "node")
 
-            .on("mouseover", function(d,i) {
-             d3.select(this).append("text")
-             .text(function(e) { return e.id;})
-             .style("fill","grey");})
-
-            .on("mouseout", function(d) {
-              d3.select(this)
-             .select("text").remove();})
-
             .call(d3.drag()
                 .on("start", dragstarted)
                 .on("drag", dragged)
                 .on("end", dragended));
 
+let tip = d3.tip()
+        .attr('class', 'tooltip')
+        .offset([-10, 0])
+        .html(function(d) {
+            return "<div>" + d.id + "</div>";
+        });
+svg.call(tip);
+            
 node.append("circle")
     .attr("r", 60)
     .style("fill", "url(#server)");
+
+node.on("mouseover", function(d) { tip.show(d, this); })
+    .on("mouseout", function(d) { tip.hide(); });
 
 node.append("title")
     .text(function(d) { return d.id; });
