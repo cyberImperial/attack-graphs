@@ -28,9 +28,10 @@ void Host::load() {
              continue;
            }
 
-           Port *port = new Port(
+           Port port(
              portid.get(),
-             protocol.get_value_or("attributeMissing"));
+             protocol.get_value_or("attributeMissing")
+           );
 
            //Service
            boost::optional<string> name;
@@ -52,27 +53,26 @@ void Host::load() {
                  version = v.second.get_optional<string>("<xmlattr>.version");
               }
            }
-           Service *service = new Service(
+           Service service(
              name.get_value_or("attributeMissing"),
              product.get_value_or("attributeMissing"),
              version.get_value_or("attributeMissing"),
              state_open.get_value_or("attributeMissing"),
-             reason.get_value_or("attributeMissing"));
-           running_services.insert({shared_ptr<Port>(port), shared_ptr<Service>(service)});
-           std::cout << std::endl;
+             reason.get_value_or("attributeMissing")
+           );
+           running_services.insert({port, service});
        }
    }
 }
 
-unordered_map<shared_ptr<Port>, shared_ptr<Service>> Host::get_vulnerabilities() {
+unordered_map<Port, Service> Host::get_vulnerabilities() {
   return running_services;
 }
 
 void Host::print_vulnerabilities() {
     cout << "--------Ports and services------------" << endl;
-    for(unordered_map<shared_ptr<Port>, shared_ptr<Service>>::iterator it = running_services.begin();
-       it != running_services.end(); ++it) {
-         cout << *it->first.get() << "  " << *it->second.get() << endl;
+    for (auto it : running_services) {
+         cout << it.first << "  " << it.second << endl;
     }
     cout << "Operating system version: " << os << endl;
 }
