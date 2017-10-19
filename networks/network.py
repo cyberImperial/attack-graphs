@@ -24,11 +24,11 @@ class Network():
         self.subnets.append(subnet_name)
         return self
 
-    def add_node(self, node, command):
+    def add_node(self, node, command=""):
         self.nodes.append(create_container(node, command))
         return self
 
-    def add_gateway(self, external_port, internal_port, command):
+    def add_gateway(self, node, external_port, internal_port, command="nginx -g \"daemon off;\""):
         self.nodes.append(create_gateway(node, external_port, internal_port, command))
         return self
 
@@ -59,23 +59,10 @@ class Network():
 def default_network():
     network = Network()
     return network \
-        .add_node(Network.metasploitable, "") \
-        .add_node(Network.metasploitable, "") \
+        .add_node(Network.metasploitable) \
+        .add_node(Network.metasploitable) \
+        .add_gateway(Network.gateway, 3000, 80) \
         .add_subnet("test_subnet") \
         .connect_to_subnet(network.nodes[0], network.subnets[0]) \
-        .connect_to_subnet(network.nodes[1], network.subnets[0])
-
-if __name__ == "__main__":
-    network = default_network()
-    while True:
-        sys.stdout.write('>')
-        line = sys.stdin.readline()
-        if "print subnets" in line:
-            for net in network.subnets:
-                print(network.inspect_subnet(net))
-        if "stop network" in line:
-            network.stop_network()
-            exit(0)
-        if "add default node" in line:
-            network.add_node(Network.metasploitable, "")
-            network.connect_to_subnet(network.nodes[-1], network.subnets[0])
+        .connect_to_subnet(network.nodes[1], network.subnets[0]) \
+        .connect_to_subnet(network.nodes[2], network.subnets[0])
