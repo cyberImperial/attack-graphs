@@ -63,11 +63,6 @@ def call(command):
     return subprocess.check_output(command, shell=True)
 
 if __name__=="__main__":
-    files = call("ls -a")
-    if "indexed.idx" in files and "exports.idx" in files:
-        print("Index files have already been created.")
-        exit(0)
-
     os.system("./dw_nvd_json.sh")
 
     print("Indexing files...")
