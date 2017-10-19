@@ -4,6 +4,31 @@ Host::Host(string host_scan_file) {
   this->host_scan_file = host_scan_file;
 }
 
+string Host::toJSON() {
+      ptree out;
+      out.put("Host.os",               this->os);
+
+      ptree running_services_tree;
+      for(unordered_map<Port, Service>::iterator it = running_services.begin();
+          it != running_services.end(); ++it) {
+              Port port = it->first;
+              Service service = it->second;
+              running_services_tree.put("Port.portid", port.getPortId());
+              running_services_tree.put("Port.protocol", port.getProtocol());
+
+              running_services_tree.put("Service.name", service.getName());
+              running_services_tree.put("Service.product", service.getProduct());
+              running_services_tree.put("Service.version", service.getVersion());
+              running_services_tree.put("Service.state_open", service.getStateOpen());
+              running_services_tree.put("Service.reason", service.getReason());
+              out.add_child("Host.RunningServices.Entry", running_services_tree);
+          }
+      std::ostringstream oss;
+      boost::property_tree::write_json(oss, out);
+      return oss.str();
+}
+
+
 void Host::load() {
   // Create empty property tree object
    ptree tree;
