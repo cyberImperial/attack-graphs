@@ -1,5 +1,6 @@
 import json
 import os
+import unicodedata
 from pprint import pprint
 
 class MemoryDB():
@@ -11,10 +12,10 @@ class MemoryDB():
 
     def query(self, product, version):
         index = str((product, version))
-        print(index)
+        output = []
         for idx in self.indexes[index]:
             output.append(self.data[idx])
         return output
 
 DB = MemoryDB()
-DB.query(unicode("monkey_http_daemon"), unicode("0.7.0"))
+print(DB.query("monkey_http_daemon", "0.7.0"))
