@@ -20,11 +20,11 @@ class Host {
 public:
   Host(string);
   void print_vulnerabilities();
-  unordered_map<shared_ptr<Port>, shared_ptr<Service>> get_vulnerabilities();
+  unordered_map<Port, Service> get_vulnerabilities();
   void load();
 private:
   string host_scan_file;
-  unordered_map<shared_ptr<Port>, shared_ptr<Service>> running_services;
+  unordered_map<Port, Service> running_services;
   string os;
 };
 
