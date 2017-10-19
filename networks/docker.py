@@ -5,7 +5,7 @@ from pprint import pprint
 
 def wait(command):
     print("> " + command)
-    return subprocess.check_output(command, shell=True)
+    return str(subprocess.getoutput(command))
 
 def build_image(component):
     out = wait("docker build components/" + component)
