@@ -8,10 +8,8 @@ const url = require('url');
 let win;
 
 function createWindow() {
-  win = new BrowserWindow({
-          height: 1000,
-          width: 1500
-        });
+  win = new BrowserWindow({show: false});
+  win.maximize();
   // and load the index.html of the app.
   win.loadURL(url.format({
     pathname: path.join(__dirname, 'app/index.html'),
@@ -20,8 +18,8 @@ function createWindow() {
   }))
   
   // Open the DevTools.
-  win.webContents.openDevTools()
-  
+  //win.webContents.openDevTools()
+  win.show();
   // Emitted when the window is closed.
   win.on('closed', () => {
     // Dereference the window object, usually you
