@@ -10,6 +10,7 @@ import json
 from pprint import pprint
 import subprocess
 import signal
+import traceback
 
 from flask import Flask, request
 
@@ -85,25 +86,28 @@ def cli():
                 subnet_mask = "172.18.0.0/29"
             out = subprocess.getoutput("nmap -sP " + subnet_mask)
 
-            ips = [line.split(" ")[-1] for line in out.split("\n")[2::3]]
+            ips = []
             hosts = []
+            for word in out.split(" "):
+                if len(word.split(".")) == 4:
+                    ips.append(word.split("\n")[0])
+            print(ips)
             for ip in ips:
-                default = """{
-                    {
-                        "Host" : \"""" + ip + """\"
-                    }
-                }"""
+                default = {"Host" : ip }
+
                 # Getting host information for ip
                 try:
                     subprocess.getoutput("nmap -oX host.xml -O -sV " + ip)
                     subprocess.getoutput("nmap -oX trace.xml --traceroute " + ip)
                     host_json = subprocess.getoutput("./build_topology host.xml trace.xml")
-                    if not "Aborted" in host_json:
-                        hosts.append(host_json)
-                    else:
+                    if "Aborted" in host_json:
                         hosts.append(default)
+                    else:
+                        hosts.append(json.loads(host_json))
                 except Exception as e:
                     hosts.append(default)
+            with open("frontend_data.json", "w") as output:
+                 json.dump(hosts, output)
             pprint(hosts)
 
 
@@ -114,6 +118,9 @@ def signal_handler(signal, frame):
     sys.exit(0)
 
 if __name__ == "__main__":
+    if os.getuid() != 0:
+        print("Must be run as root.")
+        exit(1)
     signal.signal(signal.SIGINT, signal_handler)
     network = default_network()
 
