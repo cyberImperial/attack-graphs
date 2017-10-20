@@ -1,0 +1,14 @@
+language:
+  cpp
+compiler:
+  - gcc
+python:
+  - 3.5
+install:
+  - sudo apt-get install libboost-all-dev
+  - sudo pip install coveralls
+script:
+  - make test
+  - coverage run setup.py test
+after_success:
+  - coveralls
