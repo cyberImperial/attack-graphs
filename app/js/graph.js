@@ -9,6 +9,8 @@ let svg = d3.select("#graph-container")
     width = +svg.attr("width"),
     height = +svg.attr("height");
 
+const loadJsonFile = require('load-json-file');
+    
 let graph = {
   "nodes": [
     {"id": "ip1", "os": "Windows", "services": [{"program":"1", "version":"2"}]},
@@ -41,7 +43,7 @@ let simulation = d3.forceSimulation()
                     return d.id;
                 }).distance(150))
                 .force("charge", d3.forceManyBody().strength(-5))
-                .force("center", d3.forceCenter(750, 400))
+                .force("center", d3.forceCenter(650, 400))
                 .force("collide", d3.forceCollide(100));
 
 
