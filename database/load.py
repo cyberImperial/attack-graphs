@@ -29,9 +29,10 @@ def exportable_json(id, impact, description):
 
 indexed_products = {}
 export_list = []
+export_ctr = 0
 
 def parse(nvdcve_json):
-    export_ctr = 0
+    global export_ctr
     with open(nvdcve_json) as data_file:
         data = json.load(data_file)
         for items in data["CVE_Items"]:
@@ -63,7 +64,7 @@ def call(command):
     return subprocess.check_output(command, shell=True)
 
 if __name__=="__main__":
-    os.system("./dw_nvd_json.sh")
+#    os.system("./dw_nvd_json.sh")
 
     print("Indexing files...")
     for r in range(2002, 2018):
