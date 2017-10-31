@@ -25,3 +25,15 @@ class TestMemoryDB(TestCase):
 
     def test_query_2017(self):
         self.assertTrue(self.check_for_CVE('windows_10', '1511', "CVE-2017-0001"))
+
+    def test_privileges_none(self):
+        privs = self.DB.get_privileges('libguestfs', '1.21.24')
+        self.assertFalse(privs["user"])
+        self.assertFalse(privs["other"])
+        self.assertFalse(privs["all"])
+
+    def test_privileges_all(self):
+        privs = self.DB.get_privileges('windows_2000', '*')
+        self.assertTrue(privs["user"])
+        self.assertTrue(privs["other"])
+        self.assertTrue(privs["all"])
