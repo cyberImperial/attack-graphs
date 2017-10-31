@@ -32,19 +32,36 @@ def run_server():
         if request.method == 'GET':
             return "healthy"
 
-    @app.route("/v", methods=['POST'])
+    @app.route("/vulnerability", methods=['POST'])
     def query():
         if request.method == 'POST':
             req = request.get_json()
             outputs = []
-            pprint(req)
             for entry in req:
                 outputs.append(DB.query(entry["product"], entry["version"]))
-            return outputs
+            return str(outputs)
+
+    @app.route("/privileges", methods=['POST'])
+    def privileges():
+        if request.method == 'POST':
+            req = request.get_json()
+            outputs = {}
+            for entry in req:
+                key = str((entry["product"], entry["version"]))
+                outputs[key] = DB.get_privileges(entry["product"], entry["version"])
+            return str(outputs)
 
     app.run(host='0.0.0.0', port=get_port())
 
 def cli():
+    default_request = json.loads("""[{
+        "product" : "monkey_http_daemon",
+        "version" : "0.7.0"
+    }, {
+        "product" : "qemu",
+        "version" : "0.13.0"
+    }]""")
+
     while True:
         sys.stdout.write('>')
         sys.stdout.flush()
@@ -68,16 +85,14 @@ def cli():
                 print("Error: request failed.")
                 print(e)
         if "query" in line:
-            rq = json.loads("""[{
-                "product" : "monkey_http_daemon",
-                "version" : "0.7.0"
-            }, {
-                "product" : "qemu",
-                "version" : "0.13.0"
-            }]""")
             r = requests.post(
-                url = "http://127.0.0.1:" + str(get_port()) + "/v",
-                json = rq)
+                url = "http://127.0.0.1:" + str(get_port()) + "/vulnerability",
+                json = default_request)
+            print(r.text)
+        if "privileges" in line:
+            r = requests.post(
+                url = "http://127.0.0.1:" + str(get_port()) + "/privileges",
+                json = default_request)
             print(r.text)
         if "discovery" in line:
             try:
