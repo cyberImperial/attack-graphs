@@ -1,4 +1,5 @@
 import abc
+from flask import request
 
 class Component():
     __metaclass__ = abc.ABCMeta
@@ -13,7 +14,6 @@ class Component():
             req = request.get_json()
             output = self.process(req)
             return str(output)
-
 
 class DBQuery(Component):
     def __init__(self, db):
