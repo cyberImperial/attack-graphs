@@ -27,9 +27,9 @@ class DBPrivileges(Component):
     def __init__(self, db):
         self.db = db
 
-    def process(self, query):
+    def process(self, json):
         outputs = {}
-        for entry in req:
+        for entry in json:
             key = str((entry["product"], entry["version"]))
             outputs[key] = self.db.get_privileges(entry["product"], entry["version"])
         return outputs
