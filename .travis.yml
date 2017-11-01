@@ -9,6 +9,7 @@ install:
   - sudo pip install coveralls
 script:
   - make test
+  - python3 database/load.py -r
   - coverage run setup.py test
 after_success:
   - coveralls
