@@ -1,7 +1,6 @@
 CXX = g++
 CXXFLAGS += -std=c++11 -lboost_system -lboost_filesystem
 LOADLIBES += -lstdc++ -I /usr/include/boost
-TOPOLOGY_SOURCES = topology/Topology.cpp
 HOP_SOURCES = topology/Hop.cpp
 HOST_SOURCES = topology/Host.cpp
 PORT_SOURCES = topology/Port.cpp
@@ -19,9 +18,6 @@ catch.o:
 
 Main.o: topology/Main.cpp
 	 $(CXX) $(CXXFLAGS) -c topology/Main.cpp -o Main.o
-
-Topology.o: topology/Topology.cpp
-	 $(CXX) $(CXXFLAGS) -c $(TOPOLOGY_SOURCES) -o Topology.o
 
 Hop.o: topology/Hop.cpp
 	 $(CXX) $(CXXFLAGS) -c $(HOP_SOURCES) -o Hop.o
