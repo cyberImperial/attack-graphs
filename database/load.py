@@ -2,8 +2,12 @@ from __future__ import print_function
 
 import json
 import os
-from pprint import pprint
+import sys
 import subprocess
+
+from pprint import pprint
+
+DIRECTORY = os.path.dirname(__file__)
 
 def process_version(raw_data):
     return [entry["version_value"] for entry in raw_data]
@@ -33,7 +37,9 @@ export_ctr = 0
 
 def parse(nvdcve_json):
     global export_ctr
-    with open(nvdcve_json) as data_file:
+    global DIRECTORY
+
+    with open(os.path.join(DIRECTORY, nvdcve_json)) as data_file:
         data = json.load(data_file)
         for items in data["CVE_Items"]:
             export = exportable_json(
@@ -64,15 +70,33 @@ def call(command):
     return subprocess.check_output(command, shell=True)
 
 if __name__=="__main__":
-#    os.system("./dw_nvd_json.sh")
+    if "-r" in sys.argv:
+        # Remove old index files
+        print("Removing old index files...")
+        for f in os.listdir(DIRECTORY):
+            if ".idx" in f:
+                print("Removing " + f)
+                os.remove(f)
 
-    print("Indexing files...")
+    # Check all files exist:
+    need_download = False
+    for r in range(2002, 2018):
+        file_name = "nvdcve-1.0-{}.json".format(r)
+        if not os.path.exists(os.path.join(DIRECTORY, file_name)):
+            need_download = True
+
+    if need_download:
+        print("Downloading NVD JSON files...")
+        os.system(os.path.join(DIRECTORY, "dw_nvd_json.sh"))
+
+    # Create new index files
+    print("Indexing NVD files...")
     for r in range(2002, 2018):
         file_name = "nvdcve-1.0-{}.json".format(r)
         print("Parsing file:" + file_name)
         parse(file_name)
 
-    with open('indexed.idx', 'w') as outfile:
+    with open(os.path.join(DIRECTORY, 'indexed.idx'), 'w') as outfile:
         json.dump(indexed_products, outfile)
-    with open('exports.idx', 'w') as outfile:
+    with open(os.path.join(DIRECTORY, 'exports.idx'), 'w') as outfile:
         json.dump(export_list, outfile)
