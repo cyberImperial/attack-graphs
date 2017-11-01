@@ -7,7 +7,7 @@ import subprocess
 
 from pprint import pprint
 
-DIRECTORY = os.path.dirname(__file__)
+DIRECTORY = os.path.abspath(os.path.dirname(__file__))
 
 def process_version(raw_data):
     return [entry["version_value"] for entry in raw_data]

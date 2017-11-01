@@ -31,20 +31,22 @@ class CLI():
             }]")
 
             try:
+                full_url = "http://127.0.0.1:" + str(config[component]) + url
                 r = requests.post(
-                    url = "http://127.0.0.1:" + str(config[component]) + url,
+                    url = full_url,
                     json = request)
                 print(r.text)
             except Exception as e:
                 pass
+            print("")
 
         self.functions = {
             "echo" : lambda x: print(x[4:]),
             "start" : lambda x: init_network(),
             "delete" : lambda x: self.network.stop_network(),
             "add node" : lambda x: add_node(),
-            "query" : lambda x: request(x, "database", "vulnerability"),
-            "privileges" : lambda x: request(x, "database", "privileges")
+            "query" : lambda x: request(x, "database", "/vulnerability"),
+            "privileges" : lambda x: request(x, "database", "/privileges")
         }
 
     def dispatch(self, line):
@@ -61,5 +63,8 @@ class CLI():
             line = sys.stdin.readline()
             self.dispatch(line)
 
-if __name__ == "__main__":
+def cli():
     CLI().start()
+
+if __name__ == "__main__":
+    cli()
