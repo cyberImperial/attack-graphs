@@ -5,7 +5,7 @@ HOP_SOURCES = topology/Hop.cpp
 HOST_SOURCES = topology/Host.cpp
 PORT_SOURCES = topology/Port.cpp
 SERVICE_SOURCES = topology/Service.cpp
-OBJECT_FILES = Service.o Port.o Host.o Hop.o Topology.o
+OBJECT_FILES = Service.o Port.o Host.o Hop.o
 
 all: Main.o $(OBJECT_FILES)
 	$(CXX) Main.o $(OBJECT_FILES) $(CXXFLAGS) -o build_topology
