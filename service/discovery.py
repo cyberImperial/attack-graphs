@@ -10,22 +10,19 @@ from pprint import pprint
 
 def discovery_ip(ip):
     # 172.18.0.1
-    default = { "Host" : ip }
+    default = {}
 
     # Getting host information for ip
     try:
         print("Running host...")
-        subprocess.getoutput("nmap -oX host.xml -O -sV " + ip)
-        print("Running trace...")
-        subprocess.getoutput("nmap -oX trace.xml --traceroute " + ip)
+        subprocess.getoutput("nmap -oX host.xml -O -sV -p 1-1023 " + ip)
         print("Running build_topology...")
 
         # Need to do make before...
         print(PROJECT_ROOT)
         binary_location = PROJECT_ROOT + "/build_topology"
         print(binary_location)
-        host_json = subprocess.getoutput(binary_location + " host.xml trace.xml")
-        pprint(host_json)
+        host_json = subprocess.getoutput(binary_location + " host.xml")
         if "Aborted" in host_json:
             return default
         else:

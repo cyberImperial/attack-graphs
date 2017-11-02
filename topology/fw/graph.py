@@ -3,7 +3,11 @@ import time
 import requests
 import json
 import threading
+import timeit
+
+from random import random
 from service.discovery import discovery_ip
+from threading import Lock
 
 class Node():
     def __init__(self, ip):
@@ -29,6 +33,7 @@ class Graph():
     def __init__(self):
         self.edges = []
         self.nodes = []
+        self.lock = Lock()
 
         # The index of the first node not populated yet
         self.populated_nodes = 0
@@ -74,7 +79,7 @@ def do_get():
 class Populator():
     def __init__(self, graph):
         self.graph = graph
-        self.threads = 7
+        self.threads = 1
 
     def populate_nodes(self):
         graph = self.graph
@@ -82,22 +87,50 @@ class Populator():
         i1 = graph.populated_nodes
         i2 = min(i1 + self.threads, len(graph.nodes))
 
+        graph.lock.acquire()
         batch = []
         for i in range(i1, i2):
             batch.append(graph.nodes[i].ip)
         graph.populated_nodes = i2
+        graph.lock.release()
 
-        print(batch)
         # Getting the process results
+
+        # results_lock = Lock()
+        #
+        # results = []
+        # pool = []
+        # for task in batch:
+        #     def wrapper(results, lock, task):
+        #         time.sleep(random())
+        #
+        #         ans = discovery_ip(task)
+        #
+        #         lock.acquire()
+        #         results.append(ans)
+        #         lock.release()
+        #
+        #     pool.append(threading.Thread(
+        #         target = wrapper,
+        #         args = (results, results_lock, task)
+        #     ))
+        #
+        # for thread in pool:
+        #     thread.start()
+        # for thread in pool:
+        #     thread.join()
+
         results = []
         for task in batch:
             results.append(discovery_ip(task))
 
         # Puting the results on the graph
+        graph.lock.acquire()
         idx = 0
         for i in range(i1, i2):
             graph.nodes[i].running = results[idx]
             idx += 1
+        graph.lock.release()
 
     def populate_loop(self):
         time.sleep(10)
@@ -113,8 +146,16 @@ def graph_loop():
     threading.Thread(target=populator.populate_loop).start()
     while True:
         out = do_get()
+
+        graph.lock.acquire()
         for packet in out:
             src, dest = packet["src"], packet["dest"]
+
+            if "255" in src or "255" in dest:
+                continue
+
             graph.add_edge(Node(src), Node(dest))
+        graph.lock.release()
+
         time.sleep(5)
-        # print(graph)
+        print(len(graph.nodes))
