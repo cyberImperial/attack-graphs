@@ -6,6 +6,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from networks.network import Network
 from networks.network import default_network
 from service.server import config
+from service.discovery import discovery
 
 import json, requests
 
@@ -46,7 +47,8 @@ class CLI():
             "delete" : lambda x: self.network.stop_network(),
             "add node" : lambda x: add_node(),
             "query" : lambda x: request(x, "database", "/vulnerability"),
-            "privileges" : lambda x: request(x, "database", "/privileges")
+            "privileges" : lambda x: request(x, "database", "/privileges"),
+            "discovery" : lambda x: discovery(x)
         }
 
     def dispatch(self, line):
