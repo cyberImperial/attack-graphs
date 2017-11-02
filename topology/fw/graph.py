@@ -17,6 +17,10 @@ class Node():
         """Define a non-equality test"""
         return not self.__eq__(other)
 
+    def __str__(self):
+         return str(self.ip)
+
+
 class Graph():
     def __init__(self):
         self.edges = []
@@ -25,7 +29,10 @@ class Graph():
         for p1, p2 in self.edges:
             if p1 == n1 and p2 == n2:
                 return
-        self.edges.append((p1, p2))
+        self.edges.append((n1, n2))
+
+    def __str__(self):
+         return str([(str(n1), str(n2)) for (n1, n2) in self.edges])
 
 
 def do_get():
@@ -41,7 +48,11 @@ def do_get():
         return []
 
 def graph_loop():
+    graph = Graph()
     while True:
         out = do_get()
-        print(out)
+        for packet in out:
+            src, dest = packet["src"], packet["dest"]
+            graph.add_edge(Node(src), Node(dest))
         time.sleep(5)
+        print(graph)
