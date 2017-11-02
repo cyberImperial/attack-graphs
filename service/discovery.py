@@ -69,5 +69,3 @@ def discovery(line):
     with open("frontend_data.json", "w") as output:
          json.dump(hosts, output)
     pprint(hosts)
-
-print(discovery_ip("127.0.0.1"))
