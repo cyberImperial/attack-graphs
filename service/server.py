@@ -3,6 +3,7 @@ from flask import Blueprint, Flask, request
 
 config = {
     'database' : 4242,
+    'sniffer' : 30001
 }
 
 class Server():
