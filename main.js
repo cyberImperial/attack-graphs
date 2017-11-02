@@ -16,7 +16,7 @@ function createWindow() {
     protocol: 'file:',
     slashes: true
   }))
-  
+
   // Open the DevTools.
   //win.webContents.openDevTools()
   win.show();

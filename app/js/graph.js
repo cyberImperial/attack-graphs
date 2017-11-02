@@ -10,11 +10,13 @@ let svg = d3.select("#graph-container")
     height = +svg.attr("height");
 
 let graph = {};
-    
+
 const loadJsonFile = require('load-json-file');
 
 loadJsonFile('frontend_data.json').then(json => {
-    graph.nodes = json;
+    let graph = {};
+    graph.nodes = json.nodes;
+    graph.links = json.links;
     let total = 0;
 
     let defs = svg.append("svg:defs");
@@ -32,16 +34,15 @@ loadJsonFile('frontend_data.json').then(json => {
 
     let simulation = d3.forceSimulation()
                     .force("link", d3.forceLink().id(function(d) {
-                        return d.id;
+                        return d.Host;
                     }).distance(150))
                     .force("charge", d3.forceManyBody().strength(-5))
                     .force("center", d3.forceCenter(650, 400))
                     .force("collide", d3.forceCollide(100));
 
-
-    // let link = svg.selectAll(".link")
-    //             .data(graph.links, function(d) {return d.target.id;})
-    //             .enter().append("line").attr("class", "link");
+    let link = svg.selectAll(".link")
+                .data(graph.links, function(d) {return d.Host;})
+                .enter().append("line").attr("class", "link");
 
     let node = svg.selectAll(".node")
                 .data(graph.nodes, function(d) {return d.Host;})
@@ -85,8 +86,9 @@ loadJsonFile('frontend_data.json').then(json => {
                     return "<strong style='color:red'>Host : </strong><span>" + d.Host + "</span><hr><strong style='color:red'>Operating System : </strong>unavailable";
                 }
             });
+
     svg.call(tip);
-                
+
     node.append("circle")
         .attr("r", 60)
         .style("fill", "url(#server)");
@@ -100,8 +102,8 @@ loadJsonFile('frontend_data.json').then(json => {
     simulation.nodes(graph.nodes)
         .on("tick", ticked);
 
-    // simulation.force("link")
-    //     .links(graph.links);
+    simulation.force("link")
+        .links(graph.links);
 
     // function initializeDistance() {
     //   if (!nodes) return;
@@ -111,11 +113,11 @@ loadJsonFile('frontend_data.json').then(json => {
     // }
 
     function ticked() {
-    //     link
-    //         .attr("x1", function(d) { return d.source.x; })
-    //         .attr("y1", function(d) { return d.source.y; })
-    //         .attr("x2", function(d) { return d.target.x; })
-    //         .attr("y2", function(d) { return d.target.y; });
+        link
+            .attr("x1", function(d) { return d.source.x; })
+            .attr("y1", function(d) { return d.source.y; })
+            .attr("x2", function(d) { return d.target.x; })
+            .attr("y2", function(d) { return d.target.y; });
 
         node
             .attr("transform", function(d) {
@@ -135,11 +137,11 @@ loadJsonFile('frontend_data.json').then(json => {
     }
 
     function dragended(d) {
-        //if (!d3.event.active) {
-        //  simulation.alphaTarget(0);
-        //}
-        //d.fx = null;
-        //d.fy = null;
+        if (!d3.event.active) {
+         simulation.alphaTarget(0);
+        }
+        d.fx = null;
+        d.fy = null;
     }
 
 });
