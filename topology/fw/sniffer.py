@@ -87,7 +87,8 @@ def parse_packet(packet) :
          "src" : str(s_addr),
          "dest" : str(d_addr)
        }
-       print(packet_json)
+
+     # print(packet_json)
 
        # TCP protocol
        if protocol ==  TCP_NUMBER:
