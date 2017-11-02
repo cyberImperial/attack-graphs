@@ -40,6 +40,10 @@ loadJsonFile('frontend_data.json').then(json => {
                     .force("center", d3.forceCenter(650, 400))
                     .force("collide", d3.forceCollide(100));
 
+    let link = svg.selectAll(".link")
+                .data(graph.links, function(d) {return d.Host;})
+                .enter().append("line").attr("class", "link");
+
     let node = svg.selectAll(".node")
                 .data(graph.nodes, function(d) {return d.Host;})
                 .enter().append("g").attr("class", "node")
@@ -48,11 +52,6 @@ loadJsonFile('frontend_data.json').then(json => {
                     .on("start", dragstarted)
                     .on("drag", dragged)
                     .on("end", dragended));
-
-
-    let link = svg.selectAll(".link")
-                .data(graph.links, function(d) {return d.Host;})
-                .enter().append("line").attr("class", "link");
 
     let tip = d3.tip()
             .attr('class', 'd3-tip')
