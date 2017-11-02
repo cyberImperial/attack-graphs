@@ -3,7 +3,7 @@ from threading import Lock
 class Node():
     def __init__(self, ip):
         self.ip = ip
-        self.running = None
+        self.running = {}
 
     def __eq__(self, other):
         """Override the default Equals behavior"""
@@ -50,6 +50,19 @@ class Graph():
             if p1 == n1 and p2 == n2:
                 return
         self.edges.append((n1, n2))
+
+    def to_json(self):
+        return {
+            "hosts" : [{
+                "ip" : node.ip,
+                "runnning" : node.running
+            } for node in self.nodes],
+            "links" : [{
+                "source" : n1.ip,
+                "target" : n2.ip,
+                "value"  : 1,
+            } for n1, n2 in self.edges]
+        }
 
     def __str__(self):
          return str([(str(n1), str(n2)) for (n1, n2) in self.edges])
