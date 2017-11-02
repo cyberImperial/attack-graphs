@@ -15,6 +15,11 @@ class Component():
             output = self.process(req)
             return str(output)
 
+    def receive_get(self):
+        if request.method == "GET":
+            output = self.process("")
+            return str(output)
+
 class DBQuery(Component):
     def __init__(self, db):
         self.db = db
