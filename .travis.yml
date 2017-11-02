@@ -7,11 +7,10 @@ python:
 install:
   - sudo apt-get install libboost-all-dev
   - sudo pip install coveralls
+  - sudo apt-get install libpcap-dev
 script:
   - make test
-  - cd database
-  - python3 load.py -r
-  - cd ..
+  - cd database && python3 load.py -r && cd ..
   - coverage run setup.py test
 after_success:
   - coveralls

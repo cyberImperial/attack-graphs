@@ -125,8 +125,8 @@ def parse_packet(packet) :
 
             print 'Data : ' + data
 
-        #UDP packets
-        elif protocol == 17:
+       #UDP packets
+       elif protocol == 17:
             u = iph_length + eth_length
             udph_length = 8
             udp_header = packet[u:u+8]
@@ -149,8 +149,8 @@ def parse_packet(packet) :
 
             print 'Data : ' + data
 
-        #some other IP packet like IGMP
-        else :
+       #some other IP packet like IGMP
+       else:
             print 'Protocol other than TCP/UDP/ICMP'
 
 
