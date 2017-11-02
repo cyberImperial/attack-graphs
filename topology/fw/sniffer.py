@@ -7,16 +7,15 @@ import sys
 def main(argv):
     #list all devices
     devices = pcapy.findalldevs()
-    print devices
+    print(devices)
 
     #ask user to enter device name to sniff
-    print "Available devices are :"
+    print("Available devices are :")
     for d in devices :
-        print d
+        print(d)
 
-    dev = raw_input("Enter device name to sniff : ")
-
-    print "Sniffing device " + dev
+    dev = "".join(list(input("Enter device name to sniff : ")))
+    print("Sniffing device: " + dev)
 
     '''
     open device
@@ -31,7 +30,9 @@ def main(argv):
     #start sniffing packets
     while(1) :
         (header, packet) = cap.next()
-        parse_packet(packet)
+        packet = parse_packet(packet)
+        if packet is not None:
+            print(packet)
 
 #Convert a string of 6 characters of ethernet address into a dash separated hex string
 def eth_addr (a) :
@@ -48,6 +49,8 @@ UDP_NUMBER = 17
 
 #function to parse a packet
 def parse_packet(packet) :
+   packet_json = {}
+
    #parse ethernet header
    eth_length = 14
 
@@ -76,7 +79,15 @@ def parse_packet(packet) :
        s_addr = socket.inet_ntoa(iph[8])
        d_addr = socket.inet_ntoa(iph[9])
 
-       print 'Version : ' + str(version) + ' IP Header Length : ' + str(ihl) + ' TTL : ' + str(ttl) + ' Protocol : ' + str(protocol) + ' Source Address : ' + str(s_addr) + ' Destination Address : ' + str(d_addr)
+
+       packet_json = {
+         "version" : str(version),
+         "ip_header_length" : str(ihl),
+         "ttl" : str(ttl),
+         "src" : str(s_addr),
+         "dest" : str(d_addr)
+       }
+       print(packet_json)
 
        # TCP protocol
        if protocol ==  TCP_NUMBER:
@@ -93,7 +104,13 @@ def parse_packet(packet) :
             doff_reserved = tcph[4]
             tcph_length = doff_reserved >> 4
 
-            print 'Source Port : ' + str(source_port) + ' Dest Port : ' + str(dest_port) + ' Sequence Number : ' + str(sequence) + ' Acknowledgement : ' + str(acknowledgement) + ' TCP header length : ' + str(tcph_length)
+            packet_json["transport_type"] = "TCP"
+            packet_json["transport"] = {
+              "src_port" : str(source_port),
+              "dest_port" : str(dest_port),
+              "seq" : str(sequence),
+              "ack" : str(acknowledgement),
+            }
 
             #h_size = eth_length + iph_length + tcph_length * 4
             #data_size = len(packet) - h_size
@@ -103,7 +120,7 @@ def parse_packet(packet) :
             #print 'Data : ' + data
 
        #ICMP Packets
-       elif protocol == 1:
+       elif protocol == ICMP_NUMBER:
             u = iph_length + eth_length
             icmph_length = 4
             icmp_header = packet[u:u+4]
@@ -115,18 +132,23 @@ def parse_packet(packet) :
             code = icmph[1]
             checksum = icmph[2]
 
-            print 'Type : ' + str(icmp_type) + ' Code : ' + str(code) + ' Checksum : ' + str(checksum)
+            packet_json["transport_type"] = "ICMP"
+            packet_json["transport"] = {
+              "type" : str(icmp_type),
+              "code" : str(code),
+              "checksum" : str(checksum)
+            }
 
-            h_size = eth_length + iph_length + icmph_length
-            data_size = len(packet) - h_size
-
-            #get data from the packet
-            data = packet[h_size:]
-
-            print 'Data : ' + data
+            # h_size = eth_length + iph_length + icmph_length
+            # data_size = len(packet) - h_size
+            #
+            # #get data from the packet
+            # data = packet[h_size:]
+            #
+            # print 'Data : ' + data
 
        #UDP packets
-       elif protocol == 17:
+       elif protocol == UDP_NUMBER:
             u = iph_length + eth_length
             udph_length = 8
             udp_header = packet[u:u+8]
@@ -139,20 +161,26 @@ def parse_packet(packet) :
             length = udph[2]
             checksum = udph[3]
 
-            print 'Source Port : ' + str(source_port) + ' Dest Port : ' + str(dest_port) + ' Length : ' + str(length) + ' Checksum : ' + str(checksum)
-
+            packet_json["transport_type"] = "UDP"
+            packet_json["transport"] = {
+              "src_port" : str(source_port),
+              "dest_port" : str(dest_port),
+              "length" : str(length),
+              "checksum" : str(checksum)
+            }
             h_size = eth_length + iph_length + udph_length
             data_size = len(packet) - h_size
 
             #get data from the packet
-            data = packet[h_size:]
+            # data = packet[h_size:]
 
-            print 'Data : ' + data
+            # print 'Data : ' + data
 
        #some other IP packet like IGMP
        else:
-            print 'Protocol other than TCP/UDP/ICMP'
-
+            packet_json ["transport_type"] = "other"
+       return packet_json
+   return None
 
 if __name__ == "__main__":
   main(sys.argv)
