@@ -55,7 +55,7 @@ class Graph():
         return {
             "hosts" : [{
                 "ip" : node.ip,
-                "runnning" : node.running
+                "running" : node.running
             } for node in self.nodes],
             "links" : [{
                 "source" : n1.ip,

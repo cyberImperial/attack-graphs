@@ -12,6 +12,7 @@ from topology.fw.sniffer import parse_packet
 from topology.fw.graph_service import graph_loop
 from service.components import Component
 from service.server import Server, config
+from service.database_server import database_server
 
 class Sniffer():
     def __init__(self, shared_packets, lock):
@@ -73,6 +74,7 @@ def run_server():
     threading.Thread(target=server.run).start()
     threading.Thread(target=sniffer.run).start()
     threading.Thread(target=graph_loop).start()
+    threading.Thread(target=database_server).start()
 
 if __name__ == "__main__":
     run_server()

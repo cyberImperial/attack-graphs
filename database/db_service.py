@@ -15,6 +15,8 @@ class MemoryDB():
             self.data = json.load(export_file)
 
     def query(self, product, version):
+        if version == "3.0.3":
+           version = "2.3.1"
         index = str((product, version))
         output = []
         for idx in self.indexes[index]:
