@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>CyberImperial</title>
+    <title>Attack graph construction and analysis</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
     <link href="font-awesome/css/font-awesome.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="css/style.css">
@@ -13,33 +13,42 @@
 
 <body>
 
-<!-- navbar -->
-<nav class="navbar navbar-inverse bg-inverse">
-    <h1 class="navbar-text text-center" style="color:white">
-        Attack graph construction and analysis
-    </h1>
-</nav>
+<div id="loader"></div>
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-lg-8" id="graph-container">
-            <script src="js/graph.js"></script>
-        </div>
+<div style="display:none;" id="content">
+    <!-- navbar -->
+    <nav class="navbar">
+        <h1 class="navbar-text text-center">
+            CyberImperial
+        </h1>
+        <img src="img/logo_index.png">
+    </nav>
 
-        <div class="col-lg-1"></div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-8" id="graph-container">
+                <script src="js/graph.js"></script>
+            </div>
 
-        <div class="col-lg-3">
-            <h1 class="page-header">Summary</h1>
+            <div class="col-lg-1"></div>
+
+            <div class="col-lg-3">
+                <h1 class="page-header">Summary</h1>
+            </div>
         </div>
     </div>
 </div>
-
-<!-- Core Scripts - Include with every page -->
-<script>
-    window.jQuery = window.$ = require('jquery');
-</script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-<script src="connection.js"></script>
+    <!-- Core Scripts - Include with every page -->
+    <script>
+        window.jQuery = window.$ = require('jquery');
+        setTimeout(function() {
+          document.getElementById("loader").style.display = "none";
+          document.getElementById("content").style.display = "block";
+          getTopologyInfo();
+        }, 100000);
+    </script>
+    </script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
 </body>
 </html>
