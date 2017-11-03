@@ -1,5 +1,5 @@
 const jquery = require("jquery");
-const host = "http://129.31.216.155:30002/graph";
+const host = "http://127.0.0.1:30002/graph";
 
 let svg = d3.select("#graph-container")
       .append("svg")
@@ -90,10 +90,10 @@ function getTopologyInfo() {
                           }
                           result += "<hr>";
                       }
-                      return "<strong style='color:red'>running.Host : </strong><span>" + d.running.Host.ip + "</span><hr><strong style='color:red'>Operating System : </strong>" + d.running.Host.os + result;
+                      return "<strong style='color:red'>Host : </strong><span>" + d.ip + "</span><hr><strong style='color:red'>Operating System : </strong>" + d.running.Host.os + result;
                   } else {
-                      return "<strong style='color:red'>running.Host : </strong><span>" + d.running.Host + "</span><hr><strong style='color:red'>Operating System : </strong>unavailable";
-                  }
+                      return "<strong style='color:red'>Host : </strong><span>" + d.ip + "</span><hr><strong style='color:red'>Operating System : </strong>unavailable";
+                  } 
               });
 
       svg.call(tip);
