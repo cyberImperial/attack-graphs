@@ -20,7 +20,11 @@ class TestParsePacket(TestCase):
         'transport_type': 'TCP'
     }
 
+    BAD_FORM_PACKET = b'\\\x93\xa2\xf4\xf7\xf6\xf0\x9f\xc2\x18\xa2\x4f\x08\x00E\x00\x004x\x98@\x00:\x06\x84Yh\x10\x19\xeb\xc0\xa8\x01/\x01\xbb\xb0\xf0v\xb1j.\xc2^L\xe3\x80\x10\x00 t\x99\x00\x00\x01\x01\x05\n\xc2^L\xc3\xc2^L\xe3'
+    BAD_LEN_PACKET = b'\\\x93\xa2\xf4\xf7\xf6\xf0\x9f\xc2\x18\xa2\xdf\x08\x00E\x00:\x06\x84Yh\x10\x19\xeb\xc0\xa8\x01/\x01\xbb\xb0\xf0v\xb1j.\xc2^L\xe3\x80\x10\x00 t\n\xc2^L\xc3\xc2^L\xe3'
+
     def deep_compare(self, json1, json2):
+        """ This supports only multiple level dictionaries of strings. """
         if type(json1) == str:
             return json1 == json2
         if len(json1) == len(json2):
@@ -31,3 +35,9 @@ class TestParsePacket(TestCase):
     def test_tcp_packet(self):
         packet = parse_packet(self.RAW_PACKET)
         self.deep_compare(packet, self.RES_PACKET)
+
+    def test_bad_formatted_packet(self):
+        self.assertRaises(Exception, parse_packet(self.BAD_FORM_PACKET))
+
+    def test_bad_length_packet(self):
+        self.assertRaises(Exception, parse_packet(self.BAD_LEN_PACKET))
