@@ -15,6 +15,7 @@ from service.server import Server, config
 from service.database_server import database_server
 
 def discover_devices():
+    # WARN: Untested
     devices = pcapy.findalldevs()
 
     connections = []
@@ -82,34 +83,36 @@ def discover_devices():
     return connections
 
 class Sniffer():
-    def __init__(self, shared_packets, lock):
+    def __init__(self, shared_packets, lock, connections=discover_devices()):
         self.packets = shared_packets
         self.lock = lock
+        self.connections = connections
+
+    def get_new_packets(self):
+        # For the moment we ask each device for a packet. If this proves to
+        # be a problem, we need to group the reads.
+        new_packets = []
+        for connection in self.connections:
+            try:
+                (header, packet) = connection.next()
+                packet = parse_packet(packet)
+                if packet is not None:
+                    new_packets.append(packet)
+                    print(packet)
+            except Exception as e:
+                # Non-eth packets received
+                pass
+
+        self.lock.acquire()
+
+        for packet in new_packets:
+            self.packets.append(packet)
+
+        self.lock.release()
 
     def run(self):
-        connections = discover_devices()
-        # Setting all connections nonblocking
         while True:
-            # For the moment we ask each device for a packet. If this proves to
-            # be a problem, we need to group the reads.
-            new_packets = []
-            for connection in connections:
-                try:
-                    (header, packet) = connection.next()
-                    packet = parse_packet(packet)
-                    if packet is not None:
-                        new_packets.append(packet)
-                        print(packet)
-                except Exception as e:
-                    # Non-eth packets received
-                    pass
-
-            self.lock.acquire()
-
-            for packet in new_packets:
-                self.packets.append(packet)
-
-            self.lock.release()
+            self.get_new_packets()
 
 class SniffingDaemon(Component):
     def __init__(self, shared_packets, lock):
