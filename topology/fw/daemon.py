@@ -83,10 +83,14 @@ def discover_devices():
     return connections
 
 class Sniffer():
-    def __init__(self, shared_packets, lock, connections=discover_devices()):
+    def __init__(self, shared_packets, lock, connections=discover_devices):
         self.packets = shared_packets
         self.lock = lock
-        self.connections = connections
+
+        if connections == discover_devices:
+            self.connections = discover_devices()
+        else:
+            self.connections = connections
 
     def get_new_packets(self):
         # For the moment we ask each device for a packet. If this proves to
