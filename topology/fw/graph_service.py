@@ -7,7 +7,9 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".
 from service.components import Component
 from service.server import Server, config
 
-from populator import Populator
+from topology.fw.populator import Populator
+from topology.fw.graph import Graph
+from topology.fw.graph import Node
 
 import ast
 import time
@@ -16,8 +18,6 @@ import json
 import threading
 
 from threading import Lock
-from graph import Graph
-from graph import Node
 
 class GraphExporter(Component):
     def __init__(self, graph):

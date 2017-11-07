@@ -53,7 +53,7 @@ class SniffingDaemon(Component):
         self.shared_packets = shared_packets
         self.lock = lock
 
-    def process(self, unused):
+    def process(self, unused=None):
         self.lock.acquire()
 
         packets = self.shared_packets[:]
