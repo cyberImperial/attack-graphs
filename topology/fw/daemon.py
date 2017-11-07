@@ -79,7 +79,7 @@ def discover_devices():
             # This will call __exit__, so the unused connections get closed
             del connection
 
-    print(connections)
+    print("Connections opened: " + str(len(connections)))
     return connections
 
 class Sniffer():
@@ -87,6 +87,7 @@ class Sniffer():
         self.packets = shared_packets
         self.lock = lock
 
+        # If the default argument was given, then we call discover_devices
         if connections == discover_devices:
             self.connections = discover_devices()
         else:
