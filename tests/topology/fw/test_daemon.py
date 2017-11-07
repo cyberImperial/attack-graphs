@@ -2,6 +2,8 @@ from __future__ import absolute_import
 from unittest import TestCase
 
 from topology.fw.daemon import SniffingDaemon
+from topology.fw.daemon import Sniffer
+from unittest.mock import MagicMock
 
 class GiveUpLock():
     def __init__(self):
@@ -53,3 +55,29 @@ class TestSniffingDaemon(TestCase):
         self.assertEqual(1, lock.acqs)
         self.assertEqual(1, lock.rels)
         self.assertFalse(lock.acqd)
+
+class TestSniffer(TestCase):
+    RAW_TCP_PACKET = b'\\\x93\xa2\xf4\xf7\xf6\xf0\x9f\xc2\x18\xa2\xdf\x08\x00E\x00\x004x\x98@\x00:\x06\x84Yh\x10\x19\xeb\xc0\xa8\x01/\x01\xbb\xb0\xf0v\xb1j.\xc2^L\xe3\x80\x10\x00 t\x99\x00\x00\x01\x01\x05\n\xc2^L\xc3\xc2^L\xe3'
+    RES_TCP_PACKET = {'dest': '192.168.1.47', 'src': '104.16.25.235', 'version': '4', 'ip_header_length': '5', 'ttl': '58', 'transport': { 'src_port': '443', 'ack': '3260959971', 'dest_port': '45296', 'seq': '1991338542'}, 'transport_type': 'TCP'}
+
+    def test_single_connection_gets_good_packet(self):
+        connection = lambda: None
+        connection.next = MagicMock(return_value = ("", self.RAW_TCP_PACKET))
+
+        packets, lock = [], GiveUpLock()
+        sniffer = Sniffer(packets, lock, [connection])
+        sniffer.get_new_packets()
+
+        self.assertListEqual(packets, [self.RES_TCP_PACKET])
+
+    def test_malformated_packets_are_dropped(self):
+        pass
+        
+    def test_packets_from_all_connections_are_fetched(self):
+        pass
+
+    def test_daemon_waits_for_lock_release(self):
+        pass
+
+    def test_lock_used_and_released(self):
+        pass
