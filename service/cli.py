@@ -19,13 +19,12 @@ def db_request(line, component, url):
         \"product\" : \"" + product + "\",\
         \"version\" : \"" + version + "\"\
     }]")
-
     try:
         full_url = "http://127.0.0.1:" + str(config[component]) + url
         r = requests.post(
             url = full_url,
             json = request)
-        print(r.text)
+        return(r.text)
     except Exception as e:
         pass
     print("")
@@ -47,7 +46,7 @@ class CLI():
             "start" : lambda x: init_network(),
             "delete" : lambda x: self.network.stop_network(),
             "add node" : lambda x: add_node(),
-            "query" : lambda x: request(x, "database", "/vulnerability"),
+            "query" : lambda x: db_request(x, "database", "/vulnerability"),
             "privileges" : lambda x: db_request(x, "database", "/privileges"),
             "discovery" : lambda x: discovery(x)
         }
