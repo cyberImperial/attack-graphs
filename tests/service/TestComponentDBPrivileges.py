@@ -14,22 +14,21 @@ class TestComponentDBPrivileges(TestCase):
 
     def setUp(self):
         self.DB = MemoryDB()
-    # a is the result of querying the DB directly ( type = list[dict])
-    # b is the result of using the DBQuery component
-    #       ( type = str, but has the structure of list[list[dict]])
+    # a is the result of querying the DB directly ( type = dict)
+    # b is the result of using the DBPrivileges component
+    #       ( type = str, but has the structure of dict)
     def check_results_match(self, a, b):
-        print(b)
-
-    def test_query_simple(self):
-        a = self.DB.query('libguestfs', '1.21.24')
-        b = db_request("query libguestfs 1.21.24", "database", "/vulnerability")
-        self.assertTrue(self.check_results_match(a,b))
+        b = ast.literal_eval(b)
+        k, v = b.popitem()
+        return (a["user"] == v["user"] and a["other"] == v["other"]
+                and a["all"] == v["all"])
 
     def test_privileges_none(self):
-        privs = self.DB.get_privileges('libguestfs', '1.21.24')
+        a = self.DB.get_privileges('libguestfs', '1.21.24')
         b = db_request("query libguestfs 1.21.24", "database", "/privileges")
-        print(b)
-        print("\n||||||||")
-        print(b["('libguestfs', '1.21.24')"])
-        print("STOPPPP")
-        self.assertTrue(self.check_results_match(privs,b['(\'libguestfs\', \'1.21.24\')']))
+        self.assertTrue(self.check_results_match(a,b))
+
+    def test_privileges_all(self):
+        a = self.DB.get_privileges('windows_2000', '*')
+        b = db_request("query windows_2000 *", "database", "/privileges")
+        self.assertTrue(self.check_results_match(a,b))
