@@ -14,6 +14,11 @@ from service.components import Component
 from service.server import Server, config
 from service.database_server import database_server
 
+def timeout_dispach(function, timeout, *args):
+    t = threading.Thread(target=function, args=args)
+    t.start()
+    t.join(timeout=timeout)
+
 def discover_devices():
     # WARN: Untested
     devices = pcapy.findalldevs()
@@ -23,18 +28,12 @@ def discover_devices():
     received_eth_packets = {}
     for dev in devices:
         try:
-            connection = pcapy.open_live(dev , 65536 , True , 0)
+            connection = pcapy.open_live(dev , 65536 , True , 100)
             connections.append(connection)
 
             # Decorate the objects with number of already read packets
             read_packets[connection] = 0
             received_eth_packets[connection] = 0
-
-            try:
-                # Same value as Wireshark
-                connection.pcap_set_timeout(100)
-            except Exception as e:
-                pass
 
             if connection.getnonblock():
                 # Set each connection to be blocking
@@ -59,11 +58,13 @@ def discover_devices():
                 continue
 
             try:
-                (header, packet) = connection.next()
-                packet = parse_packet(packet)
+                def next_packet():
+                    (header, packet) = connection.next()
+                    packet = parse_packet(packet)
 
-                # If we arrive here, then the packet is an eth packet
-                received_eth_packets[connection] += 1
+                    # If we arrive here, then the packet is an eth packet
+                    received_eth_packets[connection] += 1
+                timeout_dispach(next_packet, 0.5)
             except Exception as e:
                 # Ignore non-eth packets
                 pass
@@ -142,10 +143,10 @@ def run_server():
 
     sniffer = Sniffer(shared_list, shared_lock)
 
-    threading.Thread(target=server.run).start()
+    # threading.Thread(target=server.run).start()
     threading.Thread(target=sniffer.run).start()
-    threading.Thread(target=graph_loop).start()
-    threading.Thread(target=database_server).start()
+    # threading.Thread(target=graph_loop).start()
+    # threading.Thread(target=database_server).start()
 
 if __name__ == "__main__":
     run_server()
