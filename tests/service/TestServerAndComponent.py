@@ -1,7 +1,7 @@
 from service.server import Server
 from service.components import Component
 from unittest import TestCase
-from unittest.mock import MagicMock
+from unittest.mock import Mock
 from unittest.mock import create_autospec
 import requests, threading, time, json
 
@@ -9,9 +9,7 @@ class TestServerAndComponent(TestCase):
     @classmethod
     def setUpClass(self):
         self.server = Server("test", "4343")
-        self.component = Component()
-        self.component.receive_post = MagicMock()
-        self.component.receive_get = MagicMock()
+        self.component = Mock()
         self.server.add_component_post("/test1", self.component)
         self.server.add_component_get("/test2", self.component)
         threading.Thread(target=self.server.run).start()
