@@ -11,13 +11,10 @@ import threading, time, ast
 
 
 class TestComponentDBQuery(TestCase):
-    # @classmethod
-    # def setUpClass(cls):
-    #     threading.Thread(target=database_server).start()
-    #     time.sleep(4)
+
     def setUp(self):
         self.DB = MemoryDB()
-        
+
     # a is the result of querying the DB directly ( type = list[dict])
     # b is the result of using the DBQuery component
     #       ( type = str, but has the structure of list[list[dict]])
@@ -47,8 +44,3 @@ class TestComponentDBQuery(TestCase):
             a = self.DB.query('metaframe', version)
             b = db_request("query metaframe " + version, "database", "/vulnerability")
             self.assertTrue(self.check_results_match(a,b))
-
-    #        def test_query_2017(self):
-    #     a = self.DB.query('windows_10', '1551')
-    #     b = db_request("query windows_10 1551", "database", "/vulnerability")
-    #     self.assertTrue(self.check_results_match(a,b))
