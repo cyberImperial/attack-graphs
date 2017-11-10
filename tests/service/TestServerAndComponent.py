@@ -1,19 +1,25 @@
 from service.server import Server
 from service.components import Component
 from unittest import TestCase
-from unittest.mock import Mock
-from unittest.mock import create_autospec
+from unittest.mock import Mock, create_autospec
 import requests, threading, time, json
 
 class TestServerAndComponent(TestCase):
+
     @classmethod
     def setUpClass(self):
         self.server = Server("test", "4343")
         self.component = Mock()
+        self.component.receive_get = create_autospec(lambda:0, return_value = "")
+        self.component.receive_post = create_autospec(lambda:0, return_value = "")
         self.server.add_component_post("/test1", self.component)
         self.server.add_component_get("/test2", self.component)
         threading.Thread(target=self.server.run).start()
         time.sleep(3)
+
+    @classmethod
+    def tearDownClass(self):
+        pass
 
     def test_component_post_method_called(self):
         full_url = "http://127.0.0.1:4343/test1"
