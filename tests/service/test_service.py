@@ -2,32 +2,36 @@ from service.server import Server
 from service.components import Component
 from unittest import TestCase
 from unittest.mock import Mock, create_autospec
-import requests, threading, time, json
+import requests, threading, time, json, os
+from multiprocessing import Process
 
 class TestServerAndComponent(TestCase):
-
     @classmethod
     def setUpClass(self):
+        class MockComponent(Component):
+            def process(self, json):
+                return {"test" : "test"}
+
+        self.component = MockComponent()
         self.server = Server("test", "4343")
-        self.component = Mock()
-        self.component.receive_get = create_autospec(lambda:0, return_value = "")
-        self.component.receive_post = create_autospec(lambda:0, return_value = "")
         self.server.add_component_post("/test1", self.component)
         self.server.add_component_get("/test2", self.component)
-        threading.Thread(target=self.server.run).start()
-        time.sleep(3)
+        self.process = Process(target=self.server.run)
+        self.process.start()
+        time.sleep(5)
 
     @classmethod
     def tearDownClass(self):
-        pass
+        os.system("kill " + str(self.process.pid))
+        time.sleep(5)
 
     def test_component_post_method_called(self):
         full_url = "http://127.0.0.1:4343/test1"
-        request = json.loads("{}")
+        request = json.loads('{"test":"test"}')
         r = requests.post(
             url = full_url,
             json = request)
-        self.component.receive_post.assert_called_once_with()
+        self.assertTrue("test" in r.text)
 
     def test_component_get_method_called(self):
         full_url = "http://127.0.0.1:4343/test2"
@@ -35,4 +39,4 @@ class TestServerAndComponent(TestCase):
         r = requests.get(
             url = full_url,
             json = request)
-        self.component.receive_get.assert_called_once_with()
+        self.assertTrue("test" in r.text)
