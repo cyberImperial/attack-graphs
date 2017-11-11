@@ -16,7 +16,7 @@ class Node():
         return not self.__eq__(other)
 
     def __str__(self):
-        if self.running == None:
+        if self.running == {}:
             return str(self.ip)
         return str((self.ip, self.running))
 
