@@ -7,8 +7,8 @@ setup(
     include_package_data=True,
     install_requires=[
         "flask",
-        "requests==2.9.1",
-        "pcapy"
+        "pcapy",
+        "requests>=2.9.1"
     ],
     tests_require=[
     ],

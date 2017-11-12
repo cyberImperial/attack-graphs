@@ -9,6 +9,7 @@ install:
   - sudo apt-get install python3-pip
   - sudo pip3 install coveralls
   - sudo apt-get install libpcap-dev
+  - sudo pip3 install --upgrade requests
 script:
   - make test
   - cd database && python3 load.py -r && cd ..
