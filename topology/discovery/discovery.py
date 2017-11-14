@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
 import os, sys, time
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.append(PROJECT_ROOT)
 
 import subprocess

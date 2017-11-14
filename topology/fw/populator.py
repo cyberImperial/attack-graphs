@@ -2,7 +2,7 @@ import time
 
 from service.server import config
 from database.database_server import DBClient
-from service.discovery import discovery_ip
+from topology.discovery.discovery import discovery_ip
 from threading import Lock
 
 db_client = DBClient("http://127.0.0.1", config["database"])
