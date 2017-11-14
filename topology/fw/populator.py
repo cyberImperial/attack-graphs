@@ -1,7 +1,7 @@
 import time
 
 from service.server import config
-from service.client import DBClient
+from database.database_server import DBClient
 from service.discovery import discovery_ip
 from threading import Lock
 

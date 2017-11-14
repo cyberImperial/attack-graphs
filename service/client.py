@@ -30,11 +30,3 @@ class Client():
             return json.loads(data)
         except Exception as e:
             return default
-
-class DBClient(Client):
-    def db_request(self, resource, product, version):
-        db_json = json.loads("[{ \
-            \"product\" : \"" + product + "\",\
-            \"version\" : \"" + version + "\"\
-        }]")
-        return self.post(resource, resource, db_json)

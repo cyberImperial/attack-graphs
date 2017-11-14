@@ -12,7 +12,7 @@ from topology.fw.sniffer import parse_packet
 from topology.fw.graph_service import graph_loop
 from service.components import Component
 from service.server import Server, config
-from service.database_server import database_server
+from database.database_server import database_server
 
 def timeout_dispach(function, timeout, *args):
     t = threading.Thread(target=function, args=args)

@@ -6,7 +6,7 @@ from pprint import pprint
 import subprocess
 import signal
 
-from service.database_server import database_server
+from database.database_server import database_server
 from service.cli import cli
 
 def signal_handler(signal, frame):

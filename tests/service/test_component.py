@@ -1,12 +1,10 @@
 from __future__ import absolute_import
 from unittest import TestCase
 from database.db_service import MemoryDB
-from service.database_server import database_server
-from service.cli import db_request
+from database.database_server import database_server
 import time, ast, os
 
 from multiprocessing import Process
-from service.database_server import database_server
 
 class TestDBComponents(TestCase):
     @classmethod
