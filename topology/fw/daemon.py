@@ -143,10 +143,10 @@ def run_server():
 
     sniffer = Sniffer(shared_list, shared_lock)
 
-    # threading.Thread(target=server.run).start()
+    threading.Thread(target=server.run).start()
     threading.Thread(target=sniffer.run).start()
-    # threading.Thread(target=graph_loop).start()
-    # threading.Thread(target=database_server).start()
+    threading.Thread(target=graph_loop).start()
+    threading.Thread(target=database_server).start()
 
 if __name__ == "__main__":
     run_server()

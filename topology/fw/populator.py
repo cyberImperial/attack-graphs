@@ -47,9 +47,9 @@ class Populator():
         graph = self.graph
         i1, i2, batch = self.get_batch(graph)
 
-        results = get_ips(batch)
-        results = add_vulnerabilities(results)
-        update_graph(self, graph, results, i1, i2)
+        results = self.get_ips(batch)
+        results = self.add_vulnerabilities(results)
+        self.update_graph(graph, results, i1, i2)
 
     def add_vulnerabilities(self, results):
         for j in results:
@@ -64,7 +64,7 @@ class Populator():
 
                         vulnerabilities = self.db_client.db_request("/vulnerability", name, version)
                         privileges = self.db_client.db_request("/privileges", name, version)
-                        
+
                         if vulnerabilities is not None:
                             entry["Vulnerability"] = vulnerabilities
                         if privileges is not None:
