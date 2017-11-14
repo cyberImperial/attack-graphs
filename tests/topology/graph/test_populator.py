@@ -1,10 +1,10 @@
 from __future__ import absolute_import
 import unittest
 from unittest import TestCase
-from topology.fw.populator import Populator
+from topology.graph.populator import Populator
 from database.db_service import MemoryDB
-from topology.fw.graph import Graph
-from topology.fw.graph import Node
+from topology.graph.graph import Graph
+from topology.graph.graph import Node
 import json
 
 class TestPopulator(TestCase):

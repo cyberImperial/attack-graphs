@@ -9,7 +9,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".
 
 import requests
 from topology.fw.sniffer import parse_packet
-from topology.fw.graph_service import graph_loop
+from topology.graph.graph_service import graph_loop
 from service.components import Component
 from service.server import Server, config
 from database.database_server import database_server

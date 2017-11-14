@@ -8,9 +8,9 @@ from service.components import Component
 from service.server import Server, config
 from service.client import Client
 
-from topology.fw.populator import Populator
-from topology.fw.graph import Graph
-from topology.fw.graph import Node
+from topology.graph.populator import Populator
+from topology.graph.graph import Graph
+from topology.graph.graph import Node
 
 import ast
 import time
