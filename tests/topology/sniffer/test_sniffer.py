@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from unittest import TestCase
 
-from topology.fw.sniffer import parse_packet
+from topology.sniffer.sniffer import parse_packet
 
 class TestParsePacket(TestCase):
     # Samples of IP packet communications

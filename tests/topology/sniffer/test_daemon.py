@@ -1,8 +1,8 @@
 from __future__ import absolute_import
 from unittest import TestCase
 
-from topology.fw.daemon import SniffingDaemon
-from topology.fw.daemon import Sniffer
+from topology.sniffer.daemon import SniffingDaemon
+from topology.sniffer.daemon import Sniffer
 from unittest.mock import MagicMock
 
 class GiveUpLock():

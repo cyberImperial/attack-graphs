@@ -8,7 +8,7 @@ import pcapy
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
 import requests
-from topology.fw.sniffer import parse_packet
+from topology.sniffer.sniffer import parse_packet
 from topology.graph.graph_service import graph_loop
 from service.components import Component
 from service.server import Server, config
