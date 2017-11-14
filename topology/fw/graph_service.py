@@ -6,6 +6,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".
 
 from service.components import Component
 from service.server import Server, config
+from service.client import Client
 
 from topology.fw.populator import Populator
 from topology.fw.graph import Graph
@@ -35,29 +36,6 @@ def start_graph_server(graph):
     server.add_component_get("/graph", GraphExporter(graph))
     threading.Thread(target=server.run).start()
 
-def do_get():
-    full_url = "http://127.0.0.1:30001/newpackets"
-    try:
-        print("Getting new packets...")
-        r = requests.get(full_url)
-        data = json.dumps(ast.literal_eval(r.text))
-        r = json.loads(data)
-        return r
-    except Exception as e:
-        print(e)
-        return []
-
-def test_graph_server():
-    full_url = "http://127.0.0.1:30002/graph"
-    try:
-        print("Doing test request...")
-        r = requests.get(full_url)
-        data = json.dumps(ast.literal_eval(r.text))
-        r = json.loads(data)
-        print(r)
-    except Exception as e:
-        print(e)
-
 def graph_loop():
     graph = Graph()
     populator = Populator(graph)
@@ -65,7 +43,7 @@ def graph_loop():
     start_graph_server(graph)
     threading.Thread(target=populator.populate_loop).start()
     while True:
-        out = do_get()
+        out = Client("http://127.0.0.1", 30001).get("/newpackets", default=[])
 
         graph.lock.acquire()
         for packet in out:
@@ -78,4 +56,4 @@ def graph_loop():
         graph.lock.release()
 
         time.sleep(5)
-        test_graph_server()
+        print(Client("http://127.0.0.1", 30002).get("/graph"))
