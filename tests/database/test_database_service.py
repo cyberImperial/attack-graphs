@@ -1,10 +1,34 @@
 from __future__ import absolute_import
 from unittest import TestCase
+
 from database.db_service import MemoryDB
 from database.database_server import database_server
-import time, ast, os
+from service.server import config
+import time, ast, os, json, requests
 
 from multiprocessing import Process
+
+# TODO: Replace with component...
+def db_request(line, component, url):
+    line = line.split("\n")[0]
+    args = len(line.split(" "))
+    if args != 3:
+        return
+    product, version = tuple(line.split(" ")[1:])
+    # e.g. qemu 0.13.0
+    request = json.loads("[{ \
+        \"product\" : \"" + product + "\",\
+        \"version\" : \"" + version + "\"\
+    }]")
+    try:
+        full_url = "http://127.0.0.1:" + str(config[component]) + url
+        r = requests.post(
+            url = full_url,
+            json = request)
+        return(r.text)
+    except Exception as e:
+        pass
+    print("")
 
 class TestDBComponents(TestCase):
     @classmethod
@@ -29,7 +53,6 @@ class TestDBComponents(TestCase):
         return (a["user"] == v["user"] and a["other"] == v["other"]
                 and a["all"] == v["all"])
 
-
     # Basically all tests are checking if making a query through the component DBPrivileges
     # gives the same result as querying the database directly
     def test_privileges_none(self):
@@ -51,7 +74,6 @@ class TestDBComponents(TestCase):
             if (a[i] != b[i]):
                  return False
         return True
-
     # Basically all tests are checking if making a query through the component DBQuery
     # gives the same result as querying the database directly
     def test_query_simple(self):
