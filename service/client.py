@@ -1,4 +1,6 @@
-import json, requests
+import json
+import requests
+import ast
 
 class Client():
     """
@@ -9,19 +11,27 @@ class Client():
         self.url = url
         self.port = port
 
-    def get(self, resource):
-        pass
+    def get(self, resource, default=None):
+        full_url = self.url + ":" + str(self.port) + resource
+        try:
+            r = requests.get(url = full_url)
+            data = json.dumps(ast.literal_eval(r.text))
+            return json.loads(data)
+        except Exception as e:
+            return default
 
-    def post(self, resource, json):
-        full_url = self.url + ":" + self.port + resource
+    def post(self, resource, json, default=None):
+        full_url = self.url + ":" + str(self.port) + resource
         try:
             r = requests.post(
                 url = full_url,
                 json = json)
+            data = json.dumps(ast.literal_eval(r.text))
+            return json.loads(data)
         except Exception as e:
-            pass
+            return default
 
-class DBRequst(Client):
+class DBClient(Client):
     def db_request(self, resource, product, version):
         db_json = json.loads("[{ \
             \"product\" : \"" + product + "\",\

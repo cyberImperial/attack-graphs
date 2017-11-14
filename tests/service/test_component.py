@@ -13,14 +13,14 @@ class TestDBComponents(TestCase):
     def setUpClass(self):
         self.process = Process(target=database_server)
         self.process.start()
-        time.sleep(5)
+        time.sleep(2)
 
         self.DB = MemoryDB()
 
     @classmethod
     def tearDownClass(self):
         os.system("kill " + str(self.process.pid))
-        time.sleep(5)
+        time.sleep(2)
 
     # a is the result of querying the DB directly ( type = dict)
     # b is the result of using the DBPrivileges component

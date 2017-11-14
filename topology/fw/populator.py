@@ -1,41 +1,18 @@
 import time
 
+from service.server import config
+from service.client import DBClient
 from service.discovery import discovery_ip
 from threading import Lock
 
-import json
-import requests
-
-# TODO: remove duplication
-def db_request(line, component, url):
-    line = line.split("\n")[0]
-    args = len(line.split(" "))
-    if args != 3:
-        return
-    product, version = tuple(line.split(" ")[1:])
-    # e.g. qemu 0.13.0
-    request = json.loads("[{ \
-        \"product\" : \"" + product + "\",\
-        \"version\" : \"" + version + "\"\
-    }]")
-
-    try:
-        full_url = "http://127.0.0.1:" + str(config[component]) + url
-        r = requests.post(
-            url = full_url,
-            json = request)
-        print(r.text)
-    except Exception as e:
-        pass
-    print("")
-
+db_client = DBClient("http://127.0.0.1", config["database"])
 
 class Populator():
-    def __init__(self, graph, discovery_ip=discovery_ip, db_request=db_request):
+    def __init__(self, graph, discovery_ip=discovery_ip, db_client=db_client):
         self.graph = graph
         self.threads = 1
         self.discovery_ip = discovery_ip
-        self.db_request = db_request
+        self.db_client = db_client
 
     def get_batch(self, graph):
         # Create the batch
@@ -85,12 +62,9 @@ class Populator():
                         name = entry["Service"]["name"]
                         version = entry["Service"]["version"]
 
-                        query = "query " + name + " " + version
-                        vulnerabilities = self.db_request(query, "database", "/vulnerability")
-
-                        query = "privileges " + name + " " + version
-                        privileges = self.db_request(query, "database", "/privileges")
-
+                        vulnerabilities = self.db_client.db_request("/vulnerability", name, version)
+                        privileges = self.db_client.db_request("/privileges", name, version)
+                        
                         if vulnerabilities is not None:
                             entry["Vulnerability"] = vulnerabilities
                         if privileges is not None:

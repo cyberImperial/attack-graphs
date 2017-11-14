@@ -3,7 +3,11 @@ from flask import request
 
 class Component():
     __metaclass__ = abc.ABCMeta
-    """ A component class that receives JSON requests and returns stringyfied jsons."""
+    """
+    A component class that receives JSON requests and returns stringyfied jsons.
+
+    To implement a new component, extend this class.
+    """
 
     @abc.abstractmethod
     def process(self, json):
