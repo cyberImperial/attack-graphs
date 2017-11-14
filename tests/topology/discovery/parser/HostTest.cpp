@@ -1,11 +1,11 @@
-#include "../frameworks/Catch.hpp"
-#include "../../topology/Host.hpp"
+#include "Catch.hpp"
+#include "../../../../topology/discovery/parser/Host.hpp"
 #include <boost/filesystem.hpp>
 using namespace boost::filesystem;
 
 static string project_path() {
   boost::filesystem::path path = boost::filesystem::current_path();
-  return path.string() + "/tests/topology/";
+  return path.string() + "/tests/topology/discovery/parser/";
 }
 
 TEST_CASE("Can't open missing file", "[load]") {
