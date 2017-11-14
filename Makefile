@@ -15,7 +15,6 @@ test: catch.o $(OBJECT_FILES)
 
 catch.o:
 	wget -O tests/topology/discovery/parser/Catch.hpp $(CATCH_LINK)
-	touch $(CATCH_LINK)
 	$(CXX) $(CXXFLAGS) -c tests/topology/discovery/parser/Runner.cpp -o catch.o
 
 Main.o: topology/discovery/parser/Main.cpp
