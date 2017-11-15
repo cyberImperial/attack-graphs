@@ -5,7 +5,7 @@ from database.database_service import DBClient
 from topology.discovery.discovery import discovery_ip
 from threading import Lock
 
-db_client = DBClient("http://127.0.0.1", config["database"])
+db_client = DBClient(config["database"])
 
 class Populator():
     def __init__(self, graph, discovery_ip=discovery_ip, db_client=db_client):

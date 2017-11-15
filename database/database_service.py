@@ -7,7 +7,7 @@ from database.memory_db import MemoryDB
 from service.server import config
 from service.server import Server
 from service.components import Component
-from service.client import Client
+from service.client import LocalClient
 
 class DBQuery(Component):
     def __init__(self, db):
@@ -27,7 +27,11 @@ class DBPrivileges(Component):
             outputs[key] = self.db.get_privileges(entry["product"], entry["version"])
         return outputs
 
-class DBClient(Client):
+class DBClient(LocalClient):
+    """
+    The Database Client is a local client as we will only do
+    request from the populator or from the CLI/front-end.
+    """
     def db_request(self, resource, product, version):
         db_json = json.loads("[{ \
             \"product\" : \"" + product + "\",\
@@ -35,14 +39,23 @@ class DBClient(Client):
         }]")
         return self.post(resource, resource, db_json)
 
+class DatabaseService():
+    """
+    The DatabaseService encapsulates all the dependecies of the
+    database service:
+      * the memorydb
+      * the server
+    """
+    def __init__(self):
+        self.server = Server("database", config["database"])
+        self.database = MemoryDB()
+
+        self.server.add_component_post("/vulnerability", DBQuery(self.database))
+        self.server.add_component_post("/privileges", DBPrivileges(self.database))
+
 def database_service():
-    db = MemoryDB()
-    server = Server("database", config["database"])
-
-    server.add_component_post("/vulnerability", DBQuery(db))
-    server.add_component_post("/privileges", DBPrivileges(db))
-
-    server.run()
+    service = DatabaseService()
+    service.server.run()
 
 if __name__ == "__main__":
     database_service()
