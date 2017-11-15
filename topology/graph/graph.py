@@ -3,7 +3,7 @@ from threading import Lock
 class Node():
     def __init__(self, ip):
         self.ip = ip
-        self.running = {}
+        self.running = {"scanned": "false"}
 
     def __eq__(self, other):
         """Override the default Equals behavior"""
@@ -16,7 +16,7 @@ class Node():
         return not self.__eq__(other)
 
     def __str__(self):
-        if self.running == {}:
+        if self.running == {"scanned": "false"}:
             return str(self.ip)
         return str((self.ip, self.running))
 
@@ -25,9 +25,6 @@ class Graph():
         self.edges = []
         self.nodes = []
         self.lock = Lock()
-
-        # The index of the first node not populated yet
-        self.populated_nodes = 0
 
     def add_edge(self, n1, n2):
 

@@ -1,4 +1,5 @@
 import time
+import random
 
 from service.server import config
 from database.database_service import DBClient
@@ -16,17 +17,21 @@ class Populator():
 
     def get_batch(self, graph):
         # Create the batch
-        i1 = graph.populated_nodes
-        i2 = min(i1 + self.threads, len(graph.nodes))
+        not_scanned = []
+
+        if len(graph.nodes) == 0:
+            return not_scanned
 
         graph.lock.acquire()
-        batch = []
-        for i in range(i1, i2):
-            batch.append(graph.nodes[i].ip)
-        graph.populated_nodes = i2
+        for node in graph.nodes:
+            if node.running["scanned"] == "false":
+                not_scanned.append(node.ip)
         graph.lock.release()
 
-        return i1, i2, batch
+        random.shuffle(not_scanned)
+        batch = [not_scanned[i] for i in range(0, self.threads)]
+
+        return batch
 
     def get_ips(self, batch):
         results = []
@@ -34,22 +39,23 @@ class Populator():
             results.append(self.discovery_ip(task))
         return results
 
-    def update_graph(self, graph, results, i1, i2):
+    def update_graph(self, graph, results, batch):
         # Putting the results on the graph
         graph.lock.acquire()
-        idx = 0
-        for i in range(i1, i2):
-            graph.nodes[i].running = results[idx]
-            idx += 1
+        for i in range(len(batch)):
+            for node in graph.nodes:
+                if batch[i] == node.ip:
+                    node.running = results[i]
+                    node.running["scanned"] = "true"
         graph.lock.release()
 
     def populate_nodes(self):
         graph = self.graph
-        i1, i2, batch = self.get_batch(graph)
+        batch = self.get_batch(graph)
 
         results = self.get_ips(batch)
         results = self.add_vulnerabilities(results)
-        self.update_graph(graph, results, i1, i2)
+        self.update_graph(graph, results, batch)
 
     def add_vulnerabilities(self, results):
         for j in results:
