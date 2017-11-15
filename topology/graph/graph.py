@@ -45,7 +45,20 @@ class Graph():
         self.edges.add((n1, n2))
 
     def merge(self, graph):
-        pass
+        graph1 = self.graph
+        graph2 = graph
+
+        self.graph.lock.acquire()
+
+        graph1.edges.union(graph2.edges)
+        graph1.nodes.union(graph2.nodes)
+        graph1.populated.union(graph2.populated)
+
+        # (U1 + U2) - (P1 + P2)
+        graph1.unpopulated.union(graph2.unpopulated)
+        graph1.unpopulated.difference(graph1.populated)
+
+        self.graph.lock.release()
 
     def to_json(self):
         return {
