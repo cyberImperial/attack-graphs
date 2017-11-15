@@ -6,11 +6,11 @@ import time
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
+import threading
 from threading import Lock
 
 from topology.sniffer.daemon import SniffingDaemon
 
-from topology.sniffer.sniffer import parse_packet
 from topology.graph.graph_service import graph_service
 from service.components import Component
 from service.server import Server, config
