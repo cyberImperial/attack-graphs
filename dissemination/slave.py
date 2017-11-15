@@ -24,14 +24,25 @@ class HealthCheck(Component):
             "healty" : "true"
         }
 
+class MessageReceiver(Component):
+    def __init__(self, slave):
+        self.slave = slave
+
+    def process(self, message):
+        print("Received message: " + str(message))
+
 class Slave():
     def __init__(self, slave_port, master_ip, master_port):
+        self.slave_port = slave_port
         self.master_client = Client("http://" + master_ip, master_port)
         self.membership_list = []
 
         self.server = Server("slave", slave_port)
         self.server.add_component_get("/healty", HealthCheck())
         self.server.add_component_post("/membership", SlaveMembership(self))
+        self.server.add_component_post("/multicast", MessageReceiver(self))
+
+        self.dissemination_constant = 2
 
     def join(self):
         self.master_client.post("/register", {
@@ -50,8 +61,23 @@ class Slave():
             client = Client("http://" + member["ip"], member["port"])
             self.membership_list.append(client)
 
-    def dissemination(self):
+    def get_current_multicast(self):
+        return self.membership_list
+
+    def disseminate(self, multicast_list, message):
+        for client in multicast_list:
+            client.post("/multicast", message)
+
+    def run(self):
         self.join()
+
+        while True:
+            time.sleep(5)
+            multicast_list = self.get_current_multicast()
+            multicast_message = {
+                "port" : self.slave_port
+            }
+            self.disseminate(multicast_list, multicast_message)
 
 if __name__ == "__main__":
     master_ip = "127.0.0.1"
@@ -63,4 +89,4 @@ if __name__ == "__main__":
     slave = Slave(slave_port, master_ip, master_port)
 
     threading.Thread(target=slave.server.run).start()
-    threading.Thread(target=slave.dissemination).start()
+    threading.Thread(target=slave.run).start()

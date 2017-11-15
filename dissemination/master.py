@@ -38,7 +38,6 @@ class Master():
                 "port" : client.port,
             } for client in self.membership_list]
         }
-        print(broadcast)
 
         # Send the broadcast to each client
         for client in self.membership_list:
