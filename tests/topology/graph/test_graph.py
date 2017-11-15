@@ -55,6 +55,13 @@ class TestGraph(TestCase):
         d = json.dumps(self.graph.to_json())
         json.loads(d)
 
+    def test_from_json(self):
+        self.test_add_edge()
+        ret_json = self.graph.to_json()
+        self.assertListEqual(self.graph.nodes, Graph.from_json(ret_json).nodes)
+        self.assertListEqual(self.graph.edges, Graph.from_json(ret_json).edges)
+
+
     def test_str(self):
         self.test_add_edge()
         self.assertEqual(str(self.graph), "[('192.82.21.5', '192.82.21.6')]")

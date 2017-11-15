@@ -68,8 +68,23 @@ class Graph():
         }
 
     @staticmethod
-    def from_json():
-        return Graph()
+    def from_json(json_input):
+
+        res = Graph()
+
+        for link in json_input["links"]:
+            n1 = Node(link["source"])
+            n2 = Node(link["target"])
+            res.add_edge(n1, n2)
+
+        for host in json_input["hosts"]:
+            n1 = Node(host["ip"])
+            running = host["running"]
+            for node in res.nodes:
+                if node == n1:
+                    node.running = running
+
+        return res
 
     def __str__(self):
          return str([(str(n1), str(n2)) for (n1, n2) in self.edges])
