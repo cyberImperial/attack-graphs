@@ -15,7 +15,7 @@ class Populator():
         self.discovery_ip = discovery_ip
         self.db_client = db_client
 
-    def get_batch(self, graph):
+    def get_batch(self, graph, shuffle=random.shuffle):
         # Create the batch
         not_scanned = []
 
@@ -28,7 +28,7 @@ class Populator():
                 not_scanned.append(node.ip)
         graph.lock.release()
 
-        random.shuffle(not_scanned)
+        shuffle(not_scanned)
         batch = [not_scanned[i] for i in range(0, self.threads)]
 
         return batch

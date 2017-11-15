@@ -16,7 +16,7 @@ class TestPopulator(TestCase):
         self.json1 = {
            "Host":{
               "os":"ASUS RT-N56U WAP (Linux 3.4)",
-              "ip":"192.30.252.154",
+              "ip":"190.80.50.0",
               "RunningServices":[
                  {
                     "Port":{
@@ -51,7 +51,7 @@ class TestPopulator(TestCase):
         self.json2 = {
            "Host":{
               "os":"ASUS ROG WAP (Linux 3.4)",
-              "ip":"192.30.250.155",
+              "ip":"190.80.50.1",
               "RunningServices":[
                  {
                     "Port":{
@@ -87,7 +87,9 @@ class TestPopulator(TestCase):
         populator = Populator(self.graph)
         populator.threads = 3
 
-        i1, i2, mybatch = populator.get_batch(self.graph)
+        def shuffle(l):
+            return l[0:populator.threads]
+        mybatch = populator.get_batch(self.graph, shuffle=shuffle)
 
         self.assertEqual(mybatch[0], '190.80.50.0')
         self.assertEqual(mybatch[1], "190.80.50.1")
@@ -127,7 +129,15 @@ class TestPopulator(TestCase):
         populator = Populator(self.graph)
         res = [self.json1, self.json2]
 
-        populator.update_graph(self.graph, res, 0, 2)
+        ip1 = "190.80.50.0"
+        ip2 = "190.80.50.1"
 
+        batch = [ip1, ip2]
+
+        populator.update_graph(self.graph, res, batch)
+
+        # for r in res:
+        #     r["scanned"] = "true"
         for i in range(0, 2):
+            res[i]["scanned"] = "true"
             self.assertDictEqual(self.graph.nodes[i].running, res[i])
