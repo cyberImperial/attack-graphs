@@ -1,22 +1,22 @@
 from __future__ import absolute_import
 
-import os, sys, time
-from threading import Lock
-import threading
+import os
+import sys
+import time
 import pcapy
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
-import requests
-from topology.sniffer.sniffer import parse_packet
-from topology.graph.graph_service import graph_service
-from service.components import Component
-from service.server import Server, config
-from database.database_service import database_service
+from threading import Lock
 
 from topology.sniffer.devices import discover_devices
+from topology.sniffer.sniffer import parse_packet
 
-class Sniffer():
+class SniffingDaemon():
+    """
+    A daemon that itertes through a series of device connections
+    and gets sniffed devices.
+    """
     def __init__(self, shared_packets, lock, connections=discover_devices):
         self.packets = shared_packets
         self.lock = lock
@@ -52,34 +52,3 @@ class Sniffer():
     def run(self):
         while True:
             self.get_new_packets()
-
-class SniffingDaemon(Component):
-    def __init__(self, shared_packets, lock):
-        self.shared_packets = shared_packets
-        self.lock = lock
-
-    def process(self, unused=None):
-        self.lock.acquire()
-
-        packets = self.shared_packets[:]
-        self.shared_packets[:] = []
-
-        self.lock.release()
-        return packets
-
-def run_server():
-    shared_lock = Lock()
-    shared_list = []
-
-    server = Server("sniffer", 30001)
-    server.add_component_get("/newpackets", SniffingDaemon(shared_list, shared_lock))
-
-    sniffer = Sniffer(shared_list, shared_lock)
-
-    threading.Thread(target=server.run).start()
-    threading.Thread(target=sniffer.run).start()
-    threading.Thread(target=graph_service).start()
-    threading.Thread(target=database_service).start()
-
-if __name__ == "__main__":
-    run_server()
