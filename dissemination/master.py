@@ -4,6 +4,7 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+from service.client import Client
 from service.server import Server
 from service.components import Component
 
@@ -23,10 +24,19 @@ class Master():
         self.server.add_component_get("/register", MasterReceive(self))
 
     def receive(self, registration):
-        pass
+        # For the moment the servers are single threaded, one-connection at a time
+        # We need to make them concurrent
+        client = Client("http://" + registration["ip"], registration["port"])
+        self.membership_list.append(client)
 
     def broadcast(self):
-        pass
+        for member in self.master.membership_list:
+            member.post("/membership", {
+                "members" : [{
+                    "ip" : client.url.split("/")[2],
+                    "port" : client.port,
+                } for client in self.membership_list]
+            })
 
 if __name__ == "__main__":
     master = Master()
