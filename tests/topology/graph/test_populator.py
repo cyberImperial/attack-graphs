@@ -1,10 +1,10 @@
 from __future__ import absolute_import
 import unittest
 from unittest import TestCase
-from topology.fw.populator import Populator
-from database.db_service import MemoryDB
-from topology.fw.graph import Graph
-from topology.fw.graph import Node
+from topology.graph.populator import Populator
+from database.memory_db import MemoryDB
+from topology.graph.graph import Graph
+from topology.graph.graph import Node
 import json
 
 class TestPopulator(TestCase):
@@ -83,19 +83,6 @@ class TestPopulator(TestCase):
            }
         }
 
-        #
-        # def mock_discovery_ip(ip):
-        #     return {
-        #         "test" : "test"
-        #     }
-        #
-        # def mock_db_request(line, component, url):
-        #     return {
-        #         "Vulnerability" :
-        #     }
-        #
-        # self.Populator = Populator(graph, mock_discovery_ip, mock_db_request)
-
     def test_get_batch(self):
         populator = Populator(self.graph)
         populator.threads = 3
@@ -119,15 +106,14 @@ class TestPopulator(TestCase):
         self.assertDictEqual(results[1], {"ip" : "190.80.50.1"})
 
     def test_good_formatted_vulnerabilities_are_added(self):
-
-        def db_request(query, unused1, unused2):
-            if "query" in query:
-                return {"vul" : "vul"}
-            if "privileges" in query:
-                return {"pri" : "pri"}
-            return None
-
-        populator = Populator(self.graph, db_request=db_request)
+        class MockDBClient():
+            def db_request(self, resource, product, version):
+                if "vulnerability" in resource:
+                    return {"vul" : "vul"}
+                if "privileges" in resource:
+                    return {"pri" : "pri"}
+                return None
+        populator = Populator(self.graph, db_client=MockDBClient())
 
         init_results = [self.json1, self.json2]
         final_results = populator.add_vulnerabilities(init_results)

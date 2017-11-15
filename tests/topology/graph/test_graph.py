@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from unittest import TestCase
-from topology.fw.graph import Node
-from topology.fw.graph import Graph
+from topology.graph.graph import Node
+from topology.graph.graph import Graph
 import json
 import ast
 
