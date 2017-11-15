@@ -11,10 +11,9 @@ from threading import Lock
 
 from topology.sniffer.daemon import SniffingDaemon
 
-from topology.graph.graph_service import graph_service
 from service.components import Component
-from service.server import Server, config
-from database.database_service import database_service
+from service.server import Server
+from service.server import config
 
 class PacketExporter(Component):
     def __init__(self, shared_packets, lock):
@@ -30,19 +29,22 @@ class PacketExporter(Component):
         self.lock.release()
         return packets
 
-def run_server():
-    shared_lock = Lock()
-    shared_list = []
+class SniffingService():
+    def __init__(self, ):
+        shared_lock = Lock()
+        shared_list = []
 
-    server = Server("sniffer", 30001)
-    server.add_component_get("/newpackets", PacketExporter(shared_list, shared_lock))
+        self.server = Server("sniffer", config["sniffer"])
+        self.server.add_component_get("/newpackets",
+            PacketExporter(shared_list, shared_lock))
 
-    sniffer = SniffingDaemon(shared_list, shared_lock)
+        self.daemon = SniffingDaemon(shared_list, shared_lock)
 
-    threading.Thread(target=server.run).start()
-    threading.Thread(target=sniffer.run).start()
-    threading.Thread(target=graph_service).start()
-    threading.Thread(target=database_service).start()
+def sniffing_service():
+    service = SniffingService()
+
+    threading.Thread(target=service.server.run).start()
+    threading.Thread(target=service.daemon.run).start()
 
 if __name__ == "__main__":
-    run_server()
+    sniffing_service()
