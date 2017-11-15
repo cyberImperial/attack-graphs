@@ -21,22 +21,29 @@ class Master():
         self.membership_list = []
 
         self.server = Server("master", 5000)
-        self.server.add_component_get("/register", MasterReceive(self))
+        self.server.add_component_post("/register", MasterReceive(self))
 
-    def receive(self, registration):
+    def register(self, registration):
+        print("Received register...")
         # For the moment the servers are single threaded, one-connection at a time
         # We need to make them concurrent
         client = Client("http://" + registration["ip"], registration["port"])
         self.membership_list.append(client)
 
     def broadcast(self):
-        for member in self.master.membership_list:
-            member.post("/membership", {
-                "members" : [{
-                    "ip" : client.url.split("/")[2],
-                    "port" : client.port,
-                } for client in self.membership_list]
-            })
+        print("Broadcasting membership....")
+        broadcast = {
+            "members" : [{
+                "ip" : client.url.split("/")[2],
+                "port" : client.port,
+            } for client in self.membership_list]
+        }
+        print(broadcast)
+
+        # Send the broadcast to each client
+        for client in self.membership_list:
+            client.get("/healty")
+            client.post("/membership", broadcast)
 
 if __name__ == "__main__":
     master = Master()
