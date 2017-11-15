@@ -42,6 +42,9 @@ class Graph():
         if n2 not in self.populated:
             self.unpopulated.add(n2)
 
+        if n1 == n2:
+            return
+
         self.edges.add((n1, n2))
 
     def merge(self, graph):
