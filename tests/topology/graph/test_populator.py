@@ -136,8 +136,11 @@ class TestPopulator(TestCase):
 
         populator.update_graph(self.graph, res, batch)
 
-        # for r in res:
-        #     r["scanned"] = "true"
         for i in range(0, 2):
             res[i]["scanned"] = "true"
-            self.assertDictEqual(self.graph.nodes[i].running, res[i])
+
+        for node in self.graph.nodes:
+            ip = node.ip
+            for r in res:
+                if ip == r["Host"]["ip"]:
+                    self.assertDictEqual(node.running, r)

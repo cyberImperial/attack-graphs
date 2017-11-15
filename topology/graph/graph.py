@@ -30,10 +30,18 @@ class Graph():
         self.nodes = set()
         self.lock = Lock()
 
-    def add_edge(self, n1, n2):
+        self.unpopulated = set()
+        self.populated = set()
 
+    def add_edge(self, n1, n2):
         self.nodes.add(n1)
         self.nodes.add(n2)
+
+        if n1 not in self.populated:
+            self.unpopulated.add(n1)
+        if n2 not in self.populated:
+            self.unpopulated.add(n2)
+
         self.edges.add((n1, n2))
 
     def merge(self, graph):
@@ -54,7 +62,6 @@ class Graph():
 
     @staticmethod
     def from_json(json_input):
-
         res = Graph()
 
         for link in json_input["links"]:

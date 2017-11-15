@@ -4,6 +4,8 @@ import random
 from service.server import config
 from database.database_service import DBClient
 from topology.discovery.discovery import discovery_ip
+from topology.graph.graph import Node
+
 from threading import Lock
 
 db_client = DBClient(config["database"])
@@ -15,7 +17,7 @@ class Populator():
         self.discovery_ip = discovery_ip
         self.db_client = db_client
 
-    def get_batch(self, graph, shuffle=random.shuffle):
+    def get_batch(self, graph, shuffle=lambda x: x):
         # Create the batch
         not_scanned = []
 
@@ -23,15 +25,17 @@ class Populator():
             return not_scanned
 
         graph.lock.acquire()
-        for node in graph.nodes:
-            if node.running["scanned"] == "false":
-                not_scanned.append(node.ip)
+        ctr = 0
+        for node in graph.unpopulated:
+            not_scanned.append(node.ip)
+            if ctr == self.threads:
+                break
         graph.lock.release()
 
+        # Seam that does not break tests
         shuffle(not_scanned)
-        batch = [not_scanned[i] for i in range(0, self.threads)]
 
-        return batch
+        return not_scanned
 
     def get_ips(self, batch):
         results = []
@@ -42,11 +46,22 @@ class Populator():
     def update_graph(self, graph, results, batch):
         # Putting the results on the graph
         graph.lock.acquire()
-        for i in range(len(batch)):
-            for node in graph.nodes:
-                if batch[i] == node.ip:
-                    node.running = results[i]
-                    node.running["scanned"] = "true"
+        for i in range(0, len(batch)):
+            ip = batch[i]
+
+            # updating unpopulated
+            graph.unpopulated.remove(Node(ip))
+
+            # updating populated
+            node = Node(ip)
+            node.running = results[i]
+            node.running["scanned"] = "true"
+
+            graph.populated.add(node)
+
+            #update nodes
+            graph.nodes.remove(Node(batch[i]))
+            graph.nodes.add(node)
         graph.lock.release()
 
     def populate_nodes(self):
