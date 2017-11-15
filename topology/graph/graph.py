@@ -20,33 +20,21 @@ class Node():
             return str(self.ip)
         return str((self.ip, self.running))
 
+    def __hash__(self):
+        numbers = [int(x) for x in self.ip.split(".")]
+        return numbers[0] * 256 ** 3 + numbers[1] * 256 ** 2 + numbers[2] * 256 + numbers[3]
+
 class Graph():
     def __init__(self):
-        self.edges = []
-        self.nodes = []
+        self.edges = set()
+        self.nodes = set()
         self.lock = Lock()
 
     def add_edge(self, n1, n2):
 
-        firstInside = False
-        secondInside = False
-
-        for n in self.nodes:
-            if n == n1:
-                firstInside = True
-            if n == n2:
-                secondInside = True
-
-        if not firstInside:
-            self.nodes.append(n1)
-
-        if not secondInside:
-            self.nodes.append(n2)
-
-        for p1, p2 in self.edges:
-            if p1 == n1 and p2 == n2:
-                return
-        self.edges.append((n1, n2))
+        self.nodes.add(n1)
+        self.nodes.add(n2)
+        self.edges.add((n1, n2))
 
     def merge(self, graph):
         pass
