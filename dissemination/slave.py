@@ -10,6 +10,8 @@ from service.client import Client
 from service.server import Server
 from service.components import Component
 
+from dissemination.util import get_host_ip
+
 class SlaveMembership(Component):
     def __init__(self, slave):
         self.slave = slave
@@ -34,6 +36,8 @@ class MessageReceiver(Component):
 class Slave():
     def __init__(self, slave_port, master_ip, master_port):
         self.slave_port = slave_port
+        self.slave_ip = get_host_ip()
+
         self.master_client = Client("http://" + master_ip, master_port)
         self.membership_list = []
 
@@ -46,7 +50,7 @@ class Slave():
 
     def join(self):
         self.master_client.post("/register", {
-            "ip" : "127.0.0.1",
+            "ip" : self.slave_ip,
             "port" : self.server.port
         })
 
@@ -75,16 +79,17 @@ class Slave():
             time.sleep(5)
             multicast_list = self.get_current_multicast()
             multicast_message = {
+                "ip" : self.slave_ip,
                 "port" : self.slave_port
             }
             self.disseminate(multicast_list, multicast_message)
 
 if __name__ == "__main__":
-    master_ip = "127.0.0.1"
     master_port = 5000
 
     # Need to give port as an argument
-    slave_port = sys.argv[1]
+    master_ip = sys.argv[1]
+    slave_port = sys.argv[2]
 
     slave = Slave(slave_port, master_ip, master_port)
 

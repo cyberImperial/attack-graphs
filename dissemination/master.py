@@ -7,6 +7,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from service.client import Client
 from service.server import Server
 from service.components import Component
+from dissemination.util import get_host_ip
 
 class MasterReceive(Component):
     def __init__(self, master):
@@ -46,4 +47,6 @@ class Master():
 
 if __name__ == "__main__":
     master = Master()
+    print("Master running on ip: ", get_host_ip())
+
     master.server.run()
