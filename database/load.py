@@ -87,7 +87,10 @@ if __name__=="__main__":
 
     if need_download:
         print("Downloading NVD JSON files...")
-        os.system(os.path.join(DIRECTORY, "dw_nvd_json.sh"))
+        if "-d" in sys.argv:
+            os.system(os.path.join(DIRECTORY, "dw_nvd_json.sh", "database"))
+        else:
+            os.system(os.path.join(DIRECTORY, "dw_nvd_json.sh"))
 
     # Create new index files
     print("Indexing NVD files...")
