@@ -34,6 +34,18 @@ class GraphExporter(Component):
 
         return export
 
+class GraphMerge(Component):
+    """
+    A component that allows exporting a graph.
+    """
+    def __init__(self, graph):
+        self.graph = graph
+
+    def process(self, graph):
+        self.graph.lock.acquire()
+        self.graph.merge(Graph.from_json(graph))
+        self.graph.lock.release()
+
 class GraphService():
     """
     The GraphService encapsulates all the dependecies of the
@@ -48,6 +60,7 @@ class GraphService():
 
         self.server = Server("graph", config["graph"])
         self.server.add_component_get("/graph", GraphExporter(graph))
+        self.server.add_component_get("/merge", GraphMerge(graph))
 
         self.sniffer_client = sniffer_client
 
