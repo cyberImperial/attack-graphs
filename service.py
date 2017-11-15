@@ -6,7 +6,7 @@ from pprint import pprint
 import subprocess
 import signal
 
-from database.database_server import database_server
+from database.database_service import database_service
 from service.cli import cli
 
 def signal_handler(signal, frame):
@@ -21,5 +21,5 @@ if __name__ == "__main__":
         exit(1)
     signal.signal(signal.SIGINT, signal_handler)
 
-    threading.Thread(target=database_server).start()
+    threading.Thread(target=database_service).start()
     threading.Thread(target=cli).start()

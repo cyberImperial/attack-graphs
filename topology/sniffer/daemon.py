@@ -9,10 +9,10 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".
 
 import requests
 from topology.sniffer.sniffer import parse_packet
-from topology.graph.graph_service import graph_loop
+from topology.graph.graph_service import graph_service
 from service.components import Component
 from service.server import Server, config
-from database.database_server import database_server
+from database.database_service import database_service
 
 def timeout_dispach(function, timeout, *args):
     t = threading.Thread(target=function, args=args)
@@ -145,8 +145,8 @@ def run_server():
 
     threading.Thread(target=server.run).start()
     threading.Thread(target=sniffer.run).start()
-    threading.Thread(target=graph_loop).start()
-    threading.Thread(target=database_server).start()
+    threading.Thread(target=graph_service).start()
+    threading.Thread(target=database_service).start()
 
 if __name__ == "__main__":
     run_server()

@@ -3,7 +3,7 @@ from __future__ import absolute_import
 import os, sys, time
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from database.db_service import MemoryDB
+from database.memory_db import MemoryDB
 from service.server import config
 from service.server import Server
 from service.components import Component
@@ -35,7 +35,7 @@ class DBClient(Client):
         }]")
         return self.post(resource, resource, db_json)
 
-def database_server():
+def database_service():
     db = MemoryDB()
     server = Server("database", config["database"])
 
@@ -43,3 +43,6 @@ def database_server():
     server.add_component_post("/privileges", DBPrivileges(db))
 
     server.run()
+
+if __name__ == "__main__":
+    database_service()

@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 from unittest import TestCase
-from database.db_service import MemoryDB
+from database.memory_db import MemoryDB
 
 class TestMemoryDB(TestCase):
     def setUp(self):

@@ -1,8 +1,8 @@
 from __future__ import absolute_import
 from unittest import TestCase
 
-from database.db_service import MemoryDB
-from database.database_server import database_server
+from database.memory_db import MemoryDB
+from database.database_service import database_service
 from service.server import config
 import time, ast, os, json, requests
 
@@ -33,7 +33,7 @@ def db_request(line, component, url):
 class TestDBComponents(TestCase):
     @classmethod
     def setUpClass(self):
-        self.process = Process(target=database_server)
+        self.process = Process(target=database_service)
         self.process.start()
         time.sleep(2)
 

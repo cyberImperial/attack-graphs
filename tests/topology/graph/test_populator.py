@@ -2,7 +2,7 @@ from __future__ import absolute_import
 import unittest
 from unittest import TestCase
 from topology.graph.populator import Populator
-from database.db_service import MemoryDB
+from database.memory_db import MemoryDB
 from topology.graph.graph import Graph
 from topology.graph.graph import Node
 import json

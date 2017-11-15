@@ -30,3 +30,8 @@ class Client():
             return json.loads(data)
         except Exception as e:
             return default
+
+class LocalClient(Client):
+    def __init__(self, port):
+        self.url = "http://127.0.0.1"
+        self.port = port
