@@ -51,6 +51,9 @@ class Graph():
                 return
         self.edges.append((n1, n2))
 
+    def merge(self, graph):
+        pass
+
     def to_json(self):
         return {
             "hosts" : [{
@@ -63,6 +66,10 @@ class Graph():
                 "value"  : 1,
             } for n1, n2 in self.edges]
         }
+
+    @staticmethod
+    def from_json():
+        return Graph()
 
     def __str__(self):
          return str([(str(n1), str(n2)) for (n1, n2) in self.edges])

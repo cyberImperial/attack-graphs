@@ -10,6 +10,7 @@ from service.client import Client
 from service.server import Server
 from service.components import Component
 
+from dissemination.graph_sharing import GraphSharing
 from dissemination.util import get_host_ip
 
 class SlaveMembership(Component):
@@ -32,6 +33,7 @@ class MessageReceiver(Component):
 
     def process(self, message):
         print("Received message: " + str(message))
+        self.slave.graph_sharing.update(message["graph"])
 
 class Slave():
     def __init__(self, slave_port, master_ip, master_port):
@@ -47,6 +49,7 @@ class Slave():
         self.server.add_component_post("/multicast", MessageReceiver(self))
 
         self.dissemination_constant = 2
+        self.graph_sharing = GraphSharing()
 
     def join(self):
         self.master_client.post("/register", {
@@ -80,7 +83,8 @@ class Slave():
             multicast_list = self.get_current_multicast()
             multicast_message = {
                 "ip" : self.slave_ip,
-                "port" : self.slave_port
+                "port" : self.slave_port,
+                "graph" : self.graph_sharing.snapshoot()
             }
             self.disseminate(multicast_list, multicast_message)
 
