@@ -2,60 +2,13 @@ import json
 from client import LocalClient
 from server import Server, config
 
+from mock_data import mock_data
+
 class MulvalTranslator():
 
     def __init__(self):
-        #self.data = LocalClient(config["graph"]).get("/graph")
-        self.data = json.loads("{ \
-           \"links\":[ \
-                  { \
-                     \"source\":\"127.0.0.1\",\
-                     \"target\":\"127.0.0.2\",\
-                     \"value\":1\
-                  },\
-                  {\
-                     \"source\":\"127.0.0.1\",\
-                     \"target\":\"127.0.0.3\",\
-                     \"value\":1\
-                  },\
-                  {\
-                     \"source\":\"127.0.0.2\",\
-                     \"target\":\"127.0.0.4\",\
-                     \"value\":1\
-                  }],\
-           \"hosts\":[\
-                  {\"ip\": \"127.0.0.1\", \"running\": {\
-                  \"RunningServices\":[\
-                     {\
-                        \"Service\":{\
-                           \"state_open\":\"open\",\
-                           \"version\":\"3.1\",\
-                           \"product\":\"GitHub.com\",\
-                           \"name\":\"Demo\",\
-                           \"reason\":\"syn-ack\"\
-                        },\
-                        \"Vulnerability\":{\
-                           \"vul\":\"vul\"\
-                        },\
-                        \"Port\":{\
-                           \"portid\":\"443\",\
-                           \"protocol\":\"tcp\"\
-                        },\
-                        \"Privileges\":{\
-                           \"pri\":\"pri\"\
-                        }\
-                     }\
-                     ]\
-                  }},\
-                  {\"ip\": \"127.0.0.2\", \"running\": {}},\
-                  {\"ip\": \"127.0.0.3\", \"running\": {}},\
-                  {\"ip\": \"127.0.0.4\", \"running\": {}}\
-           ]\
-      }")
         self.f = open('mulval_input.P', 'w')
         self.s = set()
-        self.makeTopology()
-        self.addVulnerabilities()
 
     def makeTopology(self):
         self.f.write("attackerLocated(internet).\n")
@@ -65,7 +18,7 @@ class MulvalTranslator():
                      + "  inSubnet(Y,S).\n\n" )
 
         self.f.write("hacl(internet, '" + self.data["links"][0]["source"] +
-                     "', httpProtocol, httpPort).\n")
+                     "', _, _).\n")
         for link in self.data["links"]:
             if not link["source"] in self.s:
                 self.f.write(" inSubnet('" + link["source"] + "', subnet).\n")
@@ -75,10 +28,33 @@ class MulvalTranslator():
                 self.s.add(link["target"])
 
     def addVulnerabilities(self):
-        pass
+        for host in self.data["hosts"]:
+            if host["running"]["scanned"] == "false":
+                continue
+            running = host["running"]
+            if running != {"scanned" : "true"}:
+                for service in running["RunningServices"]:
+                    ip = host["ip"]
+                    application = service["Service"]["product"]
+                    port = service["Port"]["portid"]
+                    protocol = service["Port"]["protocol"]
 
+                    if service["Privileges"]["user"]:
+                        privileges = "user"
+                    if service["Privileges"]["root"]:
+                        privileges = "root"
+                    vulnerability = service["Vulnerability"]["id"]
+                    access = service["Vulnerability"]["impact"]["baseMetricV2"]["cvssV2"]["accessVector"]
 
+                    if access == "LOCAL": access = "localExploit"
+                    if access == "NETWORK": access = "remoteExploit"
 
+                    self.f.write("networkServiceInfo('%s', '%s', '%s', '%s', '%s').\n" % (ip, application, protocol, port, privileges))
+                    self.f.write("vulExists('%s', '%s', '%s').\n" % (ip, vulnerability, application))
+                    self.f.write("vulProperty('%s', %s, %s).\n" % (vulnerability, access, 'privEscalation'))
 
+if __name__ == "__main__":
+    mulval = mock_data(MulvalTranslator())
 
-mulval = MulvalTranslator();
+    mulval.makeTopology()
+    mulval.addVulnerabilities()
