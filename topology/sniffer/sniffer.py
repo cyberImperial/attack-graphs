@@ -79,6 +79,12 @@ def parse_packet(packet) :
        s_addr = socket.inet_ntoa(iph[8])
        d_addr = socket.inet_ntoa(iph[9])
 
+       if s_addr > "192.168.1.255" or s_addr < "192.168.1.0":
+            return None
+            
+       if d_addr > "192.168.1.255" or d_addr < "192.168.1.0":
+            return None
+
 
        packet_json = {
          "version" : str(version),
