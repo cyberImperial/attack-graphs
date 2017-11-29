@@ -73,21 +73,21 @@ class TestSniffingDaemon(TestCase):
     def test_single_connection_gets_good_packet(self):
         packets, lock = [], GiveUpLock()
         sniffer = SniffingDaemon(packets, lock, [self.good_connection()])
-        sniffer.get_new_packets()
+        sniffer.get_new_packets(filter_packet=lambda x: x)
 
         self.assertListEqual(packets, [self.RES_TCP_PACKET])
 
     def test_malformated_packets_are_dropped(self):
         packets, lock = [], GiveUpLock()
         sniffer = SniffingDaemon(packets, lock, [self.bad_connection()])
-        sniffer.get_new_packets()
+        sniffer.get_new_packets(filter_packet=lambda x: x)
 
         self.assertListEqual(packets, [])
 
     def test_packets_from_all_connections_are_fetched(self):
         packets, lock = [], GiveUpLock()
         sniffer = SniffingDaemon(packets, lock, [self.good_connection()] * 10 + [self.bad_connection] * 5)
-        sniffer.get_new_packets()
+        sniffer.get_new_packets(filter_packet=lambda x: x)
 
         self.assertListEqual(packets, [self.RES_TCP_PACKET] * 10)
 
@@ -101,7 +101,7 @@ class TestSniffingDaemon(TestCase):
     def test_lock_used_and_released(self):
         packets, lock = [], GiveUpLock()
         sniffer = SniffingDaemon(packets, lock, [self.good_connection()] * 10 + [self.bad_connection] * 5)
-        sniffer.get_new_packets()
+        sniffer.get_new_packets(filter_packet=lambda x: x)
 
         self.assertEqual(1, lock.acqs)
         self.assertEqual(1, lock.rels)
