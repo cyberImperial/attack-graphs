@@ -16,13 +16,17 @@ def signal_handler(siganl, frames):
         os.system("kill -9 {}".format(process.pid))
     sys.exit(0)
 
-def services():
+def services(device_name=None):
     global processes
     processes = [
         Process(target=database_service),
-        Process(target=sniffing_service),
         Process(target=graph_service)
     ]
+
+    if device_name is not None:
+        processes.append(Process(target=sniffing_service, args=(device_name,)))
+    else:
+        processes.append(Process(target=sniffing_service))
 
     for process in processes:
         process.start()
@@ -36,7 +40,10 @@ if __name__ == "__main__":
         print("Need to specify master or slave.")
         exit(1)
 
-    services()
+    if len(sys.argv) == 3:
+        services(sys.argv[2])
+    else:
+        services()
     signal.signal(signal.SIGINT, signal_handler)
 
     if sys.argv[1] == "master":

@@ -28,7 +28,7 @@ def main(argv):
     cap = pcapy.open_live(dev , 65536 , 1 , 0)
 
     #start sniffing packets
-    while(1) :
+    while True:
         (header, packet) = cap.next()
         packet = parse_packet(packet)
         if packet is not None:

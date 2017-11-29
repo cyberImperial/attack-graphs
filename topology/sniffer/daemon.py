@@ -12,7 +12,7 @@ from threading import Lock
 from topology.sniffer.devices import discover_devices
 from topology.sniffer.sniffer import parse_packet
 
-def filter_packet(packet, ip="192.168.1.47"):
+def filter_packet(packet, ip="10.1.1.1"):
     if packet is None:
         return None
     src = packet["src"]

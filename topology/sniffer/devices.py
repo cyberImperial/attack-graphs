@@ -20,6 +20,9 @@ def timeout_dispach(function, timeout, *args):
     t.start()
     t.join(timeout=timeout)
 
+def open_connection(device_name):
+    return [pcapy.open_live(device_name, 65536 , True , 100)]
+
 def discover_devices():
     """
     Automatically discovers devices by counting the number of relevant

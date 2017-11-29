@@ -10,6 +10,7 @@ import threading
 from threading import Lock
 
 from topology.sniffer.daemon import SniffingDaemon
+from topology.sniffer.devices import open_connection
 
 from service.components import Component
 from service.server import Server
@@ -30,7 +31,7 @@ class PacketExporter(Component):
         return packets
 
 class SniffingService():
-    def __init__(self, ):
+    def __init__(self, device):
         shared_lock = Lock()
         shared_list = []
 
@@ -38,10 +39,13 @@ class SniffingService():
         self.server.add_component_get("/newpackets",
             PacketExporter(shared_list, shared_lock))
 
-        self.daemon = SniffingDaemon(shared_list, shared_lock)
+        if device is None:
+            self.daemon = SniffingDaemon(shared_list, shared_lock)
+        else:
+            self.daemon = SniffingDaemon(shared_list, shared_lock, connections=open_connection(device))
 
-def sniffing_service():
-    service = SniffingService()
+def sniffing_service(device=None):
+    service = SniffingService(device)
 
     threading.Thread(target=service.server.run).start()
     threading.Thread(target=service.daemon.run).start()
