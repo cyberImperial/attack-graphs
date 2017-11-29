@@ -1,4 +1,5 @@
-[![Coverage Status](https://coveralls.io/repos/github/cyberImperial/attack-graphs/badge.svg?branch=master)](https://coveralls.io/github/cyberImperial/attack-graphs?branch=master)
+![ ](https://travis-ci.org/cyberImperial/attack-graphs.svg?branch=master) [![Coverage Status](https://coveralls.io/repos/github/cyberImperial/attack-graphs/badge.svg?branch=master)](https://coveralls.io/github/cyberImperial/attack-graphs?branch=master)
+
 # Attack-graphs
 
 Run tests:
@@ -7,14 +8,22 @@ make test
 coverage run setup.py test
 ```
 
-Run:
-
-sudo python3 topology/fw/daemon.py
-
-
+To install the dependecies:
 ```
+apt-get install libboost-all-dev -y
+apt-get install libpcap-dev -y
+python3 service.py install
 make
-sudo python3 service.py
+```
+
+Running a master node:
+```
+sudo python3 service.py master
+```
+
+Running a slave node:
+```
+sudo python3 service.py slave [master-ip]
 ```
 
 The package needs elevated privileges as it runs the NIC in promiscuous mode.
