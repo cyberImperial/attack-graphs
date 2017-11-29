@@ -27,6 +27,7 @@ def discover_devices():
 
     This function is expensive, hence should be run rarely.
     """
+    # return [pcapy.open_live("wlp8s0", 65536 , True , 100)]
     devices = pcapy.findalldevs()
 
     connections = []

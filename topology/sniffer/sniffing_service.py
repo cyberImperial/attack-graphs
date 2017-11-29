@@ -45,6 +45,8 @@ def sniffing_service():
 
     threading.Thread(target=service.server.run).start()
     threading.Thread(target=service.daemon.run).start()
+    while True:
+        pass
 
 if __name__ == "__main__":
     sniffing_service()
