@@ -6,10 +6,12 @@ from topology.graph.graph_service import graph_service
 from topology.sniffer.sniffing_service import sniffing_service
 from database.database_service import database_service
 
+from multiprocessing import Process
+
 def services():
-    threading.Thread(target=database_service).start()
-    threading.Thread(target=sniffing_service).start()
-    threading.Thread(target=graph_service).start()
+    Process(target=database_service).start()
+    Process(target=sniffing_service).start()
+    Process(target=graph_service).start()
 
 if __name__ == "__main__":
     if os.getuid() != 0:
