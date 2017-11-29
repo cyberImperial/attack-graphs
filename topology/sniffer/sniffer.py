@@ -79,7 +79,6 @@ def parse_packet(packet) :
        s_addr = socket.inet_ntoa(iph[8])
        d_addr = socket.inet_ntoa(iph[9])
 
-
        packet_json = {
          "version" : str(version),
          "ip_header_length" : str(ihl),

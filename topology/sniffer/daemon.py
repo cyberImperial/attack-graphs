@@ -12,6 +12,23 @@ from threading import Lock
 from topology.sniffer.devices import discover_devices
 from topology.sniffer.sniffer import parse_packet
 
+def filter_packet(packet, ip="192.168.1.47"):
+    if packet is None:
+        return None
+    src = packet["src"]
+    dst = packet["dest"]
+
+    src = [int(x) for x in src.split(".")]
+    dst = [int(x) for x in dst.split(".")]
+    ip =  [int(x) for x in ip.split(".")]
+
+    if src[0] != ip[0] or src[1] != ip[1]:
+        return None
+    if dst[0] != ip[0] or dst[1] != ip[1]:
+        return None
+
+    return packet
+
 class SniffingDaemon():
     """
     A daemon that itertes through a series of device connections
@@ -27,7 +44,7 @@ class SniffingDaemon():
         else:
             self.connections = connections
 
-    def get_new_packets(self):
+    def get_new_packets(self, filter_packet=filter_packet):
         # For the moment we ask each device for a packet. If this proves to
         # be a problem, we need to group the reads.
         new_packets = []
@@ -35,6 +52,7 @@ class SniffingDaemon():
             try:
                 (header, packet) = connection.next()
                 packet = parse_packet(packet)
+                packet = filter_packet(packet)
                 if packet is not None:
                     new_packets.append(packet)
                     print(packet)

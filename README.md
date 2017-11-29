@@ -1,5 +1,4 @@
 [![Coverage Status](https://coveralls.io/repos/github/cyberImperial/attack-graphs/badge.svg?branch=master)](https://coveralls.io/github/cyberImperial/attack-graphs?branch=master)
-
 # Attack-graphs
 
 Run tests:
@@ -9,6 +8,10 @@ coverage run setup.py test
 ```
 
 Run:
+
+sudo python3 topology/fw/daemon.py
+
+
 ```
 make
 sudo python3 service.py

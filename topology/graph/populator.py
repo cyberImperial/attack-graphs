@@ -97,4 +97,5 @@ class Populator():
         while True:
             self.populate_nodes()
             print("Graph populated:")
-            print(self.graph)
+            if self.graph.nodes != []:
+                print(self.graph)
