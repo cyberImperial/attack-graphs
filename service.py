@@ -40,7 +40,7 @@ if __name__ == "__main__":
         print("Need to specify master or slave.")
         exit(1)
 
-    if len(sys.argv) == 3:
+    if len(sys.argv) >= 3:
         services(sys.argv[2])
     else:
         services()
@@ -50,6 +50,7 @@ if __name__ == "__main__":
         os.system("python3 dissemination/master.py")
 
     if sys.argv[1] == "master" or sys.argv[1] == "slave":
-        argv = " ".join(sys.argv[2:])
+        # TODO correct..
+        argv = " ".join(sys.argv[3:])
         command = "python3 dissemination/slave.py " + argv
         os.system(command)

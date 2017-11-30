@@ -13,5 +13,15 @@ RUN apt-get install tcpdump -y
 RUN apt-get install git -y
 RUN apt-get install net-tools -y
 
-ADD . .
-RUN make .
+RUN pip3 install Flask
+
+RUN pip3 install pcapy
+RUN git clone https://github.com/cyberImperial/attack-graphs.git
+RUN apt-get install -y locales
+RUN locale-gen en_US.UTF-8
+RUN locale-gen en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+# RUN cd attack-graphs && cd database && python3 load.py -r
+RUN cd attack-graphs && make .

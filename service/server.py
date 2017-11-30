@@ -1,10 +1,22 @@
 import threading
 from flask import Blueprint, Flask, request
 
+# config = {
+#     'database' : 4242,
+#     'sniffer' : 30001,
+#     'graph' : 30002
+# }
+
+# config = {
+#     'database' : 4243,
+#     'sniffer' : 30003,
+#     'graph' : 30004
+# }
+
 config = {
-    'database' : 4242,
-    'sniffer' : 30001,
-    'graph' : 30002
+    'database' : 4244,
+    'sniffer' : 30005,
+    'graph' : 30006
 }
 
 class Server():
