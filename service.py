@@ -2,6 +2,7 @@ import sys
 import threading
 import os
 import signal
+import argparse
 
 from topology.graph.graph_service import graph_service
 from topology.sniffer.sniffing_service import sniffing_service
@@ -36,21 +37,34 @@ if __name__ == "__main__":
         print("Must be run as root.")
         exit(1)
 
-    if len(sys.argv) < 2:
-        print("Need to specify master or slave.")
-        exit(1)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("type", type=str,
+        help="The type of node run: master or slave")
+    parser.add_argument("-m", "--master", type=str, default=None,
+        help="Specify master IP for connecting a slave.")
+    parser.add_argument("-p", "--port", type=str, default=None,
+        help="Specify port for runnning a slave.")
+    parser.add_argument("-i", "--interface", type=str, default=None,
+        help="The network interface listened to.")
 
-    if len(sys.argv) >= 3:
-        services(sys.argv[2])
-    else:
+    args = parser.parse_args()
+
+    if args.interface is None:
         services()
+    else:
+        services(args.interface)
     signal.signal(signal.SIGINT, signal_handler)
 
-    if sys.argv[1] == "master":
+    if args.type == "master":
         os.system("python3 dissemination/master.py")
 
-    if sys.argv[1] == "master" or sys.argv[1] == "slave":
-        # TODO correct..
-        argv = " ".join(sys.argv[3:])
-        command = "python3 dissemination/slave.py " + argv
+    if args.type == "slave":
+        master_ip = args.master
+        port      = args.port
+
+        if master_ip is None or port is None:
+            print("Not enough arguments provided for slave mode.")
+            os.kill(os.getpid(), signal.SIGINT)
+
+        command   = "python3 dissemination/slave.py {} {}".format(master_ip, port)
         os.system(command)
