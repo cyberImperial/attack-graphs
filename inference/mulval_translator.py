@@ -1,11 +1,15 @@
-import json
-from client import LocalClient
-from server import Server, config
+from __future__ import absolute_import
 
-from mock_data import mock_data
+import os, sys, time
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+import json, subprocess
+from service.client import LocalClient
+from service.server import Server, config
+
+from inference.mock_data import mock_data
 
 class MulvalTranslator():
-
     def __init__(self):
         self.f = open('mulval_input.P', 'w')
         self.s = set()
@@ -54,7 +58,23 @@ class MulvalTranslator():
                     self.f.write("vulProperty('%s', %s, %s).\n" % (vulnerability, access, 'privEscalation'))
 
 if __name__ == "__main__":
-    mulval = mock_data(MulvalTranslator())
+    mulval = None
+    try:
+        mulval = MulvalTranslator()
+        mulval.data = LocalClient(config["graph"]).get("/graph")
+    except Exception as e:
+        mulval = mock_data(MulvalTranslator())
+    if mulval.data is None:
+        mulval = mock_data(MulvalTranslator())
 
     mulval.makeTopology()
     mulval.addVulnerabilities()
+    mulval.f.close()
+
+    os.system("export MULVALROOT=/home/ad5915/mulval")
+    os.system("PATH=$PATH:$MULVALROOT/bin")
+    os.system("PATH=$PATH:$MULVALROOT/utils")
+    os.system("export XSB_DIR=/home/ad5915/mulval/XSB")
+    os.system("PATH=$PATH:$XSB_DIR/bin")
+    subprocess.Popen(['graph_gen.sh mulval_input.P -v -p'],  shell=True).wait()
+    os.system("evince AttackGraph.pdf")
