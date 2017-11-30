@@ -1,10 +1,12 @@
 import threading
+import random
+
 from flask import Blueprint, Flask, request
 
 config = {
-    'database' : 4242,
-    'sniffer' : 30001,
-    'graph' : 30002
+    'database' : 29000,
+    'sniffer' : 29001,
+    'graph' : 29002
 }
 
 class Server():

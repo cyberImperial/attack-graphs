@@ -33,10 +33,17 @@ class DBClient(LocalClient):
     request from the populator or from the CLI/front-end.
     """
     def db_request(self, resource, product, version):
-        db_json = json.loads("[{ \
-            \"product\" : \"" + product + "\",\
-            \"version\" : \"" + version + "\"\
-        }]")
+        try:
+            product = str(product)
+            version = str(version)
+            
+            db_json = json.loads("[{ \
+                \"product\" : \"" + product + "\",\
+                \"version\" : \"" + version + "\"\
+            }]")
+        except Exception as e:
+            # The format received is wrong
+            return None
         return self.post(resource, resource, db_json)
 
 class DatabaseService():

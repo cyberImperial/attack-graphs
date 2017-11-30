@@ -18,6 +18,11 @@ def filter_packet(packet, ip="10.1.1.1"):
     src = packet["src"]
     dst = packet["dest"]
 
+    if src in ["10.1.5.4", "10.1.6.4", "10.1.8.4"]:
+        return None
+    if dst in ["10.1.5.4", "10.1.6.4", "10.1.8.4"]:
+        return None
+
     src = [int(x) for x in src.split(".")]
     dst = [int(x) for x in dst.split(".")]
     ip =  [int(x) for x in ip.split(".")]
