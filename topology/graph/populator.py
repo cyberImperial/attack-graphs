@@ -73,23 +73,23 @@ class Populator():
         self.update_graph(graph, results, batch)
 
     def add_vulnerabilities(self, results):
-        # for j in results:
-        #     json = j
-        #     if "Host" in json:
-        #         json = json["Host"]
-        #         if "RunningServices" in json:
-        #             json = json["RunningServices"]
-        #             for entry in json:
-        #                 name = entry["Service"]["name"]
-        #                 version = entry["Service"]["version"]
-        #
-        #                 vulnerabilities = self.db_client.db_request("/vulnerability", name, version)
-        #                 privileges = self.db_client.db_request("/privileges", name, version)
-        #
-        #                 if vulnerabilities is not None:
-        #                     entry["Vulnerability"] = vulnerabilities
-        #                 if privileges is not None:
-        #                     entry["Privileges"] = privileges
+        for j in results:
+            json = j
+            if "Host" in json:
+                json = json["Host"]
+                if "RunningServices" in json:
+                    json = json["RunningServices"]
+                    for entry in json:
+                        name = entry["Service"]["name"]
+                        version = entry["Service"]["version"]
+
+                        vulnerabilities = self.db_client.db_request("/vulnerability", name, version)
+                        privileges = self.db_client.db_request("/privileges", name, version)
+
+                        if vulnerabilities is not None:
+                            entry["Vulnerability"] = vulnerabilities
+                        if privileges is not None:
+                            entry["Privileges"] = privileges
         return results
 
     def populate_loop(self):
