@@ -3,12 +3,10 @@ import random
 
 from flask import Blueprint, Flask, request
 
-port_offset = 30000
-
 config = {
-    'database' : port_offset + random.randint(0, port_offset),
-    'sniffer' : port_offset + random.randint(0, port_offset),
-    'graph' : port_offset + random.randint(0, port_offset)
+    'database' : 29000,
+    'sniffer' : 29001,
+    'graph' : 29002
 }
 
 class Server():
