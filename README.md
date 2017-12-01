@@ -2,18 +2,25 @@
 
 # Attack-graphs
 
-Run tests:
-```
-make test
-coverage run setup.py test
-```
-
 To install the dependecies:
 ```
 apt-get install libboost-all-dev -y
 apt-get install libpcap-dev -y
 python3 service.py install
 make
+npm install
+cd database && python3 load.py -r
+```
+
+Run tests:
+```
+make test
+coverage run setup.py test
+```
+
+Help:
+```
+sudo python3 service.py -h
 ```
 
 Running a master node:
@@ -28,8 +35,7 @@ sudo python3 service.py slave [master-ip]
 
 The package needs elevated privileges as it runs the NIC in promiscuous mode.
 
-NPM package:
+Staring the interface:
 ```
-npm install
 npm start
 ```
