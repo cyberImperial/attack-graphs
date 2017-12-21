@@ -25,7 +25,7 @@ def main(argv):
     #   promiscious mode (1 for true)
     #   timeout (in milliseconds)
     '''
-    cap = pcapy.open_live(dev , 65536 , 1 , 0)
+    cap = pcapy.open_live(dev, 65536 , 1 , 0)
 
     #start sniffing packets
     while True:
@@ -49,6 +49,10 @@ UDP_NUMBER = 17
 
 #function to parse a packet
 def parse_packet(packet) :
+   if isinstance(packet, dict):
+       # if the packet is already parsed, we just return it
+       return packet
+
    packet_json = {}
 
    #parse ethernet header

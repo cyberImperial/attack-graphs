@@ -44,11 +44,16 @@ class SniffingService():
         else:
             self.daemon = SniffingDaemon(shared_list, shared_lock, connections=open_connection(device))
 
-def sniffing_service(device=None):
+def sniffing_service(device=None, filter_mask=None):
     service = SniffingService(device)
 
     threading.Thread(target=service.server.run).start()
-    threading.Thread(target=service.daemon.run).start()
+
+    if filter_mask is not None:
+        threading.Thread(target=lambda: service.daemon.run(filter_mask)).start()
+    else:
+        threading.Thread(target=service.daemon.run).start()
+
     while True:
         pass
 

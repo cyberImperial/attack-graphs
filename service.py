@@ -15,7 +15,7 @@ def signal_handler(siganl, frames):
         os.system("kill -9 {}".format(process.pid))
     sys.exit(0)
 
-def services(device_name=None):
+def services(device_name=None, filter_mask=None):
     from topology.graph.graph_service import graph_service
     from topology.sniffer.sniffing_service import sniffing_service
     from database.database_service import database_service
@@ -26,13 +26,18 @@ def services(device_name=None):
         Process(target=graph_service)
     ]
 
-    if device_name is not None:
-        processes.append(Process(target=sniffing_service, args=(device_name,)))
-    else:
-        processes.append(Process(target=sniffing_service))
+    processes.append(Process(target=sniffing_service, args=(device_name, filter_mask)))
 
     for process in processes:
         process.start()
+
+def bind_simulation(simulation):
+    # Overrides the default services with a simulation
+    import topology.sniffer.devices as devices
+    import topology.discovery.discovery as discovery
+
+    devices.open_connection = lambda device_name: [simulation.connection()]
+    discovery.discovery_ip  = lambda ip: simulation.discovery_ip(ip)
 
 def set_ports(node_type):
     import service.server as config_keeper
@@ -58,27 +63,34 @@ def set_ports(node_type):
     setattr(config_keeper, 'config', config)
 
 if __name__ == "__main__":
-    if os.getuid() != 0:
-        print("Must be run as root.")
-        exit(1)
-
     parser = argparse.ArgumentParser()
     parser.add_argument("type", type=str,
-        help="The type of node run: master or slave")
+        help="The type of node run: 'master' or 'slave'")
     parser.add_argument("-m", "--master", type=str, default=None,
         help="Specify master IP for connecting a slave.")
     parser.add_argument("-p", "--port", type=str, default=None,
         help="Specify port for runnning a slave.")
     parser.add_argument("-i", "--interface", type=str, default=None,
         help="The network interface listened to.")
+    parser.add_argument("-s", "--simulation", type=str, default=None,
+        help="To run a simulated network from a network configuration file use this flag.")
+    parser.add_argument("-f", "--filter", type=str, default=None,
+        help="Specify a mask for filtering the packets. (e.g. '10.1.1.1/16' would keep packets starting with '10.1')")
 
     args = parser.parse_args()
-    set_ports(args.type)
 
-    if args.interface is None:
-        services()
-    else:
-        services(args.interface)
+    if os.getuid() != 0:
+        print("Must be run as root.")
+        exit(1)
+
+    if args.simulation is not None:
+        from simulation.simulation import Simulation
+        args.interface = "virtual_interface"
+
+        bind_simulation(Simulation(args.simulation))
+
+    set_ports(args.type)
+    services(args.interface, args.filter)
     signal.signal(signal.SIGINT, signal_handler)
 
     if args.type == "master":
@@ -94,4 +106,4 @@ if __name__ == "__main__":
             os.kill(os.getpid(), signal.SIGINT)
 
         slave_proc = subprocess.Popen(['python3', 'dissemination/slave.py', master_ip, port],  shell=False)
-        processes.append(master_proc)
+        processes.append(slave_proc)

@@ -12,24 +12,25 @@ from threading import Lock
 from topology.sniffer.devices import discover_devices
 from topology.sniffer.sniffer import parse_packet
 
-def filter_packet(packet, ip="10.1.1.1"):
+def filter_packet(packet, mask):
     if packet is None:
         return None
     src = packet["src"]
     dst = packet["dest"]
 
-    if src in ["10.1.5.4", "10.1.6.4", "10.1.8.4"]:
-        return None
-    if dst in ["10.1.5.4", "10.1.6.4", "10.1.8.4"]:
-        return None
+    mask_ip, mask_bits = mask.split("/")[0], int(mask.split("/")[1])
+    def bitmask(ip):
+        int_ip = [int(x) for x in ip.split(".")]
+        return (int_ip[0] << 24) + (int_ip[1] << 16) + (int_ip[2] << 8) + int_ip[3]
+    def check_ip(ip):
+        check_mask = (1 << 32 - 1) - (1 << mask_bits - 1)
+        ip_bits    = bitmask(ip)      & check_mask
+        check_bits = bitmask(mask_ip) & check_mask
+        # print("{0:b}".format(ip_bits))
+        # print("{0:b}".format(check_bits))
+        return ip_bits == check_bits
 
-    src = [int(x) for x in src.split(".")]
-    dst = [int(x) for x in dst.split(".")]
-    ip =  [int(x) for x in ip.split(".")]
-
-    if src[0] != ip[0] or src[1] != ip[1]:
-        return None
-    if dst[0] != ip[0] or dst[1] != ip[1]:
+    if not check_ip(src) or not check_ip(dst):
         return None
 
     return packet
@@ -49,7 +50,7 @@ class SniffingDaemon():
         else:
             self.connections = connections
 
-    def get_new_packets(self, filter_packet=filter_packet):
+    def get_new_packets(self, filter_mask="10.1.1.1/32"):
         # For the moment we ask each device for a packet. If this proves to
         # be a problem, we need to group the reads.
         new_packets = []
@@ -57,7 +58,7 @@ class SniffingDaemon():
             try:
                 (header, packet) = connection.next()
                 packet = parse_packet(packet)
-                packet = filter_packet(packet)
+                packet = filter_packet(packet, filter_mask)
                 if packet is not None:
                     new_packets.append(packet)
                     print(packet)
@@ -72,6 +73,6 @@ class SniffingDaemon():
 
         self.lock.release()
 
-    def run(self):
+    def run(self, filter_mask="10.1.1.1/32"):
         while True:
-            self.get_new_packets()
+            self.get_new_packets(filter_mask)
