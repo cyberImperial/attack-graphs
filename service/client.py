@@ -1,4 +1,4 @@
-import json
+import json as json_lib
 import requests
 import ast
 
@@ -15,8 +15,8 @@ class Client():
         full_url = self.url + ":" + str(self.port) + resource
         try:
             r = requests.get(url = full_url)
-            data = json.dumps(ast.literal_eval(r.text))
-            return json.loads(data)
+            data = json_lib.dumps(ast.literal_eval(r.text))
+            return json_lib.loads(data)
         except Exception as e:
             return default
 
@@ -26,8 +26,8 @@ class Client():
             r = requests.post(
                 url = full_url,
                 json = json)
-            data = json.dumps(ast.literal_eval(r.text))
-            return json.loads(data)
+            data = json_lib.dumps(ast.literal_eval(r.text))
+            return json_lib.loads(data)
         except Exception as e:
             return default
 

@@ -25,9 +25,9 @@
               "protocol":"tcp"
             },
             "Service" : {
-              "name":"https",
-              "product":"GitHub.com",
-              "version":"attributeMissing",
+              "name":"libguestfs",
+              "product":"libguestfs",
+              "version":"1.21.24",
               "state_open":"open",
               "reason":"syn-ack"
             }}, {

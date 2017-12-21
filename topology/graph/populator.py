@@ -10,6 +10,17 @@ from threading import Lock
 
 db_client = DBClient(config["database"])
 
+def format_out(struct):
+    if isinstance(struct, dict):
+        for key in struct:
+            struct[key] = format_out(struct[key])
+        return struct
+    if isinstance(struct, list):
+        return [format_out(v) for v in struct]
+    if isinstance(struct, bool):
+        return str(struct).lower()
+    return struct
+
 class Populator():
     def __init__(self, graph, discovery_ip=discovery_ip, db_client=db_client):
         self.graph = graph
@@ -87,15 +98,15 @@ class Populator():
                         privileges = self.db_client.db_request("/privileges", name, version)
 
                         if vulnerabilities is not None:
-                            entry["Vulnerability"] = vulnerabilities
+                           entry["Vulnerability"] = format_out(vulnerabilities)
                         if privileges is not None:
-                            entry["Privileges"] = privileges
+                            entry["Privileges"] = format_out(privileges)
         return results
 
     def populate_loop(self):
         time.sleep(10)
         while True:
             self.populate_nodes()
-            if len(self.graph.nodes) > 0:
-               print("Graph populated:")
-               print(self.graph)
+            # if len(self.graph.nodes) > 0:
+            #    print("Graph populated:")
+            #    print(self.graph)

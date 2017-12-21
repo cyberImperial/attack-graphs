@@ -9,23 +9,34 @@ from service.server import Server
 from service.components import Component
 from service.client import LocalClient
 
+from pprint import pprint
+import ast
+
 class DBQuery(Component):
     def __init__(self, db):
         self.db = db
 
     def process(self, json):
-        return [self.db.query(entry["product"], entry["version"]) for entry in json]
+        output = {}
+        try:
+            output = self.db.query(json["product"], json["version"])
+            print("DB found: {} {}".format(json["product"], json["version"]))
+        except Exception as e:
+            print("DB miss: {} {}".format(json["product"], json["version"]))
+        return output
 
 class DBPrivileges(Component):
     def __init__(self, db):
         self.db = db
 
     def process(self, json):
-        outputs = {}
-        for entry in json:
-            key = str((entry["product"], entry["version"]))
-            outputs[key] = self.db.get_privileges(entry["product"], entry["version"])
-        return outputs
+        output = {}
+        try:
+            output = self.db.get_privileges(json["product"], json["version"])
+            print("DB found: {} {}".format(json["product"], json["version"]))
+        except Exception as e:
+            print("DB miss: {} {}".format(json["product"], json["version"]))
+        return output
 
 class DBClient(LocalClient):
     """
@@ -33,18 +44,16 @@ class DBClient(LocalClient):
     request from the populator or from the CLI/front-end.
     """
     def db_request(self, resource, product, version):
-        try:
-            product = str(product)
-            version = str(version)
-            
-            db_json = json.loads("[{ \
-                \"product\" : \"" + product + "\",\
-                \"version\" : \"" + version + "\"\
-            }]")
-        except Exception as e:
-            # The format received is wrong
-            return None
-        return self.post(resource, resource, db_json)
+        product = str(product)
+        version = str(version)
+
+        db_json = {
+            "product" : product,
+            "version" : version
+        }
+
+        output = self.post(resource, json=db_json)
+        return output
 
 class DatabaseService():
     """
