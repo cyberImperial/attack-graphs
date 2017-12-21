@@ -1,5 +1,64 @@
 {
-  "sarmale" : {
-    "bune" : 55
-  }
+  "links" : [
+    {
+      "source": "10.1.3.1",
+      "target": "10.1.3.2"
+    },{
+      "source": "10.1.3.2",
+      "target": "10.1.3.3"
+    },{
+      "source": "10.1.3.1",
+      "target": "10.1.3.3"
+    },
+  ],
+  "hosts" : [
+    {
+      "ip" : "10.1.3.1",
+      "running" : {
+        "Host": {
+          "os" : "ASUS RT-N56U WAP (Linux 3.4)",
+          "ip" : "10.1.3.1",
+          "RunningServices":[
+            {
+              "Port":{
+              "portid":"443",
+              "protocol":"tcp"
+            },
+            "Service" : {
+              "name":"https",
+              "product":"GitHub.com",
+              "version":"attributeMissing",
+              "state_open":"open",
+              "reason":"syn-ack"
+            }}, {
+              "Port":{
+              "portid":"80",
+              "protocol":"tcp"
+            },
+            "Service":{
+              "name":"http",
+              "product":"GitHub.com",
+              "version":"attributeMissing",
+              "state_open":"open",
+              "reason":"syn-ack"
+          }}]
+        }}
+    },{
+      "ip" : "10.1.3.2",
+      "running" : {
+        "Host": {
+          "os" : "ACER RT-N56U WAP (Linux 3.2)",
+          "ip" : "10.1.3.2",
+          "RunningServices":[]
+      }}
+    },{
+      "ip" : "10.1.3.3",
+      "running" : {
+        "Host": {
+          "os" : "ASUS RT-N56U WAP (Linux 3.4)",
+          "ip" : "10.1.3.3",
+          "RunningServices":[]
+      }}
+    }
+  ]
 }
