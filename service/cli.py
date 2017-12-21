@@ -5,6 +5,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from service.server import config
 
+from inference.inference_service import InferenceClient
+
 class CLI():
     """
     A command line interface that should use Clients to communicate
@@ -14,7 +16,8 @@ class CLI():
     """
     def __init__(self):
         self.functions = {
-            "echo" : lambda x: print(x[4:])
+            "echo" : lambda x: print(x[4:]),
+            "attack_graph_txt" : lambda x: print(InferenceClient(config["inference"]).get_attack_graph())
         }
 
     def dispatch(self, line):

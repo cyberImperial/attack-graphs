@@ -14,10 +14,15 @@ class AttackGraphExporter(Component):
     def __init__(self, client):
         self.client = client
 
-    def process(self):
+    def process(self, _):
+        attack_graph = generate_attack_graph(self.client)
         return {
-            "mulval_output" : generate_attack_graph(client)
+            "mulval_output" : attack_graph
         }
+
+class InferenceClient(LocalClient):
+    def get_attack_graph(self):
+        return self.get("/attack_graph")
 
 def inference_service():
     """

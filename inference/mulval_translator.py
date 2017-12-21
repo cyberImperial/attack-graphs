@@ -73,15 +73,16 @@ class MulvalTranslator():
         self._add_vulnerabilities()
         self.mulval_file.close()
 
-        # TODO: get rid of exports and path setup...
-        os.system("export MULVALROOT=/home/ad5915/mulval")
-        os.system("PATH=$PATH:$MULVALROOT/bin")
-        os.system("PATH=$PATH:$MULVALROOT/utils")
-        os.system("export XSB_DIR=/home/ad5915/mulval/XSB")
-        os.system("PATH=$PATH:$XSB_DIR/bin")
+        env = os.environ.copy()
+        #TODO: get rid of these
+        env["MULVALROOT"] = "/home/ad5915/mulval"
+        env["XSB_DIR"]    = "/home/ad5915/mulval/XSB"
 
-        subprocess.Popen(['graph_gen.sh mulval_input.P -v -p'],  shell=True).wait()
-        # os.system("evince AttackGraph.pdf")
+        env["PATH"] = "{}:{}".format(env["PATH"], os.path.join(env["MULVALROOT"], "bin"))
+        env["PATH"] = "{}:{}".format(env["PATH"], os.path.join(env["MULVALROOT"], "utils"))
+        env["PATH"] = "{}:{}".format(env["PATH"], os.path.join(env["XSB_DIR"], "bin"))
+
+        subprocess.Popen(['graph_gen.sh mulval_input.P -v -p'], shell=True, env=env).wait()
         output = self._save_output()
 
         self._cleanup(files_before)
