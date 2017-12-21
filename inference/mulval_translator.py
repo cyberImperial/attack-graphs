@@ -14,7 +14,7 @@ class MulvalTranslator():
         self.mulval_file = open('mulval_input.P', 'w')
         self.active_set = set()
 
-    def make_topology(self):
+    def _make_topology(self):
         self.mulval_file.write("attackerLocated(internet).\n")
         self.mulval_file.write("attackGoal(execCode(_, _)).\n")
 
@@ -29,7 +29,7 @@ class MulvalTranslator():
         for link in self.data["links"]:
             add_edge(link["source"], link["target"])
 
-    def add_vulnerabilities(self):
+    def _add_vulnerabilities(self):
         for host in self.data["hosts"]:
             if host["running"]["scanned"] == "false":
                 continue
@@ -55,20 +55,45 @@ class MulvalTranslator():
                     self.mulval_file.write("vulExists('%s', '%s', '%s').\n" % (ip, vulnerability, application))
                     self.mulval_file.write("vulProperty('%s', %s, %s).\n" % (vulnerability, access, 'privEscalation'))
 
-if __name__ == "__main__":
-    mulval = TranslatorBuilder() \
+    def _cleanup(self, files_before):
+        # clean all the files produced by mulval
+        to_clean = list(set(os.listdir()) - set(files_before))
+        print("Files cleaned: {}".format(to_clean))
+        for f in to_clean:
+            os.system("rm {}".format(f))
+
+    def _save_output(self):
+        with open('AttackGraph.txt', 'r') as output:
+            return output.read()
+
+    def generate_attack_graph(self):
+        files_before = os.listdir()
+
+        self._make_topology()
+        self._add_vulnerabilities()
+        self.mulval_file.close()
+
+        # TODO: get rid of exports and path setup...
+        os.system("export MULVALROOT=/home/ad5915/mulval")
+        os.system("PATH=$PATH:$MULVALROOT/bin")
+        os.system("PATH=$PATH:$MULVALROOT/utils")
+        os.system("export XSB_DIR=/home/ad5915/mulval/XSB")
+        os.system("PATH=$PATH:$XSB_DIR/bin")
+
+        subprocess.Popen(['graph_gen.sh mulval_input.P -v -p'],  shell=True).wait()
+        # os.system("evince AttackGraph.pdf")
+        output = self._save_output()
+
+        self._cleanup(files_before)
+
+        return output
+
+def generate_attack_graph():
+    return TranslatorBuilder() \
         .from_client_data() \
         .from_mock_data_if_empty() \
-        .build(MulvalTranslator())
+        .build(MulvalTranslator()) \
+        .generate_attack_graph()
 
-    mulval.make_topology()
-    mulval.add_vulnerabilities()
-    mulval.mulval_file.close()
-
-    os.system("export MULVALROOT=/home/ad5915/mulval")
-    os.system("PATH=$PATH:$MULVALROOT/bin")
-    os.system("PATH=$PATH:$MULVALROOT/utils")
-    os.system("export XSB_DIR=/home/ad5915/mulval/XSB")
-    os.system("PATH=$PATH:$XSB_DIR/bin")
-    subprocess.Popen(['graph_gen.sh mulval_input.P -v -p'],  shell=True).wait()
-    os.system("evince AttackGraph.pdf")
+if __name__ == "__main__":
+    print(generate_attack_graph())
