@@ -9,23 +9,29 @@ from topology.graph.graph import Node
 
 import json
 import ast
+import time
 
 from random import randrange
 
 class Simulation():
-    def __init__(self, conf_file):
+    def __init__(self, conf_file, connection_timeout = 0.1):
+        self.connection_timeout = connection_timeout
+
         dir_path = os.path.dirname(os.path.realpath(__file__))
         dir_path = os.path.join(dir_path, "confs")
+
         with open(os.path.join(dir_path, conf_file), 'r') as f:
             data = json.dumps(ast.literal_eval(f.read()))
             self.conf = json.loads(data)
             print("Configuration successfully parsed...")
+
         self.graph = Graph.from_json(self.conf)
         print("Graph successfully loaded...")
 
     def connection(self):
         def build_packet(src, dest):
-            return {
+            time.sleep(self.connection_timeout)
+            return "header", {
                 "src" : str(src),
                 "dest" : str(dest)
             }
@@ -52,10 +58,11 @@ class Simulation():
                 return node.running
         return {}
 
-simulation = Simulation("simple.json")
-print(simulation.discovery_ip("10.1.3.1"))
-connection = simulation.connection()
-packets = 10
-while packets > 0:
-    print(connection.next())
-    packets -= 1
+if __name__ == "__main__":
+    simulation = Simulation("simple.json")
+    print(simulation.discovery_ip("10.1.3.1"))
+    connection = simulation.connection()
+    packets = 10
+    while packets > 0:
+        print(connection.next())
+        packets -= 1

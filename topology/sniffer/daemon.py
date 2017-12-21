@@ -57,7 +57,7 @@ class SniffingDaemon():
             try:
                 (header, packet) = connection.next()
                 packet = parse_packet(packet)
-                packet = filter_packet(packet)
+                # packet = filter_packet(packet)
                 if packet is not None:
                     new_packets.append(packet)
                     print(packet)

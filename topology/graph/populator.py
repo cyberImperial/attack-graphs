@@ -96,6 +96,6 @@ class Populator():
         time.sleep(10)
         while True:
             self.populate_nodes()
-            if len(self.graph.nodes) > 0:#
+            if len(self.graph.nodes) > 0:
                print("Graph populated:")
                print(self.graph)
