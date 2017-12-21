@@ -7,31 +7,29 @@ import json, subprocess
 from service.client import LocalClient
 from service.server import Server, config
 
-from inference.mock_data import mock_data
+from inference.mulval_data import TranslatorBuilder
 
 class MulvalTranslator():
     def __init__(self):
-        self.f = open('mulval_input.P', 'w')
-        self.s = set()
+        self.mulval_file = open('mulval_input.P', 'w')
+        self.active_set = set()
 
-    def makeTopology(self):
-        self.f.write("attackerLocated(internet).\n")
-        self.f.write("attackGoal(execCode(_, _)).\n")
-        self.f.write("hacl(X, Y, _, _) :-\n "
-                     + " inSubnet(X,S),\n"
-                     + "  inSubnet(Y,S).\n\n" )
+    def _make_topology(self):
+        self.mulval_file.write("attackerLocated(internet).\n")
+        self.mulval_file.write("attackGoal(execCode(_, _)).\n")
 
-        self.f.write("hacl(internet, '" + self.data["links"][0]["source"] +
-                     "', _, _).\n")
+        # Hardcoded...
+        self.mulval_file.write("hacl(internet, '{}', _, _).\n".format(self.data["links"][0]["source"]))
+
+        def add_edge(edge_from, edge_to):
+            if not (edge_from, edge_to) in self.active_set:
+                self.mulval_file.write("hacl('{}', '{}', _, _).\n".format(edge_from, edge_to))
+                self.active_set.add((edge_from, edge_to))
+
         for link in self.data["links"]:
-            if not link["source"] in self.s:
-                self.f.write(" inSubnet('" + link["source"] + "', subnet).\n")
-                self.s.add(link["source"])
-            if not link["target"] in self.s:
-                self.f.write(" inSubnet('" + link["target"] + "', subnet).\n")
-                self.s.add(link["target"])
+            add_edge(link["source"], link["target"])
 
-    def addVulnerabilities(self):
+    def _add_vulnerabilities(self):
         for host in self.data["hosts"]:
             if host["running"]["scanned"] == "false":
                 continue
@@ -53,28 +51,50 @@ class MulvalTranslator():
                     if access == "LOCAL": access = "localExploit"
                     if access == "NETWORK": access = "remoteExploit"
 
-                    self.f.write("networkServiceInfo('%s', '%s', '%s', '%s', '%s').\n" % (ip, application, protocol, port, privileges))
-                    self.f.write("vulExists('%s', '%s', '%s').\n" % (ip, vulnerability, application))
-                    self.f.write("vulProperty('%s', %s, %s).\n" % (vulnerability, access, 'privEscalation'))
+                    self.mulval_file.write("networkServiceInfo('%s', '%s', '%s', '%s', '%s').\n" % (ip, application, protocol, port, privileges))
+                    self.mulval_file.write("vulExists('%s', '%s', '%s').\n" % (ip, vulnerability, application))
+                    self.mulval_file.write("vulProperty('%s', %s, %s).\n" % (vulnerability, access, 'privEscalation'))
+
+    def _cleanup(self, files_before):
+        # clean all the files produced by mulval
+        to_clean = list(set(os.listdir()) - set(files_before))
+        print("Files cleaned: {}".format(to_clean))
+        for f in to_clean:
+            os.system("rm {}".format(f))
+
+    def _save_output(self):
+        with open('AttackGraph.txt', 'r') as output:
+            return output.read()
+
+    def generate_attack_graph(self):
+        files_before = os.listdir()
+
+        self._make_topology()
+        self._add_vulnerabilities()
+        self.mulval_file.close()
+
+        env = os.environ.copy()
+        #TODO: get rid of these
+        env["MULVALROOT"] = "/home/ad5915/mulval"
+        env["XSB_DIR"]    = "/home/ad5915/mulval/XSB"
+
+        env["PATH"] = "{}:{}".format(env["PATH"], os.path.join(env["MULVALROOT"], "bin"))
+        env["PATH"] = "{}:{}".format(env["PATH"], os.path.join(env["MULVALROOT"], "utils"))
+        env["PATH"] = "{}:{}".format(env["PATH"], os.path.join(env["XSB_DIR"], "bin"))
+
+        subprocess.Popen(['graph_gen.sh mulval_input.P -v -p'], shell=True, env=env).wait()
+        output = self._save_output()
+
+        self._cleanup(files_before)
+
+        return output
+
+def generate_attack_graph(client):
+    return TranslatorBuilder(client) \
+        .from_client_data() \
+        .from_mock_data_if_empty() \
+        .build(MulvalTranslator()) \
+        .generate_attack_graph()
 
 if __name__ == "__main__":
-    mulval = None
-    try:
-        mulval = MulvalTranslator()
-        mulval.data = LocalClient(config["graph"]).get("/graph")
-    except Exception as e:
-        mulval = mock_data(MulvalTranslator())
-    if mulval.data is None:
-        mulval = mock_data(MulvalTranslator())
-
-    mulval.makeTopology()
-    mulval.addVulnerabilities()
-    mulval.f.close()
-
-    os.system("export MULVALROOT=/home/ad5915/mulval")
-    os.system("PATH=$PATH:$MULVALROOT/bin")
-    os.system("PATH=$PATH:$MULVALROOT/utils")
-    os.system("export XSB_DIR=/home/ad5915/mulval/XSB")
-    os.system("PATH=$PATH:$XSB_DIR/bin")
-    subprocess.Popen(['graph_gen.sh mulval_input.P -v -p'],  shell=True).wait()
-    os.system("evince AttackGraph.pdf")
+    print(generate_attack_graph(LocalClient(config["graph"])))

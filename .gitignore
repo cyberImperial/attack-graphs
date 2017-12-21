@@ -44,3 +44,6 @@ nvdcve-1.0-*.json
 *.idx
 
 *Catch.hpp*
+
+# Mulval
+*.P
