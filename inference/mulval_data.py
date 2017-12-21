@@ -1,4 +1,26 @@
-def mock_data(mulval_translator):
+from __future__ import absolute_import
+
+import os, sys, time
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from service.client import LocalClient
+from service.server import Server, config
+
+def from_client_data_mock_default(mulval_translator):
+    try:
+        mulval_translator.data = LocalClient(config["graph"]).get("/graph")
+    except Exception as e:
+        mulval_translator = mock_data(mulval_translator)
+        return mulval_translator
+    if mulval_translator.data is None:
+        mulval_translator = from_mock_data(mulval_translator)
+    return mulval_translator
+
+def from_client_data(mulval_translator):
+    mulval_translator.data = LocalClient(config["graph"]).get("/graph")
+    return mulval_translator
+
+def from_mock_data(mulval_translator):
     mulval_translator.vulnerability = {
        'impact':{
           'baseMetricV2':{

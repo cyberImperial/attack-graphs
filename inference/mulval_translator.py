@@ -7,7 +7,7 @@ import json, subprocess
 from service.client import LocalClient
 from service.server import Server, config
 
-from inference.mock_data import mock_data
+from inference.mulval_data import from_client_data_mock_default
 
 class MulvalTranslator():
     def __init__(self):
@@ -56,14 +56,7 @@ class MulvalTranslator():
                     self.mulval_file.write("vulProperty('%s', %s, %s).\n" % (vulnerability, access, 'privEscalation'))
 
 if __name__ == "__main__":
-    mulval = None
-    try:
-        mulval = MulvalTranslator()
-        mulval.data = LocalClient(config["graph"]).get("/graph")
-    except Exception as e:
-        mulval = mock_data(MulvalTranslator())
-    if mulval.data is None:
-        mulval = mock_data(MulvalTranslator())
+    mulval = from_client_data_mock_default(MulvalTranslator())
 
     mulval.make_topology()
     mulval.add_vulnerabilities()
