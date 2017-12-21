@@ -50,7 +50,7 @@ class SniffingDaemon():
         else:
             self.connections = connections
 
-    def get_new_packets(self, filter_mask):
+    def get_new_packets(self, filter_mask="10.1.1.1/32"):
         # For the moment we ask each device for a packet. If this proves to
         # be a problem, we need to group the reads.
         new_packets = []
