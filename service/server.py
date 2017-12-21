@@ -4,9 +4,10 @@ import random
 from flask import Blueprint, Flask, request
 
 config = {
-    'database' : 29000,
-    'sniffer' : 29001,
-    'graph' : 29002
+    'inference' : 29000,
+    'database' : 29001,
+    'sniffer' : 29002,
+    'graph' : 29003,
 }
 
 class Server():

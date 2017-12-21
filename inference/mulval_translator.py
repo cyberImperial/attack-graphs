@@ -88,12 +88,12 @@ class MulvalTranslator():
 
         return output
 
-def generate_attack_graph():
-    return TranslatorBuilder() \
+def generate_attack_graph(client):
+    return TranslatorBuilder(client) \
         .from_client_data() \
         .from_mock_data_if_empty() \
         .build(MulvalTranslator()) \
         .generate_attack_graph()
 
 if __name__ == "__main__":
-    print(generate_attack_graph())
+    print(generate_attack_graph(LocalClient(config["graph"])))

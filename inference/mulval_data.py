@@ -1,18 +1,13 @@
 from __future__ import absolute_import
 
-import os, sys, time
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
-from service.client import LocalClient
-from service.server import Server, config
-
 class TranslatorBuilder():
-    def __init__(self):
+    def __init__(self, client):
         self.data = None
+        self.client = client
 
     def from_client_data(self):
         try:
-            self.data = LocalClient(config["graph"]).get("/graph")
+            self.data = client.get("/graph")
         except Exception as e:
             return self
         return self

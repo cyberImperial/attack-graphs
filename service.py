@@ -19,11 +19,13 @@ def services(device_name=None, filter_mask=None):
     from topology.graph.graph_service import graph_service
     from topology.sniffer.sniffing_service import sniffing_service
     from database.database_service import database_service
+    from inference.inference_service import inference_service
 
     global processes
     processes = [
         Process(target=database_service),
-        Process(target=graph_service)
+        Process(target=graph_service),
+        Process(target=inference_service),
     ]
 
     processes.append(Process(target=sniffing_service, args=(device_name, filter_mask)))
@@ -46,16 +48,13 @@ def set_ports(node_type):
 
     if node_type == "slave":
         config = {
+            'inference' : port_offset + random.randint(0, port_offset),
             'database' : port_offset + random.randint(0, port_offset),
             'sniffer' : port_offset + random.randint(0, port_offset),
             'graph' : port_offset + random.randint(0, port_offset)
         }
     elif node_type == "master":
-        config = {
-            'database' : 29000,
-            'sniffer' : 29001,
-            'graph' : 29002
-        }
+        config = config_keeper.config
     else:
         print("Wrong type specified.")
         os.kill(os.getpid(), signal.SIGINT)
