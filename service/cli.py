@@ -9,6 +9,7 @@ import argparse
 from service.server import config
 
 from inference.inference_service import InferenceClient
+from database.database_service import DBClient
 
 class CLI():
     """
@@ -27,17 +28,25 @@ class CLI():
                 "wait" : True
             }, {
                 "no_args" : args.exit
+            }, {
+                "input" : args.vul,
+                "func" : lambda x: DBClient(config["database"]).db_request("/vulnerability", args.vul[0], args.vul[1]),
+                "wait" : True
+            }, {
+                "input" : args.priv,
+                "func" : lambda x: DBClient(config["database"]).db_request("/privileges", args.priv[0], args.priv[1]),
+                "wait" : True
             }
         ]
 
         out_service = None
         for service in dispatch_map:
-            if "no_arg" in service and service["no_arg"]:
+            if "no_args" in service and service["no_args"]:
                 out_service      = service
-                out_service[out] = service["func"]()
+                out_service["out"] = lambda: service["func"]()
             if "input" in service and service["input"] is not None:
                 out_service        = service
-                out_service["out"] = service["func"](service["input"])
+                out_service["out"] = lambda: service["func"](service["input"])
         return out_service
 
     def start(self):
@@ -45,7 +54,15 @@ class CLI():
             line = prompt.query("> ")
 
             input_args = line.split(' ')
-            keywords = ["echo", "gen", "exit", "quit"]
+            keywords = [
+                "echo",
+                "gen",
+                "exit",
+                "quit",
+                "priv",
+                "vul",
+                "help"
+            ]
             for i in range(len(input_args)):
                 if input_args[i] in keywords:
                     input_args[i] = "--" + input_args[i]
@@ -54,29 +71,44 @@ class CLI():
             group  = parser.add_mutually_exclusive_group()
             group.add_argument("--echo", type=str, nargs='+',
                 help="Usual echo command.")
-            group.add_argument("--gen", action="store_true",
-                help="Send a request to the inference engine.")
             group.add_argument("--exit", action="store_true",
                 help="Send a request to the inference engine.")
             group.add_argument("--quit", dest="exit", action="store_true",
                 help="Send a request to the inference engine.")
+            group.add_argument("--gen", action="store_true",
+                help="Send a request to the inference engine.")
+            group.add_argument("--vul", type=str, nargs=2,
+                help="""
+                    Send a request to the database service for a vulnerability.
+                    The first argument is the product.
+                    The second argument is the version.
+                """)
+            group.add_argument("--priv", type=str, nargs=2,
+                help="""
+                    Send a request to the database service for privilege level
+                        escalation for a vulnerability.
+                    The first argument is the product.
+                    The second argument is the version.
+                """)
+
             group.set_defaults(
                 exit = False,
                 gen = False
             )
 
             exit = False
+            args = None
             try:
                 args = parser.parse_args(input_args)
             except SystemExit:
                 parser.print_help()
                 exit = True
 
-            if args.exit:
-                puts("Bye..")
-                sys.exit(0)
-
             if not exit:
+                if args.exit:
+                    puts("Bye..")
+                    sys.exit(0)
+
                 out_service = self.dispatch(args)
                 print(out_service)
 
