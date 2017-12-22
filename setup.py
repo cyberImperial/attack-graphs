@@ -11,6 +11,7 @@ setup(
         "requests>=2.9.1"
     ],
     tests_require=[
+        "timeout_decorator"
     ],
     test_suite='tests',
     zip_safe=False,
