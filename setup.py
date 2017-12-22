@@ -8,7 +8,8 @@ setup(
     install_requires=[
         "flask",
         "pcapy",
-        "requests>=2.9.1"
+        "requests>=2.9.1",
+        "clint"
     ],
     tests_require=[
         "timeout_decorator"
