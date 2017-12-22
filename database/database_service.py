@@ -1,5 +1,8 @@
 from __future__ import absolute_import
 
+import logging
+logger = logging.getLogger(__name__)
+
 import os, sys, time
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -9,7 +12,6 @@ from service.server import Server
 from service.components import Component
 from service.client import LocalClient
 
-from pprint import pprint
 import ast
 
 class DBQuery(Component):
@@ -20,9 +22,9 @@ class DBQuery(Component):
         output = {}
         try:
             output = self.db.query(json["product"], json["version"])
-            print("DB found: {} {}".format(json["product"], json["version"]))
+            logger.info("DB found: {} {}".format(json["product"], json["version"]))
         except Exception as e:
-            print("DB miss: {} {}".format(json["product"], json["version"]))
+            logger.warn("DB miss: {} {}".format(json["product"], json["version"]))
         return output
 
 class DBPrivileges(Component):
@@ -33,9 +35,9 @@ class DBPrivileges(Component):
         output = {}
         try:
             output = self.db.get_privileges(json["product"], json["version"])
-            print("DB found: {} {}".format(json["product"], json["version"]))
+            logger.info("DB found: {} {}".format(json["product"], json["version"]))
         except Exception as e:
-            print("DB miss: {} {}".format(json["product"], json["version"]))
+            logger.warn("DB miss: {} {}".format(json["product"], json["version"]))
         return output
 
 class DBClient(LocalClient):

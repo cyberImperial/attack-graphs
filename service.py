@@ -6,12 +6,15 @@ import argparse
 import random
 import subprocess
 
+import logging
+logger = logging.getLogger(__name__)
+
 from multiprocessing import Process
 
 def signal_handler(siganl, frames):
-    print("Killing the running services.")
+    logger.warn("Killing the running services.")
     for process in processes:
-        print("Killing process {}".format(process.pid))
+        logger.warn("Killing process {}".format(process.pid))
         os.system("kill -9 {}".format(process.pid))
     sys.exit(0)
 
@@ -56,10 +59,30 @@ def set_ports(node_type):
     elif node_type == "master":
         config = config_keeper.config
     else:
-        print("Wrong type specified.")
+        logger.error("Wrong type specified.")
         os.kill(os.getpid(), signal.SIGINT)
 
     setattr(config_keeper, 'config', config)
+
+def setup_loggers(verbose):
+    stderr_handler = logging.StreamHandler(sys.stderr)
+    if args.verbose:
+        stderr_handler.setLevel(logging.DEBUG)
+    else:
+        stderr_handler.setLevel(logging.INFO)
+    stderr_handler.setFormatter(logging.Formatter(logging.BASIC_FORMAT))
+
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+    # Logging to file as well
+    file_handler = logging.FileHandler('attack-graph.log')
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(formatter)
+
+    logging.basicConfig(
+        level=logging.DEBUG,
+        handlers=[stderr_handler, file_handler]
+    )
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -75,11 +98,16 @@ if __name__ == "__main__":
         help="To run a simulated network from a network configuration file use this flag.")
     parser.add_argument("-f", "--filter", type=str, default=None,
         help="Specify a mask for filtering the packets. (e.g. '10.1.1.1/16' would keep packets starting with '10.1')")
+    parser.add_argument("-v", '--verbose', dest='verbose', action='store_true',
+        help="Set the logging level to DEBUG.")
+    parser.set_defaults(verbose=False)
 
     args = parser.parse_args()
 
+    setup_loggers(args.verbose)
+
     if os.getuid() != 0:
-        print("Must be run as root.")
+        logger.error("Must be run as root.")
         exit(1)
 
     if args.simulation is not None:
@@ -101,7 +129,7 @@ if __name__ == "__main__":
         port      = args.port
 
         if master_ip is None or port is None:
-            print("Not enough arguments provided for slave mode.")
+            logger.error("Not enough arguments provided for slave mode.")
             os.kill(os.getpid(), signal.SIGINT)
 
         slave_proc = subprocess.Popen(['python3', 'dissemination/slave.py', master_ip, port],  shell=False)

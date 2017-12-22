@@ -1,5 +1,8 @@
 from __future__ import absolute_import
 
+import logging
+logger = logging.getLogger(__name__)
+
 import os
 import sys
 import time
@@ -26,8 +29,8 @@ def filter_packet(packet, mask):
         check_mask = (1 << 32 - 1) - (1 << mask_bits - 1)
         ip_bits    = bitmask(ip)      & check_mask
         check_bits = bitmask(mask_ip) & check_mask
-        # print("{0:b}".format(ip_bits))
-        # print("{0:b}".format(check_bits))
+        # logger.debug("{0:b}".format(ip_bits))
+        # logger.debug("{0:b}".format(check_bits))
         return ip_bits == check_bits
 
     if not check_ip(src) or not check_ip(dst):
@@ -61,7 +64,7 @@ class SniffingDaemon():
                 packet = filter_packet(packet, filter_mask)
                 if packet is not None:
                     new_packets.append(packet)
-                    print(packet)
+                    logger.debug(packet)
             except Exception as e:
                 # Non-eth packets received
                 pass

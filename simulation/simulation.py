@@ -1,5 +1,8 @@
 from __future__ import absolute_import
 
+import logging
+logger = logging.getLogger(__name__)
+
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -23,10 +26,10 @@ class Simulation():
         with open(os.path.join(dir_path, conf_file), 'r') as f:
             data = json.dumps(ast.literal_eval(f.read()))
             self.conf = json.loads(data)
-            print("Configuration successfully parsed...")
+            logger.info("Configuration successfully parsed...")
 
         self.graph = Graph.from_json(self.conf)
-        print("Graph successfully loaded...")
+        logger.info("Graph successfully loaded...")
 
     def connection(self):
         def build_packet(src, dest):
@@ -48,6 +51,7 @@ class Simulation():
                         return build_packet(n1.ip, n2.ip)
                     link_idx -= 1
 
+                logger.error("Simulated connection crashed.")
                 raise Exception("Malformed simulation graph!")
 
         return Connection(self.graph)
@@ -60,9 +64,9 @@ class Simulation():
 
 if __name__ == "__main__":
     simulation = Simulation("simple.json")
-    print(simulation.discovery_ip("10.1.3.1"))
+    logger.debug(simulation.discovery_ip("10.1.3.1"))
     connection = simulation.connection()
     packets = 10
     while packets > 0:
-        print(connection.next())
+        logger.debug(connection.next())
         packets -= 1

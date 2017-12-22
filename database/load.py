@@ -5,7 +5,8 @@ import os
 import sys
 import subprocess
 
-from pprint import pprint
+import logging
+logger = logging.getLogger(__name__)
 
 DIRECTORY = os.path.abspath(os.path.dirname(__file__))
 
@@ -72,10 +73,10 @@ def call(command):
 if __name__=="__main__":
     if "-r" in sys.argv:
         # Remove old index files
-        print("Removing old index files...")
+        logger.warn("Removing old index files...")
         for f in os.listdir(DIRECTORY):
             if ".idx" in f:
-                print("Removing " + f)
+                logger.warn("Removing " + f)
                 os.remove(f)
 
     # Check all files exist:
@@ -86,17 +87,17 @@ if __name__=="__main__":
             need_download = True
 
     if need_download:
-        print("Downloading NVD JSON files...")
+        logger.info("Downloading NVD JSON files...")
         if "-d" in sys.argv:
             os.system(os.path.join(DIRECTORY, "dw_nvd_json.sh", "database"))
         else:
             os.system(os.path.join(DIRECTORY, "dw_nvd_json.sh"))
 
     # Create new index files
-    print("Indexing NVD files...")
+    logger.info("Indexing NVD files...")
     for r in range(2002, 2018):
         file_name = "nvdcve-1.0-{}.json".format(r)
-        print("Parsing file:" + file_name)
+        logger.info("Parsing file:" + file_name)
         parse(file_name)
 
     with open(os.path.join(DIRECTORY, 'indexed.idx'), 'w') as outfile:

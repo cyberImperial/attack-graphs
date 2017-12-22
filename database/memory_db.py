@@ -1,7 +1,6 @@
 import json
 import os
 import unicodedata
-from pprint import pprint
 
 class MemoryDB():
     def __init__(self):

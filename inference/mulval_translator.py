@@ -1,5 +1,8 @@
 from __future__ import absolute_import
 
+import logging
+logger = logging.getLogger(__name__)
+
 import os, sys, time
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -58,7 +61,7 @@ class MulvalTranslator():
     def _cleanup(self, files_before):
         # clean all the files produced by mulval
         to_clean = list(set(os.listdir()) - set(files_before))
-        print("Files cleaned: {}".format(to_clean))
+        logger.info("Files cleaned: {}".format(to_clean))
         for f in to_clean:
             os.system("rm {}".format(f))
 
@@ -67,6 +70,7 @@ class MulvalTranslator():
             return output.read()
 
     def generate_attack_graph(self):
+        logger.info("Generating attack graph.")
         files_before = os.listdir()
 
         self._make_topology()
@@ -74,9 +78,11 @@ class MulvalTranslator():
         self.mulval_file.close()
 
         env = os.environ.copy()
-        #TODO: get rid of these
-        env["MULVALROOT"] = "/home/ad5915/mulval"
-        env["XSB_DIR"]    = "/home/ad5915/mulval/XSB"
+
+        if "MULVALROOT" not in env:
+            env["MULVALROOT"] = os.path.join(env["HOME"], "mulval")
+        if "XSB_DIR" not in env:
+            env["XSB_DIR"] = os.path.join(env["HOME"], "mulval", "XSB")
 
         env["PATH"] = "{}:{}".format(env["PATH"], os.path.join(env["MULVALROOT"], "bin"))
         env["PATH"] = "{}:{}".format(env["PATH"], os.path.join(env["MULVALROOT"], "utils"))
@@ -97,4 +103,4 @@ def generate_attack_graph(client):
         .generate_attack_graph()
 
 if __name__ == "__main__":
-    print(generate_attack_graph(LocalClient(config["graph"])))
+    logger.info(generate_attack_graph(LocalClient(config["graph"])))

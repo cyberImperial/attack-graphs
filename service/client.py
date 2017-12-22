@@ -8,8 +8,16 @@ class Client():
     """
 
     def __init__(self, url, port):
-        self.url = url
-        self.port = port
+        self._url = url
+        self._port = port
+
+    @property
+    def url(self):
+        return self._url
+
+    @property
+    def port(self):
+        return self._port
 
     def get(self, resource, default=None):
         full_url = self.url + ":" + str(self.port) + resource
@@ -33,5 +41,5 @@ class Client():
 
 class LocalClient(Client):
     def __init__(self, port):
-        self.url = "http://127.0.0.1"
-        self.port = port
+        self._url = "http://127.0.0.1"
+        self._port = port
