@@ -1,6 +1,9 @@
 def mock_client(binder):
     client_cls = MockClient
     client_cls.binder = binder
+    client_cls.binder.gets  = {}
+    client_cls.binder.posts = {}
+    client_cls.binder.lastest_post = None
     return client_cls
 
 class MockClient():

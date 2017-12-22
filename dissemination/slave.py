@@ -39,11 +39,11 @@ class MessageReceiver(Component):
         self.slave.graph_sharing.update(message["graph"])
 
 class Slave():
-    def __init__(self, slave_port, master_ip, master_port):
+    def __init__(self, slave_port, master_ip, master_port, client_cls=Client):
         self.slave_port = slave_port
         self.slave_ip = get_host_ip()
 
-        self.master_client = Client("http://" + master_ip, master_port)
+        self.master_client = client_cls("http://" + master_ip, master_port)
         self.membership_list = []
 
         self.server = Server("slave", slave_port)
@@ -51,7 +51,7 @@ class Slave():
         self.server.add_component_post("/membership", SlaveMembership(self))
         self.server.add_component_post("/multicast", MessageReceiver(self))
 
-        self.dissemination_constant = 2
+        self.dissemination_constant = 5
         self.graph_sharing = GraphSharing()
 
     def join(self):
