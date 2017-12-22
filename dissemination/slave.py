@@ -7,6 +7,7 @@ import sys
 import os
 import time
 import threading
+import random
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from service.client import Client
@@ -42,8 +43,9 @@ class Slave():
     def __init__(self, slave_port, master_ip, master_port, client_cls=Client):
         self.slave_port = slave_port
         self.slave_ip = get_host_ip()
+        self.client_cls = client_cls
 
-        self.master_client = client_cls("http://" + master_ip, master_port)
+        self.master_client = self.client_cls("http://" + master_ip, master_port)
         self.membership_list = []
 
         self.server = Server("slave", slave_port)
@@ -68,11 +70,17 @@ class Slave():
 
         self.membership_list = []
         for member in membership_list:
-            client = Client("http://" + member["ip"], member["port"])
+            client = self.client_cls("http://" + member["ip"], member["port"])
             self.membership_list.append(client)
 
-    def get_current_multicast(self):
+    def get_current_broadcast(self):
         return self.membership_list
+
+    def get_current_multicast(self):
+        multicast_list = list(self.membership_list[:])
+        random.shuffle(multicast_list)
+
+        return multicast_list[:self.dissemination_constant]
 
     def disseminate(self, multicast_list, message):
         for client in multicast_list:

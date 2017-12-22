@@ -1,13 +1,15 @@
 from __future__ import absolute_import
 from unittest import TestCase
 
-# mock_client decorated test class with gets, ports and lastest_post
+from tests.mocks.client import use_mock_client
 from tests.mocks.client import mock_client
 
 from dissemination.master import Master
 
 class MasterTest(TestCase):
     def setUp(self):
+        use_mock_client(self)
+        
         self.master = Master()
 
         self.ips = [{
