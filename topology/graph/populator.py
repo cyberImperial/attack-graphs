@@ -1,6 +1,9 @@
 import time
 import random
 
+import logging
+logger = logging.getLogger(__name__)
+
 from service.server import config
 from database.database_service import DBClient
 from topology.discovery.discovery import discovery_ip
@@ -27,6 +30,7 @@ class Populator():
         self.threads = 1
         self.discovery_ip = discovery_ip
         self.db_client = db_client
+        self.updated = False
 
     def get_batch(self, graph, shuffle=lambda x: x):
         # Create the batch
@@ -55,6 +59,8 @@ class Populator():
         return results
 
     def update_graph(self, graph, results, batch):
+        self.updated = False
+
         # Putting the results on the graph
         graph.lock.acquire()
         for i in range(0, len(batch)):
@@ -68,6 +74,8 @@ class Populator():
             node.running = results[i]
             node.running["scanned"] = "true"
 
+            if node not in graph.populated:
+                self.updated = True
             graph.populated.add(node)
 
             #update nodes
@@ -107,6 +115,6 @@ class Populator():
         time.sleep(10)
         while True:
             self.populate_nodes()
-            # if len(self.graph.nodes) > 0:
-            #    print("Graph populated:")
-            #    print(self.graph)
+            if self.updated:
+               logger.info("Graph populated")
+               logger.info(self.graph)

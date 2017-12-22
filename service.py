@@ -6,12 +6,16 @@ import argparse
 import random
 import subprocess
 
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 from multiprocessing import Process
 
 def signal_handler(siganl, frames):
-    print("Killing the running services.")
+    logger.warn("Killing the running services.")
     for process in processes:
-        print("Killing process {}".format(process.pid))
+        logger.warn("Killing process {}".format(process.pid))
         os.system("kill -9 {}".format(process.pid))
     sys.exit(0)
 
@@ -56,7 +60,7 @@ def set_ports(node_type):
     elif node_type == "master":
         config = config_keeper.config
     else:
-        print("Wrong type specified.")
+        logger.error("Wrong type specified.")
         os.kill(os.getpid(), signal.SIGINT)
 
     setattr(config_keeper, 'config', config)
@@ -79,7 +83,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if os.getuid() != 0:
-        print("Must be run as root.")
+        logger.error("Must be run as root.")
         exit(1)
 
     if args.simulation is not None:
@@ -101,7 +105,7 @@ if __name__ == "__main__":
         port      = args.port
 
         if master_ip is None or port is None:
-            print("Not enough arguments provided for slave mode.")
+            logger.error("Not enough arguments provided for slave mode.")
             os.kill(os.getpid(), signal.SIGINT)
 
         slave_proc = subprocess.Popen(['python3', 'dissemination/slave.py', master_ip, port],  shell=False)

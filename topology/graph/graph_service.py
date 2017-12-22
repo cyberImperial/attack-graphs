@@ -1,5 +1,8 @@
 from __future__ import absolute_import
 
+import logging
+logger = logging.getLogger(__name__)
+
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
@@ -92,9 +95,8 @@ def graph_service():
     while True:
         service.update()
 
-        # Print some stuff...
         time.sleep(5)
-        print(LocalClient(config["graph"]).get("/graph"))
+        logger.debug(LocalClient(config["graph"]).get("/graph"))
 
 if __name__ == "__main__":
     graph_service()

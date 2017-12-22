@@ -1,5 +1,8 @@
 from __future__ import absolute_import
 
+import logging
+logger = logging.getLogger(__name__)
+
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -25,14 +28,14 @@ class Master():
         self.server.add_component_post("/register", MasterReceive(self))
 
     def register(self, registration):
-        print("Received register...")
+        logging.info("Received register...")
         # For the moment the servers are single threaded, one-connection at a time
         # We need to make them concurrent
         client = Client("http://" + registration["ip"], registration["port"])
         self.membership_list.append(client)
 
     def broadcast(self):
-        print("Broadcasting membership....")
+        logging.info("Broadcasting membership....")
         broadcast = {
             "members" : [{
                 "ip" : client.url.split("/")[2],
@@ -47,6 +50,6 @@ class Master():
 
 if __name__ == "__main__":
     master = Master()
-    print("Master running on ip: ", get_host_ip())
+    logging.info("Master running on ip: ", get_host_ip())
 
     master.server.run()

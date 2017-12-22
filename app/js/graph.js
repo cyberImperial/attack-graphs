@@ -1,5 +1,5 @@
 const jquery = require("jquery");
-const host = "http://127.0.0.1:29002/graph";
+const host = "http://127.0.0.1:29003/graph";
 
 let svg = d3.select("#graph-container")
       .append("svg")
@@ -66,10 +66,13 @@ function getTopologyInfo() {
               .offset([-10, 0])
               .html(function(d) {
                 console.log(d);
-                  if(typeof d.running.Host === 'object') {
+                  if (typeof d.running.Host === 'object') {
                       var result = "";
                       total += d.running.Host.RunningServices.length;
-                      for(var i = 0; i < d.running.Host.RunningServices.length; i++) {
+                      for (var i = 0; i < d.running.Host.RunningServices.length; i++) {
+
+
+                          // Usual display attributes
                           if(d.running.Host.RunningServices[i].Port.portid != "attributeMissing") {
                               result += "<br><strong style='color:red'> Port : </strong><span>" + d.running.Host.RunningServices[i].Port.portid;
                           }

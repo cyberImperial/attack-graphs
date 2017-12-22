@@ -1,5 +1,8 @@
 from __future__ import absolute_import
 
+import logging
+logger = logging.getLogger(__name__)
+
 import os
 import sys
 import time
@@ -21,6 +24,7 @@ def timeout_dispach(function, timeout, *args):
     t.join(timeout=timeout)
 
 def open_connection(device_name):
+    logger.info("Openning connection with {}.".format(device_name))
     return [pcapy.open_live(device_name, 65536 , True , 100)]
 
 def discover_devices():
@@ -49,15 +53,15 @@ def discover_devices():
                 # Set each connection to be blocking
                 connection.setnonblock(False)
         except Exception as e:
-            print("Device " + dev + " failed.")
+            logger.error("Device {} failed.".format(dev))
 
     # Wait for a timeout capture and select only the interfaces that exchange packets
-    print("Waiting to test interfaces...")
+    logger.info("Waiting to test interfaces...")
     time.sleep(5)
 
     # Set a number of iterations in which we decide which interfaces to listen at
     iterations = 10
-    print("Checking for devices that have eth packets...")
+    logger.info("Checking for devices that have eth packets...")
     while iterations > 0:
         iterations -= 1
         for connection in connections:
@@ -81,7 +85,7 @@ def discover_devices():
 
     # Filter out the connection that did not receive any eth packet
     all_connections = [conn for conn in connections]
-    print("Filtering devices...")
+    logger.info("Filtering devices...")
     connections = []
     for connection in all_connections:
         if received_eth_packets[connection] > 0:
@@ -90,5 +94,5 @@ def discover_devices():
             # This will call __exit__, so the unused connections get closed
             del connection
 
-    print("Connections opened: " + str(len(connections)))
+    logger.info("Connections opened: " + str(len(connections)))
     return connections

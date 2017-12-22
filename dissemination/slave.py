@@ -1,5 +1,8 @@
 from __future__ import absolute_import
 
+import logging
+logger = logging.getLogger(__name__)
+
 import sys
 import os
 import time
@@ -18,7 +21,7 @@ class SlaveMembership(Component):
         self.slave = slave
 
     def process(self, membership_list):
-        print("Received....")
+        logging.info("Received membership list.")
         self.slave.update_membership(membership_list)
 
 class HealthCheck(Component):
@@ -32,7 +35,7 @@ class MessageReceiver(Component):
         self.slave = slave
 
     def process(self, message):
-        print("Received message: " + str(message))
+        logging.info("Received message: {}".format(str(message)))
         self.slave.graph_sharing.update(message["graph"])
 
 class Slave():
@@ -58,7 +61,7 @@ class Slave():
         })
 
     def update_membership(self, membership_list):
-        print("Updating membership....")
+        logging.info("Updating membership....")
         if "members" not in membership_list:
             return
         membership_list = membership_list["members"]
