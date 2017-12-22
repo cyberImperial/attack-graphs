@@ -73,10 +73,10 @@ def call(command):
 if __name__=="__main__":
     if "-r" in sys.argv:
         # Remove old index files
-        log.warn("Removing old index files...")
+        logger.warn("Removing old index files...")
         for f in os.listdir(DIRECTORY):
             if ".idx" in f:
-                log.warn("Removing " + f)
+                logger.warn("Removing " + f)
                 os.remove(f)
 
     # Check all files exist:
