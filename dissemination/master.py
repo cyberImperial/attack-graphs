@@ -12,6 +12,8 @@ from service.server import Server
 from service.components import Component
 from dissemination.util import get_host_ip
 
+MASTER_DEFAULT_PORT = 5000
+
 class MasterReceive(Component):
     def __init__(self, master):
         self.master = master
@@ -24,7 +26,7 @@ class Master():
     def __init__(self):
         self.membership_list = []
 
-        self.server = Server("master", 5000)
+        self.server = Server("master", MASTER_DEFAULT_PORT)
         self.server.add_component_post("/register", MasterReceive(self))
 
     def register(self, registration, client_cls=Client):

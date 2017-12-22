@@ -14,6 +14,7 @@ from service.client import Client
 from service.server import Server
 from service.components import Component
 
+from dissemination.master import MASTER_DEFAULT_PORT
 from dissemination.graph_sharing import GraphSharing
 from dissemination.util import get_host_ip
 
@@ -100,7 +101,7 @@ class Slave():
             self.disseminate(multicast_list, multicast_message)
 
 if __name__ == "__main__":
-    master_port = 5000
+    master_port = MASTER_DEFAULT_PORT
 
     # Need to give port as an argument
     master_ip = sys.argv[1]
