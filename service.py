@@ -7,7 +7,6 @@ import random
 import subprocess
 
 import logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 from multiprocessing import Process
@@ -65,6 +64,26 @@ def set_ports(node_type):
 
     setattr(config_keeper, 'config', config)
 
+def setup_loggers(verbose):
+    stderr_handler = logging.StreamHandler(sys.stderr)
+    if args.verbose:
+        stderr_handler.setLevel(logging.DEBUG)
+    else:
+        stderr_handler.setLevel(logging.INFO)
+    stderr_handler.setFormatter(logging.Formatter(logging.BASIC_FORMAT))
+
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+    # Logging to file as well
+    file_handler = logging.FileHandler('attack-graph.log')
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(formatter)
+
+    logging.basicConfig(
+        level=logging.DEBUG,
+        handlers=[stderr_handler, file_handler]
+    )
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("type", type=str,
@@ -79,8 +98,13 @@ if __name__ == "__main__":
         help="To run a simulated network from a network configuration file use this flag.")
     parser.add_argument("-f", "--filter", type=str, default=None,
         help="Specify a mask for filtering the packets. (e.g. '10.1.1.1/16' would keep packets starting with '10.1')")
+    parser.add_argument("-v", '--verbose', dest='verbose', action='store_true',
+        help="Set the logging level to DEBUG.")
+    parser.set_defaults(verbose=False)
 
     args = parser.parse_args()
+
+    setup_loggers(args.verbose)
 
     if os.getuid() != 0:
         logger.error("Must be run as root.")
