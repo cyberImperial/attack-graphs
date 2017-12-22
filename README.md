@@ -19,14 +19,11 @@ make test
 python3 setup.py test
 ```
 
-The inference engine depends on `mulval`.  To run the inference engine, you need to set the following path variables: (in case they are not set, the module will try some default paths)
+The inference engine depends on `mulval`. Please follow the instructions for installation from [here](http://people.cs.ksu.edu/~xou/mulval/). To run the inference engine, you need to set the following path variables: (in case they are not set, the module will try some default paths)
 ```
 MULVALROOT=<mulval_path>
 XSB_DIR=<xsb_path>
 ```
-
-Please follow the instruction for installation from here:
-`http://people.cs.ksu.edu/~xou/mulval/` 
 
 ### Running the main application
 
@@ -41,14 +38,7 @@ sudo python3 service.py master
 Running a slave node:
 ```
 sudo python3 service.py slave [master-ip]
-```
-
-Running on a simulated network:
-```
-```
-
-The configuration files for the simulated network should be placed inside:
-
+``` 
 
 Package options:
 ```
@@ -73,6 +63,16 @@ optional arguments:
                         Specify a mask for filtering the packets. (e.g.
                         '10.1.1.1/16' would keep packets starting with '10.1')
   -v, --verbose         Set the logging level to DEBUG.
+```
+
+Running on a simulated network:
+```
+sudo python3 service.py master -s [simulation-config]
+```
+
+The configuration files for the simulated network should be placed inside the folder `simulation/confs`. The simulation module looks only for the files inside `simulation/confs`. For an example configuration see [simulation/confs/simple.json](https://github.com/cyberImperial/attack-graphs/blob/master/simulation/confs/simple.json):
+```
+sudo python3 service.py master -s simple.json
 ```
 
 ### Python CLI
@@ -103,7 +103,7 @@ CLI options:
 
 ### Front-end
 
-Staring the interface:
+Staring the graphical user interface:
 ```
 npm start
 ```
