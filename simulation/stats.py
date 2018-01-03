@@ -10,20 +10,42 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from simulation.simulation import Simulation
 
 class StatsEngine():
+    def __init__(self):
+        self.packets = 0
+        self.scans = 0
+        self.scan_set = set()
+
     def post(self, stat):
-        logger.info(stat)
-        pass
+        if isinstance(stat, PacketStat):
+            self.packets += 1
+        if isinstance(stat, ScanStat):
+            self.scans += 1
+            self.scan_set.add(stat.ip)
+            logger.info(str(self))
+
+    def __str__(self):
+        return "[packets: {}, scans: {}, unique_scans: {}]".format(
+            self.packets,
+            self.scans,
+            len(self.scan_set)
+        )
 
 class Stat():
     pass
 
 class ScanStat(Stat):
-    def __init__(self, scan):
-        self.scan = scan
+    def __init__(self, ip, scan):
+        self.ip = ip
+
+    def __str__(self):
+        return "[scan: {}]".format(str(self.ip))
 
 class PacketStat(Stat):
     def __init__(self, packet):
         self.packet = packet
+
+    def __str__(self):
+        return "[packet: {}]".format(str(self.packet))
 
 class SimulationStat(Simulation):
     def __init__(self, simulation, stats_engine=StatsEngine()):
@@ -44,6 +66,6 @@ class SimulationStat(Simulation):
         return Connection(self.simulation.connection(), self.stats_engine)
 
     def discovery_ip(self, ip):
-        scan = self.connection.discovery_ip(ip)
-        self.stats_engine.post(ScanStat(scan))
+        scan = self.simulation.discovery_ip(ip)
+        self.stats_engine.post(ScanStat(ip, scan))
         return scan
