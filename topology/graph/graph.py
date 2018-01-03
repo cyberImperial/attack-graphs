@@ -1,3 +1,6 @@
+import logging
+logger = logging.getLogger(__name__)
+
 from threading import Lock
 
 class Node():
@@ -48,10 +51,11 @@ class Graph():
         self.edges.add((n1, n2))
 
     def merge(self, graph):
-        graph1 = self.graph
+        logger.info("Merging graphs.")
+        graph1 = self
         graph2 = graph
 
-        self.graph.lock.acquire()
+        self.lock.acquire()
 
         graph1.edges.union(graph2.edges)
         graph1.nodes.union(graph2.nodes)
@@ -61,7 +65,8 @@ class Graph():
         graph1.unpopulated.union(graph2.unpopulated)
         graph1.unpopulated.difference(graph1.populated)
 
-        self.graph.lock.release()
+        self.lock.release()
+        logger.info("Finished merging.")
 
     def to_json(self):
         return {
