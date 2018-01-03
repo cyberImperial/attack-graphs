@@ -60,13 +60,26 @@
         </div>
         <hr>
         <div class="row">
-            <div class="col-lg-5">
-                <label class="checkbox-inline">
-                    <input type="checkbox" checked data-toggle="toggle"> Show tooltips
-                </label>
-                <label class="checkbox-inline">
-                    <input type="checkbox" data-toggle="toggle"> Show Endpoints
-                </label>
+            <div class="col-lg-8">
+                <div class="col-lg-5">
+                    <label class="checkbox-inline">
+                        <input id="toggle-tooltip" type="checkbox" checked data-toggle="toggle" onclick="alert("DA");> Show tooltips
+                    </label>
+                    <script>
+                        $(function() {
+                            $('#toggle-tooltip').change(function() {
+                                showTooltip = $(this).prop('checked');
+                            })
+                        })
+                    </script>
+                    <label class="checkbox-inline">
+                        <input type="checkbox" data-toggle="toggle"> Show Endpoints
+                    </label>
+                </div>
+                <div class="col-lg-6"></div>
+                <div class="col-lg-1">
+                    <input type="checkbox" data-toggle="toggle" data-on="Reachability" data-off="Attack Graph">
+                </div>
             </div>
         </div>
     </nav>
@@ -79,7 +92,7 @@
 
             <div class="col-lg-1"></div>
 
-            <div class="col-lg-3" style="z-index: 1">
+            <div class="col-lg-3">
                 <h1 class="page-header text-center" style="margin-top: 0">Summary</h1>
                 <div class="container-fluid">
                     <div class="row">
@@ -91,40 +104,12 @@
                                 <li class="list-group-item">
                                     <div class="row toggle" id="dropdown-detail-1" data-toggle="detail-1">
                                         <div class="col-lg-10">
-                                            Item 1
+                                            Network
                                         </div>
                                         <div class="col-lg-2"><i class="fa fa-chevron-down pull-right"></i></div>
                                     </div>
                                     <div id="detail-1">
-                                        <hr></hr>
-                                        <div class="container">
-                                            <div class="fluid-row">
-                                                <div class="col-lg-1">
-                                                    Detail:
-                                                </div>
-                                                <div class="col-lg-5">
-                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                                                </div>
-                                                <div class="col-lg-1">
-                                                    Detail:
-                                                </div>
-                                                <div class="col-lg-5">
-                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                                                </div>
-                                                <div class="col-lg-1">
-                                                    Detail:
-                                                </div>
-                                                <div class="col-lg-5">
-                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                                                </div>
-                                                <div class="col-lg-1">
-                                                    Detail:
-                                                </div>
-                                                <div class="col-lg-5">
-                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <hr>
                                     </div>
                                 </li>
                                 <li class="list-group-item">

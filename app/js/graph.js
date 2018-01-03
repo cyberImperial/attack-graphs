@@ -13,6 +13,7 @@ let svg = d3.select("#graph-container")
     height = +svg.attr("height");
 
 let graph = {};
+let showTooltip = true;
 
 function getTopologyInfo() {
   jquery.ajax({
@@ -65,7 +66,7 @@ function getTopologyInfo() {
               .attr('class', 'd3-tip')
               .offset([-10, 0])
               .html(function(d) {
-                console.log(d);
+                // console.log(d);
                   if (typeof d.running.Host === 'object') {
                       var result = "";
                       total += d.running.Host.RunningServices.length;
@@ -105,8 +106,11 @@ function getTopologyInfo() {
           .attr("r", 60)
           .style("fill", "url(#server)");
 
-      node.on("mouseover", function(d) { tip.show(d, this); })
-          .on("mouseout", function(d) { tip.hide(); });
+      node.on("mouseover", function(d) {
+          if(showTooltip) {
+              tip.show(d, this);
+          }
+      }).on("mouseout", function(d) { tip.hide(); });
 
       node.append("title")
           .text(function(d) { return d.id; });

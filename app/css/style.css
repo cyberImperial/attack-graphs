@@ -1,3 +1,7 @@
+.content {
+    overflow-x: hidden;
+}
+
 .link {
   stroke: #aaa;
   stroke-width: 3px;
@@ -95,6 +99,7 @@
     padding: 40px;
     width: 300px;
     position: absolute;
+    z-index: 999;
     border-radius: 3px;
     box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
     right: -4px;
