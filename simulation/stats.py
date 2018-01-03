@@ -5,10 +5,7 @@ logger = logging.getLogger(__name__)
 
 import sys
 import os
-import threading
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
-MONITOR_PORT = 3200
 
 from simulation.simulation import Simulation
 
