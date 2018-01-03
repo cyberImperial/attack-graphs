@@ -3,25 +3,72 @@
 <head>
     <meta charset="utf-8">
     <title>Attack graph construction and analysis</title>
+    <!-- Fix for script imports  -->
+    <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+
+    <!-- normal script imports etc  -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
     <link href="font-awesome/css/font-awesome.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <script src="js/d3-tip.js"></script>
 
+    <script>if (window.module) module = window.module;</script>
 </head>
 
 <body>
 
-<div id="loader"></div>
-
-<div style="display:none;" id="content">
+<div id="content">
     <!-- navbar -->
-    <nav class="navbar">
-        <h1 class="navbar-text text-center">
-            CyberImperial
-        </h1>
-        <img src="img/logo_index.png">
+    <nav class="navbar" style="width: 99%">
+        <div class="row">
+            <h1 class="navbar-text text-center">
+                CyberImperial
+            </h1>
+            <img src="img/logo_index.png">
+        </div>
+        <div class="help-tip">
+            <div>
+                <p>
+                    This tool allows you to explore the network scenario according to the information about the devices which can be recovered from the network traffic.
+                </p>
+                <p>
+                    Nodes
+                </p>
+                <ul>
+                    <li>Drag nodes to fix their positions</li>
+                </ul>
+                <p>
+                    Links
+                </p>
+                <ul>
+                    <li>Click on links to display the associated information</li>
+                </ul>
+                <p>
+                    General
+                </p>
+                <ul>
+                    <li>Use the tooltip checkbox to enable/disable tooltips on nodes and links</li>
+                    <li>Use the mouse to zoom in and out on the graph</li>
+                    <li>The summary displays detailed information about the selected elements</li>
+                </ul>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-lg-5">
+                <label class="checkbox-inline">
+                    <input type="checkbox" checked data-toggle="toggle"> Show tooltips
+                </label>
+                <label class="checkbox-inline">
+                    <input type="checkbox" data-toggle="toggle"> Show Endpoints
+                </label>
+            </div>
+        </div>
     </nav>
 
     <div class="container-fluid">
@@ -32,23 +79,150 @@
 
             <div class="col-lg-1"></div>
 
-            <div class="col-lg-3">
-                <h1 class="page-header">Summary</h1>
+            <div class="col-lg-3" style="z-index: 1">
+                <h1 class="page-header text-center" style="margin-top: 0">Summary</h1>
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title text-center">Additional Information</h3>
+                            </div>
+                            <ul class="list-group">
+                                <li class="list-group-item">
+                                    <div class="row toggle" id="dropdown-detail-1" data-toggle="detail-1">
+                                        <div class="col-lg-10">
+                                            Item 1
+                                        </div>
+                                        <div class="col-lg-2"><i class="fa fa-chevron-down pull-right"></i></div>
+                                    </div>
+                                    <div id="detail-1">
+                                        <hr></hr>
+                                        <div class="container">
+                                            <div class="fluid-row">
+                                                <div class="col-lg-1">
+                                                    Detail:
+                                                </div>
+                                                <div class="col-lg-5">
+                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                                                </div>
+                                                <div class="col-lg-1">
+                                                    Detail:
+                                                </div>
+                                                <div class="col-lg-5">
+                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                                                </div>
+                                                <div class="col-lg-1">
+                                                    Detail:
+                                                </div>
+                                                <div class="col-lg-5">
+                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                                                </div>
+                                                <div class="col-lg-1">
+                                                    Detail:
+                                                </div>
+                                                <div class="col-lg-5">
+                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="list-group-item">
+                                    <div class="row toggle" id="dropdown-detail-2" data-toggle="detail-2">
+                                        <div class="col-lg-10">
+                                            Item 2
+                                        </div>
+                                        <div class="col-lg-2"><i class="fa fa-chevron-down pull-right"></i></div>
+                                    </div>
+                                    <div id="detail-2">
+                                        <hr></hr>
+                                        <div class="container">
+                                            <div class="fluid-row">
+                                                <div class="col-lg-1">
+                                                    Detail:
+                                                </div>
+                                                <div class="col-lg-5">
+                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                                                </div>
+                                                <div class="col-lg-1">
+                                                    Detail:
+                                                </div>
+                                                <div class="col-lg-5">
+                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                                                </div>
+                                                <div class="col-lg-1">
+                                                    Detail:
+                                                </div>
+                                                <div class="col-lg-5">
+                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                                                </div>
+                                                <div class="col-lg-1">
+                                                    Detail:
+                                                </div>
+                                                <div class="col-lg-5">
+                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="list-group-item">
+                                    <div class="row toggle" id="dropdown-detail-3" data-toggle="detail-3">
+                                        <div class="col-lg-10">
+                                            Item 3
+                                        </div>
+                                        <div class="col-lg-2"><i class="fa fa-chevron-down pull-right"></i></div>
+                                    </div>
+                                    <div id="detail-3">
+                                        <hr></hr>
+                                        <div class="container">
+                                            <div class="fluid-row">
+                                                <div class="col-lg-1">
+                                                    Detail:
+                                                </div>
+                                                <div class="col-lg-5">
+                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                                                </div>
+                                                <div class="col-lg-1">
+                                                    Detail:
+                                                </div>
+                                                <div class="col-lg-5">
+                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                                                </div>
+                                                <div class="col-lg-1">
+                                                    Detail:
+                                                </div>
+                                                <div class="col-lg-5">
+                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                                                </div>
+                                                <div class="col-lg-1">
+                                                    Detail:
+                                                </div>
+                                                <div class="col-lg-5">
+                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
-    <!-- Core Scripts - Include with every page -->
-    <script>
-        window.jQuery = window.$ = require('jquery');
-        setTimeout(function() {
-          document.getElementById("loader").style.display = "none";
-          document.getElementById("content").style.display = "block";
-          getTopologyInfo();
-        }, 10000);
-    </script>
-    </script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('[id^=detail-]').hide();
+        $('.toggle').click(function() {
+            $input = $( this );
+            $target = $('#'+$input.attr('data-toggle'));
+            $target.slideToggle();
+        });
+    });
+</script>
 
 </body>
 </html>

@@ -159,3 +159,5 @@ function getTopologyInfo() {
     }
   })
 };
+
+getTopologyInfo();
