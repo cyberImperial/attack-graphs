@@ -8,6 +8,7 @@ import signal
 import psutil
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+import matplotlib.pyplot as plt
 from service.server import config
 from topology.graph.graph import Graph
 from topology.graph.graph import Node
@@ -95,6 +96,42 @@ def build_scenario(name, nodes, edges, slaves, snaps, pause, processor):
 def nbr_service(graph):
     return len([s for s in graph.nodes if s.running["scanned"] is not "false"])
 
+def plot_nodes(all_stats):
+    s = 0
+    for line in all_stats:
+        plt.plot([x for x, y, z in line][1:], label="{} slaves".format(s))
+        s += 1
+    plt.xlabel('time')
+    plt.ylabel('hosts detected')
+    plt.grid(True)
+
+    plt.savefig(os.path.join(ROOT, "test.png"))
+    plt.show()
+
+def plot_edges(all_stats):
+    s = 0
+    for line in all_stats:
+        plt.plot([y for x, y, z in line][1:], label="{} slaves".format(s))
+        s += 1
+    plt.xlabel('time')
+    plt.ylabel('edges detected')
+    plt.grid(True)
+
+    plt.savefig(os.path.join(ROOT, "test.png"))
+    plt.show()
+
+def plot_running(all_stats):
+    s = 0
+    for line in all_stats:
+        plt.plot([z for x, y, z in line][1:], label="{} slaves".format(s))
+        s += 1
+    plt.xlabel('time')
+    plt.ylabel('scanned hosts')
+    plt.grid(True)
+
+    plt.savefig(os.path.join(ROOT, "test.png"))
+    plt.show()
+
 def scenario_stats(name, nodes, edges, snaps, pause):
     all_stats = []
     for slaves in range(0, 2):
@@ -107,12 +144,10 @@ def scenario_stats(name, nodes, edges, snaps, pause):
             pause=pause,
             processor=lambda graph: (len(graph.nodes), len(graph.edges), nbr_service(graph))
         ))
-    print(all_stats)
+
+    plot_nodes(all_stats)
+    plot_edges(all_stats)
+    plot_running(all_stats)
 
 if __name__ == "__main__":
-    scenario_stats("small_scenario", 30, 100, 10, 1)
-# [301, 0, 76, 76, 130, 130, 171, 205, 205, 223, 223, 237, 254, 254, 262, 262, 271, 275, 275, 278, 278]
-# [301, 2, 81, 81, 139, 139, 184, 217, 217, 234, 234, 246, 259, 259, 264, 264, 271, 275, 275, 280, 281]
-
-# [300, 0, 77, 135, 170, 196, 219, 239, 253, 259, 268]
-# [301, 0, 80, 135, 170, 203, 225, 245, 258, 267, 272]
+    scenario_stats("small_scenario", 100, 1000, 10, 2)
