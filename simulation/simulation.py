@@ -57,6 +57,9 @@ class Simulation():
         return Connection(self.graph)
 
     def discovery_ip(self, ip):
+        # simulate scan timeout
+        time.sleep(3)
+
         for node in self.graph.nodes:
             if Node(ip) == node:
                 return node.running
