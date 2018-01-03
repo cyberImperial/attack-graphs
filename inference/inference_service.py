@@ -15,10 +15,13 @@ class AttackGraphExporter(Component):
         self.client = client
 
     def process(self, _):
-        attack_graph = generate_attack_graph(self.client)
-        return {
-            "mulval_output" : attack_graph
-        }
+        """
+           Must have all services started, otherwise it outputs
+           the contents of AttackGraph.txt
+
+           Returns the JSON formatted string of the mulval attack graph.
+        """
+        return generate_attack_graph(self.client)
 
 class InferenceClient(LocalClient):
     def get_attack_graph(self):
