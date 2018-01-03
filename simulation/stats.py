@@ -5,9 +5,24 @@ logger = logging.getLogger(__name__)
 
 import sys
 import os
+import threading
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+MONITOR_PORT = 3200
+
+from simulation.singleton import singleton
 from simulation.simulation import Simulation
+from service.server import Server
+from service.components import Component
+
+class Monitor(Component):
+    def __init__(self, engine):
+        self.engine = engine
+
+    def process(self, unused):
+        return {
+            "state" : self.engine.to_json()
+        }
 
 class StatsEngine():
     def __init__(self):
@@ -21,7 +36,13 @@ class StatsEngine():
         if isinstance(stat, ScanStat):
             self.scans += 1
             self.scan_set.add(stat.ip)
-            logger.info(str(self))
+
+    def to_json(self):
+        return {
+            "packets" : self.packets,
+            "scans" : self.scans,
+            "unique_scans" : len(self.scan_set)
+        }
 
     def __str__(self):
         return "[packets: {}, scans: {}, unique_scans: {}]".format(
@@ -51,6 +72,11 @@ class SimulationStat(Simulation):
     def __init__(self, simulation, stats_engine=StatsEngine()):
         self.simulation   = simulation
         self.stats_engine = stats_engine
+
+        # We don't expose the engine server from the application interface
+        server = Server("monitor", MONITOR_PORT)
+        server.add_component_get("/stats", Monitor(stats_engine))
+        threading.Thread(target=server.run).start()
 
     def connection(self):
         class Connection():
