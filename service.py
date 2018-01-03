@@ -18,18 +18,23 @@ def signal_handler(siganl, frames):
         os.system("kill -9 {}".format(process.pid))
     sys.exit(0)
 
-def services(device_name=None, filter_mask=None):
+def services(benchmark, device_name=None, filter_mask=None):
     from topology.graph.graph_service import graph_service
     from topology.sniffer.sniffing_service import sniffing_service
     from database.database_service import database_service
     from inference.inference_service import inference_service
 
     global processes
-    processes = [
-        Process(target=database_service),
-        Process(target=graph_service),
-        Process(target=inference_service),
-    ]
+    if benchmark is not None:
+        processes = [
+            Process(target=database_service),
+            Process(target=graph_service),
+            Process(target=inference_service),
+        ]
+    else:
+        processes = [
+            Process(target=graph_service),
+        ]
 
     processes.append(Process(target=sniffing_service, args=(device_name, filter_mask)))
 
@@ -116,14 +121,10 @@ if __name__ == "__main__":
         from simulation.simulation import Simulation
         args.interface = "virtual_interface"
 
-        if args.benchmark:
-            from simulation.stats import SimulationStat
-            bind_simulation(SimulationStat(Simulation(args.simulation)))
-        else:
-            bind_simulation(Simulation(args.simulation))
+        bind_simulation(Simulation(args.simulation))
 
     set_ports(args.type)
-    services(args.interface, args.filter)
+    services(args.benchmark, args.interface, args.filter)
     signal.signal(signal.SIGINT, signal_handler)
 
     if args.type == "master":

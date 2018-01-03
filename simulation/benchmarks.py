@@ -49,9 +49,17 @@ def generate_graph(nodes, edges):
             d = (value >> 0) & 255
             return "{}.{}.{}.{}".format(a, b, c, d)
         edges -= 1
-        n1 = int_to_ip(randint(0, nodes))
-        n2 = int_to_ip(randint(0, nodes))
-        graph.add_edge(Node(n1), Node(n2))
+        n1 = Node(int_to_ip(randint(0, nodes)))
+        n2 = Node(int_to_ip(randint(0, nodes)))
+        graph.add_edge(n1, n2)
+        n1.running = {
+            "scanned" : "true",
+            "Host": {
+              "os" : "ACER RT-N56U WAP (Linux 3.2)",
+              "ip" : n1.ip,
+              "RunningServices": []
+          }
+        }
     return graph
 
 def export_graph(graph, benchmark):
@@ -69,11 +77,16 @@ def create_slave(benchmark, port):
     add_process("sudo python3 {} slave -m 127.0.0.1 -p {} -s {}.json".format(app, port, benchmark))
 
 def take_snapshot():
-    graph = LocalClient(config["graph"]).get("/graph")
-    return Graph.from_json(graph)
+    t = time.clock()
+    try:
+        graph = LocalClient(config["graph"]).get("/graph")
+        graph = Graph.from_json(graph)
+        return t, graph
+    except Exception as e:
+        return None
 
 def process_snapshots(snapshots, processor):
-    return [processor(s) for s in snapshots]
+    return [processor(t, s) for t, s in snapshots]
 
 def build_scenario(name, nodes, edges, slaves, snaps, pause, processor):
     graph = generate_graph(nodes, edges)
@@ -83,10 +96,12 @@ def build_scenario(name, nodes, edges, slaves, snaps, pause, processor):
     for i in range(slaves):
         create_slave(name, 1000 + i)
 
-    snapshots = [graph]
+    snapshots = [(time.clock(), graph)]
     for i in range(0, snaps):
         time.sleep(pause)
-        snapshots.append(take_snapshot())
+        snapshot = take_snapshot()
+        if snapshot is not None:
+            snapshots.append(snapshot)
     delete_simulation_config(name)
     nodes = process_snapshots(snapshots, processor)
 
@@ -99,42 +114,45 @@ def nbr_service(graph):
 def plot_nodes(all_stats):
     s = 0
     for line in all_stats:
-        plt.plot([x for x, y, z in line][1:], label="{} slaves".format(s))
+        plt.plot([t - line[0][0] for t, x, y, z in line][1:], [x for t, x, y, z in line][1:], label="{} slaves".format(s))
         s += 1
     plt.xlabel('time')
     plt.ylabel('hosts detected')
     plt.grid(True)
+    plt.legend()
 
-    plt.savefig(os.path.join(ROOT, "test.png"))
+    plt.savefig(os.path.join(ROOT, "simulation", "res", "test.png"))
     plt.show()
 
 def plot_edges(all_stats):
     s = 0
     for line in all_stats:
-        plt.plot([y for x, y, z in line][1:], label="{} slaves".format(s))
+        plt.plot([t - line[0][0] for t, x, y, z in line][1:], [y for t, x, y, z in line][1:], label="{} slaves".format(s))
         s += 1
     plt.xlabel('time')
     plt.ylabel('edges detected')
     plt.grid(True)
+    plt.legend()
 
-    plt.savefig(os.path.join(ROOT, "test.png"))
+    plt.savefig(os.path.join(ROOT, "simulation", "res", "test2.png"))
     plt.show()
 
 def plot_running(all_stats):
     s = 0
     for line in all_stats:
-        plt.plot([z for x, y, z in line][1:], label="{} slaves".format(s))
+        plt.plot([t - line[0][0] for t, x, y, z in line][1:], [z for t, x, y, z in line][1:], label="{} slaves".format(s))
         s += 1
     plt.xlabel('time')
     plt.ylabel('scanned hosts')
     plt.grid(True)
+    plt.legend()
 
-    plt.savefig(os.path.join(ROOT, "test.png"))
+    plt.savefig(os.path.join(ROOT, "simulation", "res", "test3.png"))
     plt.show()
 
 def scenario_stats(name, nodes, edges, snaps, pause):
     all_stats = []
-    for slaves in range(0, 2):
+    for slaves in [0, 1, 2]:
         all_stats.append(build_scenario(
             name=name,
             nodes=nodes,
@@ -142,7 +160,7 @@ def scenario_stats(name, nodes, edges, snaps, pause):
             slaves=slaves,
             snaps=snaps,
             pause=pause,
-            processor=lambda graph: (len(graph.nodes), len(graph.edges), nbr_service(graph))
+            processor=lambda t, graph: (t, len(graph.nodes), len(graph.edges), nbr_service(graph))
         ))
 
     plot_nodes(all_stats)
@@ -150,4 +168,4 @@ def scenario_stats(name, nodes, edges, snaps, pause):
     plot_running(all_stats)
 
 if __name__ == "__main__":
-    scenario_stats("small_scenario", 100, 1000, 10, 2)
+    scenario_stats("small_scenario", 300, 10000, 20, 3)

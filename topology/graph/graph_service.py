@@ -48,6 +48,9 @@ class GraphMerge(Component):
         self.graph.lock.acquire()
         self.graph.merge(Graph.from_json(graph))
         self.graph.lock.release()
+        return {
+            "success" : "true"
+        }
 
 class GraphService():
     """

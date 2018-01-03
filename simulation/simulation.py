@@ -17,7 +17,7 @@ import time
 from random import randrange
 
 class Simulation():
-    def __init__(self, conf_file, connection_timeout = 0.1):
+    def __init__(self, conf_file, connection_timeout = 0.05):
         self.connection_timeout = connection_timeout
 
         dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -58,7 +58,7 @@ class Simulation():
 
     def discovery_ip(self, ip):
         # simulate scan timeout
-        time.sleep(3)
+        time.sleep(20)
 
         for node in self.graph.nodes:
             if Node(ip) == node:
