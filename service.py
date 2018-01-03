@@ -112,9 +112,11 @@ if __name__ == "__main__":
 
     if args.simulation is not None:
         from simulation.simulation import Simulation
+        from simulation.stats import SimulationStat
         args.interface = "virtual_interface"
 
-        bind_simulation(Simulation(args.simulation))
+        # bind_simulation(Simulation(args.simulation))
+        bind_simulation(SimulationStat(Simulation(args.simulation)))
 
     set_ports(args.type)
     services(args.interface, args.filter)
