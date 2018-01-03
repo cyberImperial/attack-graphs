@@ -11,45 +11,48 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 MONITOR_PORT = 3200
 
 from simulation.simulation import Simulation
-from service.server import Server
-from service.components import Component
-from service.client import LocalClient
 
-class Monitor(Component):
-    def __init__(self, engine):
-        self.engine = engine
+class StatsEngine:
+    stats = {
+        "packets" : 0,
+        "scans" : 0,
+        "scan_set" : set(),
+        "backlog" : []
+    }
+    backlog_threshold = 10
 
-    def process(self, unused):
-        return {
-            "state" : self.engine.to_json()
-        }
+    @classmethod
+    def update_backlog(cls):
+        cls.stats["backlog"].append(cls.to_json())
+        if len(cls.stats["backlog"]) > cls.backlog_threshold:
+            logger.info("Backlog dumped to file.")
+            with open("backlog.log", "a") as backlog:
+                for entry in cls.stats["backlog"]:
+                    backlog.write("{}, {}, {}".format(
+                        entry["packets"],
+                        entry["scans"],
+                        entry["unique_scans"]
+                    ))
+                    backlog.write("\n")
+            cls.stats["backlog"] = []
 
-class StatsEngine():
-    def __init__(self):
-        self.packets = 0
-        self.scans = 0
-        self.scan_set = set()
-
-    def post(self, stat):
+    @classmethod
+    def post(cls, stat):
+        stats = cls.stats
         if isinstance(stat, PacketStat):
-            self.packets += 1
+            stats["packets"] += 1
         if isinstance(stat, ScanStat):
-            self.scans += 1
-            self.scan_set.add(stat.ip)
+            stats["scans"] += 1
+            stats["scan_set"].add(stat.ip)
+        cls.update_backlog()
 
-    def to_json(self):
+    @classmethod
+    def to_json(cls):
         return {
-            "packets" : self.packets,
-            "scans" : self.scans,
-            "unique_scans" : len(self.scan_set)
+            "packets" : cls.stats["packets"],
+            "scans" : cls.stats["scans"],
+            "unique_scans" : len(cls.stats["scan_set"])
         }
-
-    def __str__(self):
-        return "[packets: {}, scans: {}, unique_scans: {}]".format(
-            self.packets,
-            self.scans,
-            len(self.scan_set)
-        )
 
 class Stat():
     pass
@@ -69,34 +72,22 @@ class PacketStat(Stat):
         return "[packet: {}]".format(str(self.packet))
 
 class SimulationStat(Simulation):
-    def __init__(self, simulation, stats_engine=StatsEngine()):
-        self.simulation   = simulation
-        self.stats_engine = stats_engine
-
-        # We don't expose the engine server from the application interface
-        logger.warn("Stats module is running.")
-        server = Server("monitor", MONITOR_PORT)
-        server.add_component_get("/stats", Monitor(stats_engine))
-        threading.Thread(target=server.run).start()
+    def __init__(self, simulation):
+        self.simulation = simulation
 
     def connection(self):
         class Connection():
-            def __init__(self, connection, stats_engine):
+            def __init__(self, connection):
                 self.connection = connection
-                self.stats_engine = stats_engine
 
             def next(self):
                 packet = self.connection.next()
-                self.stats_engine.post(PacketStat(packet))
+                StatsEngine.post(PacketStat(packet))
                 return packet
 
-        return Connection(self.simulation.connection(), self.stats_engine)
+        return Connection(self.simulation.connection())
 
     def discovery_ip(self, ip):
         scan = self.simulation.discovery_ip(ip)
-        self.stats_engine.post(ScanStat(ip, scan))
+        StatsEngine.post(ScanStat(ip, scan))
         return scan
-
-def MonitorClient(LocalClient):
-    def stats(self):
-        return self.get("/stats")
