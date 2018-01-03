@@ -100,6 +100,8 @@ if __name__ == "__main__":
         help="Specify a mask for filtering the packets. (e.g. '10.1.1.1/16' would keep packets starting with '10.1')")
     parser.add_argument("-v", '--verbose', dest='verbose', action='store_true',
         help="Set the logging level to DEBUG.")
+    parser.add_argument("-b" , "--benchmark", dest='benchmark', action='store_true',
+        help="Flag that allows usage of benchmarking. The flag has effect only when running with -s. WARN: running with the flag is more expensive.")
     parser.set_defaults(verbose=False)
 
     args = parser.parse_args()
@@ -112,11 +114,13 @@ if __name__ == "__main__":
 
     if args.simulation is not None:
         from simulation.simulation import Simulation
-        from simulation.stats import SimulationStat
         args.interface = "virtual_interface"
 
-        # bind_simulation(Simulation(args.simulation))
-        bind_simulation(SimulationStat(Simulation(args.simulation)))
+        if args.benchmark:
+            from simulation.stats import SimulationStat
+            bind_simulation(SimulationStat(Simulation(args.simulation)))
+        else:
+            bind_simulation(Simulation(args.simulation))
 
     set_ports(args.type)
     services(args.interface, args.filter)

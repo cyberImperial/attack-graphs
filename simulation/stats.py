@@ -10,10 +10,10 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 MONITOR_PORT = 3200
 
-from simulation.singleton import singleton
 from simulation.simulation import Simulation
 from service.server import Server
 from service.components import Component
+from service.client import LocalClient
 
 class Monitor(Component):
     def __init__(self, engine):
@@ -74,6 +74,7 @@ class SimulationStat(Simulation):
         self.stats_engine = stats_engine
 
         # We don't expose the engine server from the application interface
+        logger.warn("Stats module is running.")
         server = Server("monitor", MONITOR_PORT)
         server.add_component_get("/stats", Monitor(stats_engine))
         threading.Thread(target=server.run).start()
@@ -95,3 +96,7 @@ class SimulationStat(Simulation):
         scan = self.simulation.discovery_ip(ip)
         self.stats_engine.post(ScanStat(ip, scan))
         return scan
+
+def MonitorClient(LocalClient):
+    def stats(self):
+        return self.get("/stats")
