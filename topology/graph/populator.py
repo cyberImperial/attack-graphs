@@ -84,6 +84,8 @@ class Populator():
     def populate_nodes(self):
         graph = self.graph
         batch = self.get_batch(graph)
+        if len(batch) == 0:
+            return False
 
         logger.info("Processing batch of size: {}.".format(len(batch)))
         results = self.get_ips(batch)
@@ -93,6 +95,7 @@ class Populator():
 
         logger.info("Updating graph.")
         self.update_graph(graph, results, batch)
+        return True
 
     def add_vulnerabilities(self, results):
         for j in results:
@@ -117,7 +120,8 @@ class Populator():
     def populate_loop(self):
         time.sleep(10)
         while True:
-            logger.info("Started populating nodes.")
-            self.populate_nodes()
+            if not self.populate_nodes():
+                # If there are no new nodes avaiable, we don't want to take the lock uselessly
+                time.sleep(2)
             if self.updated:
                logger.info("Graph populated.")

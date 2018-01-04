@@ -98,8 +98,8 @@ def graph_service():
     while True:
         service.update()
 
-        time.sleep(5)
-        logger.debug(LocalClient(config["graph"]).get("/graph"))
+        time.sleep(10)
+        # logger.debug(LocalClient(config["graph"]).get("/graph"))
 
 if __name__ == "__main__":
     graph_service()
