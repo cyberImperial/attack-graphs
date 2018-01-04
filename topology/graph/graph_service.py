@@ -45,7 +45,9 @@ class GraphMerge(Component):
         self.graph = graph
 
     def process(self, graph):
+        self.graph.lock.acquire()
         self.graph.merge(Graph.from_json(graph))
+        self.graph.lock.release()
         return {
             "success" : "true"
         }

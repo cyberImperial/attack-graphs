@@ -6,7 +6,7 @@ from simulation.simulation import Simulation
 
 class TestSimuation(TestCase):
     def setUp(self):
-        self.simulation = Simulation("test.json", connection_timeout=0)
+        self.simulation = Simulation("test.json", connection_timeout=0, scan_timeout=0)
         self.connection = self.simulation.connection()
 
     @timeout(0.1)

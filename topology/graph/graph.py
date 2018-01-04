@@ -55,17 +55,13 @@ class Graph():
         graph1 = self
         graph2 = graph
 
-        self.lock.acquire()
-
-        graph1.edges.union(graph2.edges)
-        graph1.nodes.union(graph2.nodes)
-        graph1.populated.union(graph2.populated)
+        graph1.edges = graph1.edges.union(graph2.edges)
+        graph1.nodes = graph1.nodes.union(graph2.nodes)
+        graph1.populated = graph1.populated.union(graph2.populated)
 
         # (U1 + U2) - (P1 + P2)
-        graph1.unpopulated.union(graph2.unpopulated)
-        graph1.unpopulated.difference(graph1.populated)
-
-        self.lock.release()
+        graph1.unpopulated = graph1.unpopulated.union(graph2.unpopulated)
+        graph1.unpopulated = graph1.unpopulated.difference(graph1.populated)
         logger.info("Finished merging.")
 
     def to_json(self):
