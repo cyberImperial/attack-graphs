@@ -33,8 +33,12 @@ def filter_packet(packet, mask):
         # logger.debug("{0:b}".format(check_bits))
         return ip_bits == check_bits
 
-    if not check_ip(src) or not check_ip(dst):
+    if not check_ip(src) and not check_ip(dst):
         return None
+    if not check_ip(src):
+        packet["dest"] = "255.255.255.255"
+    if not check_ip(dst):
+        packet["src"] = "255.255.255.255"
 
     return packet
 
