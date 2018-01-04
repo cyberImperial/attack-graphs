@@ -83,11 +83,11 @@ def export_graph(graph, benchmark):
 def delete_simulation_config(benchmark):
     os.remove(get_path(benchmark))
 
-def create_master(benchmark):
-    add_process("sudo python3 {} master -s {}.json".format(app, benchmark))
+def create_master(benchmark, batch_threads):
+    add_process("sudo python3 {} master -s {}.json -t {}".format(app, benchmark, batch_threads))
 
-def create_slave(benchmark, port):
-    add_process("sudo python3 {} slave -m {} -p {} -s {}.json".format(app, get_host_ip(), port, benchmark))
+def create_slave(benchmark, port, batch_threads):
+    add_process("sudo python3 {} slave -m {} -p {} -s {}.json -t {}".format(app, get_host_ip(), port, benchmark, batch_threads))
 
 def take_snapshot():
     t = time.clock()
@@ -101,14 +101,14 @@ def take_snapshot():
 def process_snapshots(snapshots, processor):
     return [processor(t, s) for t, s in snapshots]
 
-def build_scenario(name, nodes, edges, slaves, snaps, pause, processor):
+def build_scenario(name, nodes, edges, slaves, snaps, pause, processor, batch_threads):
     graph = generate_graph(nodes, edges)
     export_graph(graph, name)
 
-    create_master(name)
+    create_master(name, batch_threads)
     for i in range(slaves):
         time.sleep(2)
-        create_slave(name, 1000 + i)
+        create_slave(name, 1000 + i, batch_threads)
 
     snapshots = [(time.clock(), graph)]
     for i in range(0, snaps):
@@ -141,15 +141,16 @@ def plot(file_name, all_stats, label, selector):
     plt.savefig(os.path.join(ROOT, "simulation", "res", file_name))
     plt.gcf().clear()
 
-def scenario_stats(name, nodes, edges, snaps, pause, slaves, batch_threads):
+def scenario_stats(name, nodes, edges, snaps, pause, slaves_list, batch_threads):
     all_stats = {}
     for batch_threads in batch_threads:
-        for slaves in slaves:
+        for slaves in slaves_list:
             all_stats[(batch_threads, slaves)] = build_scenario(
                 name=name,
                 nodes=nodes,
                 edges=edges,
                 slaves=slaves,
+                batch_threads=batch_threads,
                 snaps=snaps,
                 pause=pause,
                 processor=lambda t, graph: (t, len(graph.nodes), len(graph.edges), nbr_service(graph))
@@ -160,7 +161,9 @@ def scenario_stats(name, nodes, edges, snaps, pause, slaves, batch_threads):
     plot(file_name="{}_scanned.png".format(name), all_stats=all_stats, label="scanned hosts", selector=lambda x: x[3])
 
 if __name__ == "__main__":
-    scenario_stats("small", 20, 210, 5, 1, [0, 1, 2], [1])
-    # scenario_stats("medium1", 100, 10000, 20, 3, [0, 1, 2], [1])
-    # scenario_stats("medium2", 300, 50000, 20, 3, [0, 1, 2], [1])
-    # scenario_stats("sparse", 1000, 10000, 20, 3, [0, 1, 2], [1])
+    scenario_stats("small", 20, 210, 20, 3, [0, 1, 2], [1])
+    scenario_stats("small_thds", 20, 210, 20, 3, [0, 1, 2], [1, 2])
+    scenario_stats("medium_thds", 100, 10000, 20, 3, [0, 1, 2], [1, 3])
+    scenario_stats("medium1", 100, 10000, 20, 3, [0, 1, 2], [1])
+    scenario_stats("medium2", 300, 50000, 20, 3, [0, 1, 2], [1])
+    scenario_stats("sparse", 1000, 10000, 20, 3, [0, 1, 2], [1])
