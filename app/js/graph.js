@@ -60,7 +60,7 @@ function getTopologyInfo() {
                 .append("svg:image")
                 .attr("xlink:href", function(d) {
                     console.log(d);
-                    if(d.ip !== "10.1.3.5") {
+                    if(d.ip !== "255.255.255.255") {
                         return "img/server.png";
                     } else {
                         return "img/internet.png"
