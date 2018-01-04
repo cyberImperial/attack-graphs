@@ -17,7 +17,7 @@ import time
 from random import randrange
 
 class Simulation():
-    def __init__(self, conf_file, connection_timeout = 0.5, scan_timeout = 20):
+    def __init__(self, conf_file, connection_timeout = 0.5, scan_timeout = 3):
         self.connection_timeout = connection_timeout
         self.scan_timeout = scan_timeout
 

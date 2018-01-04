@@ -123,46 +123,20 @@ def build_scenario(name, nodes, edges, slaves, snaps, pause, processor):
     return nodes
 
 def nbr_service(graph):
-    return len([s for s in graph.nodes if s.running["scanned"] == "true"])
+    return len(graph.populated)
 
-def plot_nodes(name, all_stats):
+def plot(file_name, all_stats, label, selector):
     s = 0
     for line in all_stats:
-        plt.plot([t - line[0][0] for t, x, y, z in line][1:], [x for t, x, y, z in line][1:], label="{} slaves".format(s))
+        plt.plot([selector(entry) for entry in line][1:], label="{} slaves".format(s))
         s += 1
     plt.xlabel('time')
-    plt.ylabel('hosts detected')
+    plt.ylabel(label)
     plt.grid(True)
     plt.legend()
 
-    plt.savefig(os.path.join(ROOT, "simulation", "res", name + "_nodes.png"))
-    plt.show()
-
-def plot_edges(name, all_stats):
-    s = 0
-    for line in all_stats:
-        plt.plot([t - line[0][0] for t, x, y, z in line][1:], [y for t, x, y, z in line][1:], label="{} slaves".format(s))
-        s += 1
-    plt.xlabel('time')
-    plt.ylabel('edges detected')
-    plt.grid(True)
-    plt.legend()
-
-    plt.savefig(os.path.join(ROOT, "simulation", "res", name + "_edges.png"))
-    plt.show()
-
-def plot_running(name, all_stats):
-    s = 0
-    for line in all_stats:
-        plt.plot([t - line[0][0] for t, x, y, z in line][1:], [z for t, x, y, z in line][1:], label="{} slaves".format(s))
-        s += 1
-    plt.xlabel('time')
-    plt.ylabel('scanned hosts')
-    plt.grid(True)
-    plt.legend()
-
-    plt.savefig(os.path.join(ROOT, "simulation", "res", name + "_scanned.png"))
-    plt.show()
+    plt.savefig(os.path.join(ROOT, "simulation", "res", file_name))
+    plt.gcf().clear()
 
 def scenario_stats(name, nodes, edges, snaps, pause):
     all_stats = []
@@ -177,10 +151,12 @@ def scenario_stats(name, nodes, edges, snaps, pause):
             processor=lambda t, graph: (t, len(graph.nodes), len(graph.edges), nbr_service(graph))
         ))
 
-    plot_nodes(name, all_stats)
-    plot_edges(name, all_stats)
-    plot_running(name, all_stats)
+    plot(file_name="{}_hosts.png".format(name), all_stats=all_stats, label="hosts detected", selector=lambda x: x[1])
+    plot(file_name="{}_edges.png".format(name), all_stats=all_stats, label="edges detected", selector=lambda x: x[2])
+    plot(file_name="{}_scanned.png".format(name), all_stats=all_stats, label="scanned hosts", selector=lambda x: x[3])
 
 if __name__ == "__main__":
-    scenario_stats("small", 100, 10000, 30, 3)
-    #scenario_stats("medium_scenario", 300, 50000, 15, 3)
+    scenario_stats("small", 20, 210, 30, 1)
+    scenario_stats("medium1", 100, 10000, 20, 3)
+    scenario_stats("medium2", 300, 50000, 20, 3)
+    scenario_stats("sparse", 1000, 10000, 20, 3)
