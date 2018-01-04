@@ -66,15 +66,15 @@ class Graph():
             len(graph2.unpopulated)
         ))
 
-        graph1.edges = graph1.edges.union(graph2.edges)
+        graph1.edges |= graph2.edges
 
         # (U1 + U2) - (P1 + P2)
-        graph1.populated = graph1.populated.union(graph2.populated)
-        graph1.unpopulated = graph1.unpopulated.union(graph2.unpopulated)
-        graph1.unpopulated = graph1.unpopulated.difference(graph1.populated)
+        graph1.populated |= graph2.populated
+        graph1.unpopulated |= graph2.unpopulated
+        graph1.unpopulated -= graph1.populated
 
         # N = U + P
-        graph1.nodes = graph1.populated.union(graph1.unpopulated)
+        graph1.nodes |= graph1.unpopulated
 
         logger.info("Finished merging: nodes[{}], populated [{}], unpopulated [{}].".format(
             len(graph1.nodes),

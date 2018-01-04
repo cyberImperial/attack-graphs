@@ -58,21 +58,25 @@ class Slave():
         self.graph_sharing = GraphSharing()
 
     def join(self):
+        logger.info("Slave requesting join.")
         self.master_client.post("/register", {
             "ip" : self.slave_ip,
             "port" : self.server.port
         })
 
     def update_membership(self, membership_list):
-        logging.info("Updating membership....")
+        logger.info("Updating membership....")
         if "members" not in membership_list:
             return
         membership_list = membership_list["members"]
 
         self.membership_list = []
         for member in membership_list:
+            if self.slave_ip == member["ip"] and self.slave_port == member["port"]:
+                continue
             client = self.client_cls("http://" + member["ip"], member["port"])
             self.membership_list.append(client)
+        logger.info("Membership list updated.")
 
     def get_current_broadcast(self):
         return self.membership_list
@@ -84,6 +88,7 @@ class Slave():
         return multicast_list[:self.dissemination_constant]
 
     def disseminate(self, multicast_list, message):
+        logger.info("Running dissemination.")
         for client in multicast_list:
             client.post("/multicast", message)
 
