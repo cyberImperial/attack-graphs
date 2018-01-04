@@ -14,6 +14,7 @@ from topology.graph.graph import Graph
 from topology.graph.graph import Node
 from service.client import LocalClient
 from random import randint, random, shuffle
+from dissemination.util import get_host_ip
 
 from math import exp
 
@@ -86,7 +87,7 @@ def create_master(benchmark):
     add_process("sudo python3 {} master -s {}.json".format(app, benchmark))
 
 def create_slave(benchmark, port):
-    add_process("sudo python3 {} slave -m 127.0.0.1 -p {} -s {}.json".format(app, port, benchmark))
+    add_process("sudo python3 {} slave -m {} -p {} -s {}.json".format(app, get_host_ip(), port, benchmark))
 
 def take_snapshot():
     t = time.clock()
@@ -106,6 +107,7 @@ def build_scenario(name, nodes, edges, slaves, snaps, pause, processor):
 
     create_master(name)
     for i in range(slaves):
+        time.sleep(2)
         create_slave(name, 1000 + i)
 
     snapshots = [(time.clock(), graph)]

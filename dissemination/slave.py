@@ -37,7 +37,7 @@ class MessageReceiver(Component):
         self.slave = slave
 
     def process(self, message):
-        logging.info("Received message: {}".format(str(message)))
+        logger.info("Received message.")
         self.slave.graph_sharing.update(message["graph"])
 
 class Slave():
@@ -90,6 +90,7 @@ class Slave():
     def disseminate(self, multicast_list, message):
         logger.info("Running dissemination.")
         for client in multicast_list:
+            logger.info("Sent multicast.")
             client.post("/multicast", message)
 
     def run(self):
@@ -105,14 +106,11 @@ class Slave():
             }
             self.disseminate(multicast_list, multicast_message)
 
-if __name__ == "__main__":
+def slave_service(master_ip, slave_port):
+    time.sleep(3)
+
     master_port = MASTER_DEFAULT_PORT
-
-    # Need to give port as an argument
-    master_ip = sys.argv[1]
-    slave_port = sys.argv[2]
-
     slave = Slave(slave_port, master_ip, master_port)
 
     threading.Thread(target=slave.server.run).start()
-    threading.Thread(target=slave.run).start()
+    slave.run()

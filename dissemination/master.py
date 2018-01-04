@@ -23,21 +23,25 @@ class MasterReceive(Component):
         self.master.broadcast()
 
 class Master():
-    def __init__(self):
+    def __init__(self, ip):
+        self.ip = ip
         self.membership_list = []
 
         self.server = Server("master", MASTER_DEFAULT_PORT)
         self.server.add_component_post("/register", MasterReceive(self))
 
     def register(self, registration, client_cls=Client):
-        logging.info("Received register...")
+        logger.info("Received register {}:{}".format(
+            registration["ip"],
+            registration["port"]
+        ))
 
         # The servers are single threaded, one-connection at a time
         client = client_cls("http://" + registration["ip"], registration["port"])
         self.membership_list.append(client)
 
     def broadcast(self):
-        logging.info("Broadcasting membership....")
+        logger.info("Broadcasting membership....")
         broadcast = {
             "members" : [{
                 "ip" : client.url.split("/")[2],
@@ -50,8 +54,8 @@ class Master():
             client.get("/healty")
             client.post("/membership", broadcast)
 
-if __name__ == "__main__":
-    master = Master()
-    logging.info("Master running on ip: ", get_host_ip())
+def master_service():
+    master = Master(get_host_ip())
+    logger.info("Master running on ip: {}".format(master.ip))
 
     master.server.run()
