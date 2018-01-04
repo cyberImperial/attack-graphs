@@ -13,7 +13,9 @@ from service.server import config
 from topology.graph.graph import Graph
 from topology.graph.graph import Node
 from service.client import LocalClient
-from random import randint
+from random import randint, random, shuffle
+
+from math import exp
 
 ROOT = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..")
 app = os.path.join(ROOT, "service.py")
@@ -39,27 +41,37 @@ def add_process(command):
     slave_proc = subprocess.Popen(command.split(" "),  shell=False)
     processes.append(slave_proc)
 
-def generate_graph(nodes, edges):
+def generate_graph(nodes, max_edges):
     graph = Graph()
-    while edges > 0:
-        def int_to_ip(value):
-            a = (value >> 24) & 255
-            b = (value >> 16) & 255
-            c = (value >> 8) & 255
-            d = (value >> 0) & 255
-            return "{}.{}.{}.{}".format(a, b, c, d)
-        edges -= 1
-        n1 = Node(int_to_ip(randint(0, nodes)))
-        n2 = Node(int_to_ip(randint(0, nodes)))
-        graph.add_edge(n1, n2)
-        n1.running = {
-            "scanned" : "true",
+
+    def int_to_ip(value):
+        a = (value >> 24) & 255
+        b = (value >> 16) & 255
+        c = (value >> 8) & 255
+        d = (value >> 0) & 255
+        return "{}.{}.{}.{}".format(a, b, c, d)
+
+    nodes = [Node(int_to_ip(i)) for i in range(0, nodes)]
+    for n in nodes:
+        n.running = {
+            "scanned" : "false",
             "Host": {
               "os" : "ACER RT-N56U WAP (Linux 3.2)",
-              "ip" : n1.ip,
+              "ip" : n.ip,
               "RunningServices": []
           }
         }
+
+    edges = [(n1, n2) for n1 in nodes for n2 in nodes]
+    shuffle(edges)
+
+    for n1, n2 in edges:
+        if max_edges == 0:
+            break
+        before = len(graph.edges)
+        graph.add_edge(n1, n2)
+        if len(graph.edges) > before:
+            max_edges -= 1
     return graph
 
 def export_graph(graph, benchmark):
@@ -109,9 +121,9 @@ def build_scenario(name, nodes, edges, slaves, snaps, pause, processor):
     return nodes
 
 def nbr_service(graph):
-    return len([s for s in graph.nodes if s.running["scanned"] is not "false"])
+    return len([s for s in graph.nodes if s.running["scanned"] == "true"])
 
-def plot_nodes(all_stats):
+def plot_nodes(name, all_stats):
     s = 0
     for line in all_stats:
         plt.plot([t - line[0][0] for t, x, y, z in line][1:], [x for t, x, y, z in line][1:], label="{} slaves".format(s))
@@ -121,10 +133,10 @@ def plot_nodes(all_stats):
     plt.grid(True)
     plt.legend()
 
-    plt.savefig(os.path.join(ROOT, "simulation", "res", "test.png"))
+    plt.savefig(os.path.join(ROOT, "simulation", "res", name + "_nodes.png"))
     plt.show()
 
-def plot_edges(all_stats):
+def plot_edges(name, all_stats):
     s = 0
     for line in all_stats:
         plt.plot([t - line[0][0] for t, x, y, z in line][1:], [y for t, x, y, z in line][1:], label="{} slaves".format(s))
@@ -134,10 +146,10 @@ def plot_edges(all_stats):
     plt.grid(True)
     plt.legend()
 
-    plt.savefig(os.path.join(ROOT, "simulation", "res", "test2.png"))
+    plt.savefig(os.path.join(ROOT, "simulation", "res", name + "_edges.png"))
     plt.show()
 
-def plot_running(all_stats):
+def plot_running(name, all_stats):
     s = 0
     for line in all_stats:
         plt.plot([t - line[0][0] for t, x, y, z in line][1:], [z for t, x, y, z in line][1:], label="{} slaves".format(s))
@@ -147,7 +159,7 @@ def plot_running(all_stats):
     plt.grid(True)
     plt.legend()
 
-    plt.savefig(os.path.join(ROOT, "simulation", "res", "test3.png"))
+    plt.savefig(os.path.join(ROOT, "simulation", "res", name + "_scanned.png"))
     plt.show()
 
 def scenario_stats(name, nodes, edges, snaps, pause):
@@ -163,9 +175,10 @@ def scenario_stats(name, nodes, edges, snaps, pause):
             processor=lambda t, graph: (t, len(graph.nodes), len(graph.edges), nbr_service(graph))
         ))
 
-    plot_nodes(all_stats)
-    plot_edges(all_stats)
-    plot_running(all_stats)
+    plot_nodes(name, all_stats)
+    plot_edges(name, all_stats)
+    plot_running(name, all_stats)
 
 if __name__ == "__main__":
-    scenario_stats("small_scenario", 300, 10000, 20, 3)
+    scenario_stats("small", 100, 10000, 30, 3)
+    #scenario_stats("medium_scenario", 300, 50000, 15, 3)
