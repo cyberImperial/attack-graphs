@@ -15,6 +15,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
     <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="http://d3js.org/d3-selection-multi.v1.js"></script>
     <script src="js/d3-tip.js"></script>
 
     <script>if (window.module) module = window.module;</script>
@@ -63,7 +64,7 @@
             <div class="col-lg-8">
                 <div class="col-lg-5">
                     <label class="checkbox-inline">
-                        <input id="toggle-tooltip" type="checkbox" checked data-toggle="toggle" onclick="alert("DA");> Show tooltips
+                        <input id="toggle-tooltip" type="checkbox" checked data-toggle="toggle"> Show tooltips
                     </label>
                     <script>
                         $(function() {
@@ -78,12 +79,21 @@
                 </div>
                 <div class="col-lg-5"></div>
                 <div class="col-lg-1">
-                    <a href="#" class="btn btn-info btn-lg">
+                    <a class="btn btn-primary btn-md" onclick="getGraphInfo()">
                         <span class="glyphicon glyphicon-refresh"></span> Refresh
                     </a>
                 </div>
                 <div class="col-lg-1">
-                    <input type="checkbox" data-toggle="toggle" data-on="Reachability" data-off="Attack Graph">
+                    <input id="toggle-mode" type="checkbox" data-toggle="toggle" data-on="Reachability" data-off="Attack Graph">
+                    <script>
+                        $(function() {
+                            $('#toggle-mode').change(function() {
+                                reachabilityMode = !$(this).prop('checked');
+                                console.log(reachabilityMode);
+                                getGraphInfo();
+                            })
+                        })
+                    </script>
                 </div>
             </div>
         </div>
