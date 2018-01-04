@@ -9,7 +9,7 @@ from database.database_service import DBClient
 from topology.discovery.discovery import discovery_ip
 from topology.graph.graph import Node
 
-from threading import Lock
+from threading import Lock, Thread
 
 db_client = DBClient(config["database"])
 
@@ -49,9 +49,21 @@ class Populator():
         return not_scanned[:self.batch_threads]
 
     def get_ips(self, batch):
-        results = []
-        for task in batch:
-            results.append(self.discovery_ip(task))
+        if len(batch) == 1:
+            return [self.discovery_ip(batch[0])]
+
+        # Even though GIL prevents parallism in Python
+        # the C++ module will run in parallel
+        results = [None] * len(batch)
+        threads = [None] * len(batch)
+        for idx in range(len(batch)):
+            def process(idx):
+                idx = int(idx)
+                results[idx] = self.discovery_ip(batch[idx])
+            threads[idx] = Thread(target=process, args=(str(idx)))
+            threads[idx].start()
+        for idx in range(len(batch)):
+            threads[idx].join()
         return results
 
     def update_graph(self, graph, results, batch):

@@ -162,8 +162,8 @@ def scenario_stats(name, nodes, edges, snaps, pause, slaves_list, batch_threads)
 
 if __name__ == "__main__":
     scenario_stats("small", 20, 210, 20, 3, [0, 1, 2], [1])
-    scenario_stats("small_thds", 20, 210, 20, 3, [0, 1, 2], [1, 2])
-    scenario_stats("medium_thds", 100, 10000, 20, 3, [0, 1, 2], [1, 3])
+    scenario_stats("small_thds", 20, 210, 20, 3, [0, 1], [1, 2])
+    scenario_stats("medium_thds", 100, 10000, 15, 3, [0, 2], [1, 3])
     scenario_stats("medium1", 100, 10000, 20, 3, [0, 1, 2], [1])
     scenario_stats("medium2", 300, 50000, 20, 3, [0, 1, 2], [1])
     scenario_stats("sparse", 1000, 10000, 20, 3, [0, 1, 2], [1])
