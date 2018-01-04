@@ -61,6 +61,33 @@ class TestGraph(TestCase):
         self.assertSetEqual(self.graph.nodes, Graph.from_json(ret_json).nodes)
         self.assertSetEqual(self.graph.edges, Graph.from_json(ret_json).edges)
 
+    def test_merge(self):
+        graph1 = Graph()
+        graph1.add_edge(Node("0.0.0.0"), Node("0.0.0.1"))
+
+        graph2 = Graph()
+        graph2.add_edge(Node("0.0.0.0"), Node("0.0.0.2"))
+
+        graph1.merge(graph2)
+
+        self.assertEqual(len(graph1.nodes), 3)
+        self.assertEqual(len(graph1.edges), 2)
+
+    def test_merge_populated_unpopulated_nodes(self):
+        graph1 = Graph()
+        graph1.nodes = set([Node("0.0.0.0"),Node("0.0.0.1"),Node("0.0.0.2")])
+        graph1.populated = set([Node("0.0.0.0")])
+        graph1.unpopulated = set([Node("0.0.0.1"),Node("0.0.0.2")])
+
+        graph2 = Graph()
+        graph2.nodes = set([Node("0.0.0.0"),Node("0.0.0.1"),Node("0.0.0.2")])
+        graph2.populated = set([Node("0.0.0.1")])
+        graph2.unpopulated = set([Node("0.0.0.0"),Node("0.0.0.2")])
+
+        graph1.merge(graph2)
+        self.assertEqual(len(graph1.nodes), 3)
+        self.assertEqual(len(graph1.populated), 2)
+        self.assertEqual(len(graph1.unpopulated), 1)
 
     def test_str(self):
         self.test_add_edge()

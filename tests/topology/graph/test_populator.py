@@ -84,11 +84,10 @@ class TestPopulator(TestCase):
         }
 
     def test_get_batch(self):
-        populator = Populator(self.graph)
-        populator.threads = 3
+        populator = Populator(self.graph, batch_threads=3)
 
         def shuffle(l):
-            return l[0:populator.threads]
+            return l[0:populator.batch_threads]
         mybatch = populator.get_batch(self.graph, shuffle=shuffle)
 
         self.assertEqual(mybatch[0], '190.80.50.0')

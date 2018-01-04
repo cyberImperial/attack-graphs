@@ -1,3 +1,6 @@
+import logging
+logger = logging.getLogger(__name__)
+
 from threading import Lock
 
 class Node():
@@ -48,20 +51,36 @@ class Graph():
         self.edges.add((n1, n2))
 
     def merge(self, graph):
-        graph1 = self.graph
+        logger.info("Merging graphs.")
+        graph1 = self
         graph2 = graph
 
-        self.graph.lock.acquire()
+        logger.info("Graph1 to merge: nodes[{}], populated [{}], unpopulated [{}].".format(
+            len(graph1.nodes),
+            len(graph1.populated),
+            len(graph1.unpopulated)
+        ))
+        logger.info("Graph2 to merge: nodes[{}], populated [{}], unpopulated [{}].".format(
+            len(graph2.nodes),
+            len(graph2.populated),
+            len(graph2.unpopulated)
+        ))
 
-        graph1.edges.union(graph2.edges)
-        graph1.nodes.union(graph2.nodes)
-        graph1.populated.union(graph2.populated)
+        graph1.edges |= graph2.edges
 
         # (U1 + U2) - (P1 + P2)
-        graph1.unpopulated.union(graph2.unpopulated)
-        graph1.unpopulated.difference(graph1.populated)
+        graph1.populated |= graph2.populated
+        graph1.unpopulated |= graph2.unpopulated
+        graph1.unpopulated -= graph1.populated
 
-        self.graph.lock.release()
+        # N = U + P
+        graph1.nodes = graph1.populated | graph1.unpopulated
+
+        logger.info("Finished merging: nodes[{}], populated [{}], unpopulated [{}].".format(
+            len(graph1.nodes),
+            len(graph1.populated),
+            len(graph1.unpopulated)
+        ))
 
     def to_json(self):
         return {
@@ -84,6 +103,8 @@ class Graph():
             n1 = Node(link["source"])
             n2 = Node(link["target"])
             res.add_edge(n1, n2)
+        res.populated = set()
+        res.unpopulated = set()
 
         for host in json_input["hosts"]:
             n1 = Node(host["ip"])
@@ -91,7 +112,13 @@ class Graph():
             for node in res.nodes:
                 if node == n1:
                     node.running = running
-
+                    if "scanned" in node.running:
+                        if node.running["scanned"] == "true":
+                            res.populated.add(node)
+                        else:
+                            res.unpopulated.add(node)
+                    else:
+                        res.unpopulated.add(node)
         return res
 
     def __str__(self):
