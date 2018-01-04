@@ -32,7 +32,7 @@ class Populator():
         self.db_client = db_client
         self.updated = False
 
-    def get_batch(self, graph, shuffle=lambda x: x):
+    def get_batch(self, graph, shuffle=random.shuffle):
         # Create the batch
         not_scanned = []
 
@@ -40,18 +40,14 @@ class Populator():
             return not_scanned
 
         graph.lock.acquire()
-        ctr = 0
         for node in graph.unpopulated:
-            ctr += 1
             not_scanned.append(node.ip)
-            if ctr == self.threads:
-                break
         graph.lock.release()
 
         # Seam that does not break tests
         shuffle(not_scanned)
 
-        return not_scanned
+        return not_scanned[:self.threads]
 
     def get_ips(self, batch):
         results = []
@@ -71,6 +67,7 @@ class Populator():
             graph.unpopulated.remove(Node(ip))
 
             # updating populated
+            logger.info("Node {} scanned.".format(ip))
             node = Node(ip)
             node.running = results[i]
             node.running["scanned"] = "true"
