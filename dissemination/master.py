@@ -23,8 +23,7 @@ class MasterReceive(Component):
         self.master.broadcast()
 
 class Master():
-    def __init__(self, ip):
-        self.ip = ip
+    def __init__(self):
         self.membership_list = []
 
         self.server = Server("master", MASTER_DEFAULT_PORT)
@@ -55,7 +54,7 @@ class Master():
             client.post("/membership", broadcast)
 
 def master_service():
-    master = Master(get_host_ip())
-    logger.info("Master running on ip: {}".format(master.ip))
+    master = Master()
+    logger.info("Master running on ip: {}".format(get_host_ip()))
 
     master.server.run()
