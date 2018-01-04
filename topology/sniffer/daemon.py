@@ -26,15 +26,19 @@ def filter_packet(packet, mask):
         int_ip = [int(x) for x in ip.split(".")]
         return (int_ip[0] << 24) + (int_ip[1] << 16) + (int_ip[2] << 8) + int_ip[3]
     def check_ip(ip):
-        check_mask = (1 << 32 - 1) - (1 << mask_bits - 1)
+        check_mask = (1 << 32 - 1) - (1 << (mask_bits + 1) - 1)
         ip_bits    = bitmask(ip)      & check_mask
         check_bits = bitmask(mask_ip) & check_mask
         # logger.debug("{0:b}".format(ip_bits))
         # logger.debug("{0:b}".format(check_bits))
         return ip_bits == check_bits
 
-    if not check_ip(src) or not check_ip(dst):
+    if not check_ip(src) and not check_ip(dst):
         return None
+    if not check_ip(src):
+        packet["src"] = "255.255.255.255"
+    if not check_ip(dst):
+        packet["dest"] = "255.255.255.255"
 
     return packet
 
