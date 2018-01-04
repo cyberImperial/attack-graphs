@@ -126,10 +126,13 @@ def nbr_service(graph):
     return len(graph.populated)
 
 def plot(file_name, all_stats, label, selector):
-    s = 0
-    for line in all_stats:
-        plt.plot([selector(entry) for entry in line][1:], label="{} slaves".format(s))
-        s += 1
+    for key, raw_data in sorted(all_stats.items()):
+        batch_threads, slaves = key
+        line = [selector(entry) for entry in raw_data][1:]
+        if batch_threads > 1:
+            plt.plot(line, label="slaves = {}, batch size = {}".format(slaves, batch_threads))
+        else:
+            plt.plot(line, label="slaves = {}".format(slaves))
     plt.xlabel('time')
     plt.ylabel(label)
     plt.grid(True)
@@ -138,25 +141,26 @@ def plot(file_name, all_stats, label, selector):
     plt.savefig(os.path.join(ROOT, "simulation", "res", file_name))
     plt.gcf().clear()
 
-def scenario_stats(name, nodes, edges, snaps, pause):
-    all_stats = []
-    for slaves in [0, 1, 2]:
-        all_stats.append(build_scenario(
-            name=name,
-            nodes=nodes,
-            edges=edges,
-            slaves=slaves,
-            snaps=snaps,
-            pause=pause,
-            processor=lambda t, graph: (t, len(graph.nodes), len(graph.edges), nbr_service(graph))
-        ))
+def scenario_stats(name, nodes, edges, snaps, pause, slaves, batch_threads):
+    all_stats = {}
+    for batch_threads in batch_threads:
+        for slaves in slaves:
+            all_stats[(batch_threads, slaves)] = build_scenario(
+                name=name,
+                nodes=nodes,
+                edges=edges,
+                slaves=slaves,
+                snaps=snaps,
+                pause=pause,
+                processor=lambda t, graph: (t, len(graph.nodes), len(graph.edges), nbr_service(graph))
+            )
 
     plot(file_name="{}_hosts.png".format(name), all_stats=all_stats, label="hosts detected", selector=lambda x: x[1])
     plot(file_name="{}_edges.png".format(name), all_stats=all_stats, label="edges detected", selector=lambda x: x[2])
     plot(file_name="{}_scanned.png".format(name), all_stats=all_stats, label="scanned hosts", selector=lambda x: x[3])
 
 if __name__ == "__main__":
-    scenario_stats("small", 20, 210, 30, 1)
-    scenario_stats("medium1", 100, 10000, 20, 3)
-    scenario_stats("medium2", 300, 50000, 20, 3)
-    scenario_stats("sparse", 1000, 10000, 20, 3)
+    scenario_stats("small", 20, 210, 5, 1, [0, 1, 2], [1])
+    # scenario_stats("medium1", 100, 10000, 20, 3, [0, 1, 2], [1])
+    # scenario_stats("medium2", 300, 50000, 20, 3, [0, 1, 2], [1])
+    # scenario_stats("sparse", 1000, 10000, 20, 3, [0, 1, 2], [1])
