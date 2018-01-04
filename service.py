@@ -8,7 +8,7 @@ import random
 import logging
 logger = logging.getLogger(__name__)
 
-from multiprocessing import Process
+from multiprocessing import Process, Value
 from dissemination.util import get_host_ip
 
 def signal_handler(siganl, frames):
@@ -18,7 +18,7 @@ def signal_handler(siganl, frames):
         os.system("kill -9 {}".format(process.pid))
     sys.exit(0)
 
-def services(benchmark, device_name=None, filter_mask=None):
+def services(benchmark, device_name=None, filter_mask=None, batch_threads=1):
     from topology.graph.graph_service import graph_service
     from topology.sniffer.sniffing_service import sniffing_service
     from database.database_service import database_service
@@ -29,7 +29,7 @@ def services(benchmark, device_name=None, filter_mask=None):
         processes.append(Process(target=database_service))
         processes.append(Process(target=inference_service))
 
-    processes.append(Process(target=graph_service))
+    processes.append(Process(target=graph_service, args=(str(batch_threads))))
     processes.append(Process(target=sniffing_service, args=(device_name, filter_mask)))
 
 def bind_simulation(simulation):
@@ -120,7 +120,9 @@ if __name__ == "__main__":
     parser.add_argument("-v", '--verbose', dest='verbose', action='store_true',
         help="Set the logging level to DEBUG.")
     parser.add_argument("-b" , "--benchmark", dest='benchmark', action='store_true',
-        help="Flag that allows usage of benchmarking. The flag has effect only when running with -s. WARN: running with the flag is more expensive.")
+        help="Disables database and inference engine for benchmarking.")
+    parser.add_argument("-t", "--batch_threads", type=int, default=1,
+        help="Number of threads that should run host discovery.")
     parser.set_defaults(verbose=False)
 
     args = parser.parse_args()
@@ -141,7 +143,7 @@ if __name__ == "__main__":
     processes = []
 
     set_ports(args.type)
-    services(args.benchmark, args.interface, args.filter)
+    services(args.benchmark, args.interface, args.filter, args.batch_threads)
     setup_dissemination(args)
 
     signal.signal(signal.SIGINT, signal_handler)

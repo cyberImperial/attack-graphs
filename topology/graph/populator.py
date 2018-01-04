@@ -25,12 +25,11 @@ def format_out(struct):
     return struct
 
 class Populator():
-    def __init__(self, graph, discovery_ip=discovery_ip, db_client=db_client):
+    def __init__(self, graph, discovery_ip=discovery_ip, db_client=db_client, batch_threads=1):
         self.graph = graph
-        self.threads = 1
+        self.batch_threads = batch_threads
         self.discovery_ip = discovery_ip
         self.db_client = db_client
-        self.updated = False
 
     def get_batch(self, graph, shuffle=random.shuffle):
         # Create the batch
@@ -47,7 +46,7 @@ class Populator():
         # Seam that does not break tests
         shuffle(not_scanned)
 
-        return not_scanned[:self.threads]
+        return not_scanned[:self.batch_threads]
 
     def get_ips(self, batch):
         results = []
@@ -56,8 +55,6 @@ class Populator():
         return results
 
     def update_graph(self, graph, results, batch):
-        self.updated = False
-
         # Putting the results on the graph
         graph.lock.acquire()
         for i in range(0, len(batch)):
@@ -127,5 +124,5 @@ class Populator():
             if not self.populate_nodes():
                 # If there are no new nodes avaiable, we don't want to take the lock uselessly
                 time.sleep(2)
-            if self.updated:
-               logger.info("Graph populated.")
+            else:
+                logger.info("Graph populated.")
