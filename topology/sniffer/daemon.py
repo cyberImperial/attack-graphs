@@ -36,9 +36,9 @@ def filter_packet(packet, mask):
     if not check_ip(src) and not check_ip(dst):
         return None
     if not check_ip(src):
-        packet["dest"] = "255.255.255.255"
-    if not check_ip(dst):
         packet["src"] = "255.255.255.255"
+    if not check_ip(dst):
+        packet["dest"] = "255.255.255.255"
     return packet
 
 class SniffingDaemon():
