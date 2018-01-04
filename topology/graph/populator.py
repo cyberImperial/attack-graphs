@@ -42,6 +42,7 @@ class Populator():
         graph.lock.acquire()
         ctr = 0
         for node in graph.unpopulated:
+            ctr += 1
             not_scanned.append(node.ip)
             if ctr == self.threads:
                 break
@@ -87,8 +88,13 @@ class Populator():
         graph = self.graph
         batch = self.get_batch(graph)
 
+        logger.info("Processing batch of size: {}.".format(len(batch)))
         results = self.get_ips(batch)
+
+        logger.info("Getting vulnerabilities.")
         results = self.add_vulnerabilities(results)
+
+        logger.info("Updating graph.")
         self.update_graph(graph, results, batch)
 
     def add_vulnerabilities(self, results):
@@ -114,7 +120,7 @@ class Populator():
     def populate_loop(self):
         time.sleep(10)
         while True:
+            logger.info("Started populating nodes.")
             self.populate_nodes()
             if self.updated:
-               logger.info("Graph populated")
-               logger.info(self.graph)
+               logger.info("Graph populated.")
