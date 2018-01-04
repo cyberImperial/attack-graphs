@@ -74,7 +74,7 @@ class Graph():
         graph1.unpopulated -= graph1.populated
 
         # N = U + P
-        graph1.nodes |= graph1.unpopulated
+        graph1.nodes = graph1.populated | graph1.unpopulated
 
         logger.info("Finished merging: nodes[{}], populated [{}], unpopulated [{}].".format(
             len(graph1.nodes),

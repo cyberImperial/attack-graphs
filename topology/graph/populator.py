@@ -62,6 +62,10 @@ class Populator():
         graph.lock.acquire()
         for i in range(0, len(batch)):
             ip = batch[i]
+            if Node(ip) not in graph.unpopulated:
+                # It might be that a merge happended since we got the batch
+                logger.info("Node {} already populated".format(ip))
+                continue
 
             # updating unpopulated
             graph.unpopulated.remove(Node(ip))
@@ -77,7 +81,7 @@ class Populator():
             graph.populated.add(node)
 
             #update nodes
-            graph.nodes.remove(Node(batch[i]))
+            graph.nodes.remove(Node(ip))
             graph.nodes.add(node)
         graph.lock.release()
 

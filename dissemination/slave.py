@@ -76,7 +76,7 @@ class Slave():
                 continue
             client = self.client_cls("http://" + member["ip"], member["port"])
             self.membership_list.append(client)
-        logger.info("Membership list updated.")
+        logger.info("Membership list updated: {} members.".format(len(self.membership_list)))
 
     def get_current_broadcast(self):
         return self.membership_list
@@ -90,7 +90,7 @@ class Slave():
     def disseminate(self, multicast_list, message):
         logger.info("Running dissemination.")
         for client in multicast_list:
-            logger.info("Sent multicast.")
+            logger.info("Sending message to {}:{}.".format(client.url, client.port))
             client.post("/multicast", message)
 
     def run(self):
