@@ -206,8 +206,8 @@ function getAttackGraph() {
             'refX':13,
             'refY':0,
             'orient':'auto',
-            'markerWidth':13,
-            'markerHeight':13,
+            'markerWidth':5,
+            'markerHeight':5,
             'xoverflow':'visible'})
         .append('svg:path')
         .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
@@ -233,7 +233,7 @@ function getAttackGraph() {
             .attr('marker-end','url(#arrowhead)')
 
         link.append("title")
-            .text(function (d) {return d.type;});
+            .text(function (d) {return "NO TYPE (title)";});
 
         edgepaths = svg.selectAll(".edgepath")
             .data(links)
@@ -264,7 +264,7 @@ function getAttackGraph() {
             .style("text-anchor", "middle")
             .style("pointer-events", "none")
             .attr("startOffset", "50%")
-            .text(function (d) {return d.type});
+            .text(function (d) {return "NO TYPE"});
 
         node = svg.selectAll(".node")
             .data(nodes)
@@ -286,7 +286,7 @@ function getAttackGraph() {
 
         node.append("text")
             .attr("dy", -3)
-            .text(function (d) {return d.name+":"+d.label;});
+            .text(function (d) {return d.fact+":"+d.type+":"+d.metric;});
 
         simulation
             .nodes(nodes)
@@ -334,7 +334,7 @@ function getAttackGraph() {
         d.fx = d3.event.x;
         d.fy = d3.event.y;
     }
-    
+
 }
 
 function getGraphInfo() {

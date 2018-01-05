@@ -1,47 +1,82 @@
 {
-  "nodes": [
+  "nodes":[
     {
-      "name": "Peter",
-      "label": "Person",
-      "id": 1
+       "id":"1",
+       "metric":"0",
+       "fact":"execCode('127.0.0.1',root)",
+       "type":"OR"
     },
     {
-      "name": "Michael",
-      "label": "Person",
-      "id": 2
+       "id":"2",
+       "metric":"0",
+       "fact":"RULE 2 (remote exploit of a server program)",
+       "type":"AND"
     },
     {
-      "name": "Neo4j",
-      "label": "Database",
-      "id": 3
+       "id":"3",
+       "metric":"0",
+       "fact":"netAccess('127.0.0.1',tcp,'443')",
+       "type":"OR"
     },
     {
-      "name": "Graph Database",
-      "label": "Database",
-      "id": 4
+       "id":"4",
+       "metric":"0",
+       "fact":"RULE 6 (direct network access)",
+       "type":"AND"
+    },
+    {
+       "id":"5",
+       "metric":"1",
+       "fact":"hacl(internet,'127.0.0.1',tcp,'443')",
+       "type":"LEAF"
+    },
+    {
+       "id":"6",
+       "metric":"1",
+       "fact":"attackerLocated(internet)",
+       "type":"LEAF"
+    },
+    {
+       "id":"7",
+       "metric":"1",
+       "fact":"networkServiceInfo('127.0.0.1','GitHub.com',tcp,'443',root)",
+       "type":"LEAF"
+    },
+    {
+       "id":"8",
+       "metric":"1",
+       "fact":"vulExists('127.0.0.1','CVE-2015-2478','GitHub.com',remoteExploit,privEscalation)",
+       "type":"LEAF"
     }
-  ],
-  "links": [
-    {
-      "source": 1,
-      "target": 2,
-      "type": "KNOWS",
-      "since": 2010
-    },
-    {
-      "source": 1,
-      "target": 3,
-      "type": "FOUNDED"
-    },
-    {
-      "source": 2,
-      "target": 3,
-      "type": "WORKS_ON"
-    },
-    {
-      "source": 3,
-      "target": 4,
-      "type": "IS_A"
-    }
-  ]
+ ],
+  "links":[
+       {
+         "source":"4",
+          "target":"5"
+       },
+       {
+          "source":"4",
+          "target":"6"
+       },
+       {
+          "source":"3",
+          "target":"4"
+       },
+       {
+          "source":"2",
+          "target":"3"
+       },
+       {
+          "source":"2",
+          "target":"7"
+       },
+       {
+         "source":"2",
+          "target":"8"
+       },
+       {
+          "source":"1",
+          "target":"2"
+       }
+    ]
 }
