@@ -26,14 +26,45 @@ function getReachability() {
         url: host,
         success: function (data) {
             data = JSON.parse(data.replace(/\'/g, "\""));
-            // console.log(data.hosts);
-            // console.log(data.links);
+            console.log(data.hosts);
+            let totalVuls = 0, vuls = [];
+            data.hosts.forEach(function(item, index) {
+                let services = item.running.Host.RunningServices;
+                for (var i = 0; i < services.length; i++) {
+                    if(services[i].Vulnerability instanceof Array) {
+                        totalVuls += services[i].Vulnerability.length;
+                        services[i].Vulnerability.forEach(function(item, index) {
+                            vuls.push(item);
+                        });
+                    }
+                }
+            });
             document.getElementById("devices").innerHTML = "Devices: " + (data.hosts.length - 1);
             document.getElementById("detectedLinks").innerHTML = "Active Links: " + data.links.length;
+            document.getElementById("vulnerabilities").innerHTML = "Vulnerabilities (" + totalVuls + ")";
+            // console.log(vuls);
+            vuls.push({id: "CVE-2124", impact: {baseMetricV2: {}}, description: "Double free vulnerability in inspect-fs.c in Libgu… denial of service (crash) via empty guest files."});
+
+            let vulHtml = "<br>";
+            vuls.forEach(function(item, index) {
+                console.log(item);
+                let tid = "det-" + (index + 1);
+                vulHtml += "<li class=\"list-group-item\">\
+                    \<div class=\"row toggle\" id=\"dropdown-" + tid + "\" data-toggle=\"" + tid + "\">\
+                    \<div class=\"col-lg-10\">" + item.id + "</div>\
+                    \<div class=\"col-lg-2\"><i class=\"fa fa-chevron-down pull-right\"></i></div>\
+                    \</div>\
+                    \<div id=\"" + tid + "\" class=\"row collapse\"><hr><ul><li>" +
+                    "Score: " + item.impact.baseMetricV2.impactScore + "</li><li>" +
+                    "CVSS v2: " + item.impact.baseMetricV2.exploitabilityScore + "</li><li>" +
+                    "Description: " + item.description + "</li></ul></div>\
+                    \</li>";
+            });
+            document.getElementById("detail-2").innerHTML = vulHtml;
+
             let graph = {};
             graph.nodes = data.hosts;
             graph.links = data.links;
-            let total = 0;
 
             // let defs = svg.append("svg:defs");
             //
@@ -86,35 +117,43 @@ function getReachability() {
                 .offset([-10, 0])
                 .html(function (d) {
                     // console.log(d);
-                    if (typeof d.running.Host === 'object') {
+                    let services = d.running.Host.RunningServices;
+                    if (typeof d.running.Host === 'object' && d.ip != "255.255.255.255") {
                         var result = "";
-                        total += d.running.Host.RunningServices.length;
-                        for (var i = 0; i < d.running.Host.RunningServices.length; i++) {
-
-                            // Usual display attributes
-                            if (d.running.Host.RunningServices[i].Port.portid != "attributeMissing") {
-                                result += "<br><strong style='color:red'> Port : </strong><span>" + d.running.Host.RunningServices[i].Port.portid;
+                        if(services.length > 0) {
+                            result += "<br><strong style='color:red'>Running Services:</strong><br><ul>";
+                            for (var i = 0; i < services.length; i++) {
+                                result += "<li>";
+                                // Usual display attributes
+                                if (services[i].Port.portid != "attributeMissing") {
+                                    result += "<strong style='color:red'> Port : </strong><span>" + services[i].Port.portid;
+                                }
+                                if (services[i].Port.protocol != "attributeMissing") {
+                                    result += "&nbsp;<span>&#124;</span><strong style='color:red'> Protocol : </strong><span>" + services[i].Port.protocol;
+                                }
+                                if (services[i].Service.name != "attributeMissing") {
+                                    result += "<br><strong style='color:red'> Service : </strong><span>" + services[i].Service.name;
+                                }
+                                if (services[i].Service.product != "attributeMissing") {
+                                    result += "&nbsp;<span>&#124;</span><strong style='color:red'> Product : </strong><span>" + services[i].Service.product;
+                                }
+                                if (services[i].Service.version != "attributeMissing") {
+                                    result += "&nbsp;<span>&#124;</span><strong style='color:red'> Version : </strong><span>" + services[i].Service.version;
+                                }
+                                if (services[i].Service.reason != "attributeMissing") {
+                                    result += "<br><strong style='color:red'> Details : </strong><span>" + services[i].Service.reason;
+                                }
+                                result += "</li>";
                             }
-                            if (d.running.Host.RunningServices[i].Port.protocol != "attributeMissing") {
-                                result += "&nbsp;<span>&#124;</span><strong style='color:red'> Protocol : </strong><span>" + d.running.Host.RunningServices[i].Port.protocol;
-                            }
-                            if (d.running.Host.RunningServices[i].Service.name != "attributeMissing") {
-                                result += "<br><strong style='color:red'> Service : </strong><span>" + d.running.Host.RunningServices[i].Service.name;
-                            }
-                            if (d.running.Host.RunningServices[i].Service.product != "attributeMissing") {
-                                result += "&nbsp;<span>&#124;</span><strong style='color:red'> Product : </strong><span>" + d.running.Host.RunningServices[i].Service.product;
-                            }
-                            if (d.running.Host.RunningServices[i].Service.version != "attributeMissing") {
-                                result += "&nbsp;<span>&#124;</span><strong style='color:red'> Version : </strong><span>" + d.running.Host.RunningServices[i].Service.version;
-                            }
-                            if (d.running.Host.RunningServices[i].Service.reason != "attributeMissing") {
-                                result += "<br><strong style='color:red'> Details : </strong><span>" + d.running.Host.RunningServices[i].Service.reason;
-                            }
-                            result += "<hr>";
+                            result += "</ul>";
                         }
-                        return "<strong style='color:red'>Host : </strong><span>" + d.ip + "</span><hr><strong style='color:red'>Operating System : </strong>" + d.running.Host.os + result;
+                        return "<strong style='color:red'>Host : </strong><span>" + d.ip + "</span>&nbsp;<span>&#124;&nbsp;</span><strong style='color:red'>Operating System : </strong>" + d.running.Host.os + result;
                     } else {
-                        return "<strong style='color:red'>Host : </strong><span>" + d.ip + "</span><hr><strong style='color:red'>Operating System : </strong>unavailable";
+                        if(d.ip != "255.255.255.255") {
+                            return "<strong style='color:red'>Host : </strong><span>" + d.ip + "</span>&nbsp;<span>&#124;&nbsp;</span><strong style='color:red'>Operating System : </strong>unavailable";
+                        } else {
+                            return "<strong style='color:red'>Internet</strong>&nbsp;<span>&#124;&nbsp;</span><strong>Attacker's Location</strong>";
+                        }
                     }
                 });
 
@@ -229,7 +268,7 @@ function getAttackGraph() {
             .data(links)
             .enter()
             .append("line")
-            .attr("class", "link")
+            .attr("class", "link-attack-graph")
             .attr('marker-end','url(#arrowhead)')
 
         link.append("title")
