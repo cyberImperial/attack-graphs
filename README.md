@@ -43,7 +43,7 @@ sudo python3 service.py slave [master-ip]
 Package options:
 ```
 usage: service.py [-h] [-m MASTER] [-p PORT] [-i INTERFACE] [-s SIMULATION]
-                  [-f FILTER] [-v]
+                  [-f FILTER] [-v] [-b] [-t BATCH_THREADS]
                   type
 
 positional arguments:
@@ -63,6 +63,10 @@ optional arguments:
                         Specify a mask for filtering the packets. (e.g.
                         '10.1.1.1/16' would keep packets starting with '10.1')
   -v, --verbose         Set the logging level to DEBUG.
+  -b, --benchmark       Disables database and inference engine for
+                        benchmarking.
+  -t BATCH_THREADS, --batch_threads BATCH_THREADS
+                        Number of threads that should run host discovery. (default is single-threaded)
 ```
 
 Running on a simulated network:
@@ -100,6 +104,17 @@ CLI options:
   --graph               Send a request to the local graph service.
   --packet              Send a request to the local sniffer service.
 ```
+
+### Benchmarks
+
+To run benchmarks:
+```
+sudo python3 simulation/benchmarks.py
+```
+
+The simulations are run on random overlay topologies with fixed number of nodes and edges. Random packets get generated whenever the simulation module connection gets a call within a fixed timeout of 0.5 seconds, whereas the scans are generated within a timeout of 3 seconds.
+
+Results of the simulations can be found in the folder `simulation/res` and were generated on a single machine.  
 
 ### Front-end
 
