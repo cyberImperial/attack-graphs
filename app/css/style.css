@@ -146,3 +146,9 @@
     0% { opacity:0; }
     100% { opacity:100%; }
 }
+
+/* Attack graph styles */
+.link-attack-graph {
+    stroke: #8c8c8c;
+    stroke-width: 3px;
+}
