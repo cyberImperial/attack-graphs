@@ -275,11 +275,50 @@ function getAttackGraph() {
                     .on("start", dragstarted)
                     .on("drag", dragged)
                 //.on("end", dragended)
-            );
+            )
+            .append("svg:image")
+            .attr("xlink:href", function(d) {
+                // console.log(d);
+                // if(d.fact === "attackerLocated(internet)") {
+                //     return "img/blackhat.png";
+                // }
+                if(d.fact === "attackerLocated(internet)") {
+                    return "img/internet.png"
+                } else if(d.fact.match(/RULE/g) === null) {
+                    return "img/server.png"
+                } else {
+                   return "img/circle.svg"
+                }
+          })
+            .attr("width", 40)
+            .attr("height", 40)
+            .attr("x", -10)
+            .attr("y", -10);
 
-        node.append("circle")
-            .attr("r", 5)
-            .style("fill", function (d, i) {return colors(i);})
+        let tip = d3.tip()
+            .attr('class', 'd3-tip')
+            .offset([-10, 0])
+            .html(function (d) {
+                // console.log(d);
+                if (d.type != "AND") {
+                    var result = "<br><strong style='color:red'> Fact : </strong><span>" + d.fact + "<hr>";
+                    return result;
+                }
+            });
+
+        svg.call(tip);
+
+        node.on("mouseover", function (d) {
+            if (showTooltip && d.type != "AND") {
+                tip.show(d, this);
+            }
+        }).on("mouseout", function (d) {
+            tip.hide();
+        });
+
+        // node.append("circle")
+        //     .attr("r", 5)
+        //     .style("fill", function (d, i) {return colors(i);})
 
         node.append("title")
             .text(function (d) {return d.id;});
