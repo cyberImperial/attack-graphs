@@ -84,8 +84,8 @@ class MulvalTranslator():
                 "type" : node[3].text,
             } for node in nodes],
             "arcs" : [{
-                "source" : arc[0].text,
-                "target" : arc[1].text,
+                "source" : arc[1].text,
+                "target" : arc[0].text,
             } for arc in arcs]
         })
 
@@ -118,7 +118,7 @@ class MulvalTranslator():
         attackGraphJSON = self._graphXMLtoJSON()
 
         self._cleanup(files_before)
-        
+
         return attackGraphJSON
 
 def generate_attack_graph(client):
