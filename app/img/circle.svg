@@ -1,0 +1,38 @@
+<?xml version="1.0"?><svg width="640" height="480" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <!-- Created with SVG-edit - http://svg-edit.googlecode.com/ -->
+ <title>Glossy Orange Circle Icon</title>
+ <g>
+  <title>Layer 1</title>
+  <defs>
+   <pattern id="gridpattern" patternUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
+    <image id="svg_2" x="0" y="0" width="100" height="100"/>
+   </pattern>
+   <pattern id="svg_37" patternUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
+    <image id="svg_38" x="0" y="0" width="100" height="100"/>
+   </pattern>
+   <pattern id="svg_68" patternUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
+    <image id="svg_69" x="0" y="0" width="100" height="100"/>
+   </pattern>
+   <linearGradient id="svg_61">
+    <stop stop-color="#ffffff" offset="0" id="svg_64"/>
+    <stop stop-color="#ffffff" stop-opacity="0" offset="1" id="svg_63"/>
+   </linearGradient>
+   <linearGradient y2="0.892047" x2="0.500015" y1="-0.000042" x1="0.500015" id="svg_60" xlink:href="#svg_61"/>
+   <pattern id="svg_58" patternUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
+    <image id="svg_59" x="0" y="0" width="100" height="100"/>
+   </pattern>
+   <pattern id="gridpattern" patternUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
+    <image id="svg_4" x="0" y="0" width="100" height="100"/>
+   </pattern>
+  </defs>
+  <g id="svg_11">
+   <rect fill="#ffffff" stroke="#999999" stroke-width="0" x="223.679998" y="193.957686" width="225.400389" height="195.042328" id="svg_6"/>
+   <path fill="#ffffff" stroke="#999999" stroke-width="0" d="m178.595993,215.074005c0,0 156.274002,-108.026009 156.350021,-109.797005c0.074982,-1.772003 151.03299,106.495995 151.03299,106.495995c0,0 -307.383011,3.30101 -307.383011,3.30101l0,0l0,0l0,0l0,0l0,0l0,0l0,0l0,0l0,0z" id="svg_8"/>
+  </g>
+  <ellipse fill="#ff7f00" stroke="#999999" stroke-width="0" cx="329.999999" cy="241.999995" rx="230.000005" ry="230.000005" id="svg_3"/>
+  <g id="svg_80">
+   <metadata id="svg_79">image/svg+xmlblue power button08 12 2006molumenblue power buttoniconbuttondesignUIinterfacepowerswitchonoffblueglossytoggle</metadata>
+   <path opacity="0.75" fill="url(#svg_60)" fill-rule="evenodd" stroke-miterlimit="4" id="svg_71" d="m527.640137,189.227036a196.77449,157.930588 0 1 1-393.549103,0a196.77449,157.930588 0 1 1393.549103,0z"/>
+  </g>
+ </g>
+</svg>
