@@ -84,15 +84,23 @@ class GraphService():
                 self.graph.add_edge(*edge)
         self.graph.lock.release()
 
-def graph_service(batch_threads=1):
+def graph_service(batch_threads=1, no_scan=False):
     """
     The graph_service method represents the runtime of the GraphService class.
+
+    Args:
+    - batch_threads: the number of threads in a parallel scan
+    - no_scan: if the no_scan flag is on, don't start the populator
     """
+    no_scan = bool(no_scan)
+
     graph = Graph()
     service = GraphService(graph, batch_threads=int(batch_threads))
 
     threading.Thread(target=service.server.run).start()
-    threading.Thread(target=service.populator.populate_loop).start()
+    if no_scan:
+        threading.Thread(target=service.populator.populate_loop).start()
+
     while True:
         service.update()
 

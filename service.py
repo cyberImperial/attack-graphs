@@ -18,7 +18,7 @@ def signal_handler(siganl, frames):
         os.system("kill -9 {}".format(process.pid))
     sys.exit(0)
 
-def services(benchmark, device_name=None, filter_mask=None, batch_threads=1):
+def services(benchmark, device_name=None, filter_mask=None, batch_threads=1, no_scans=False):
     from topology.graph.graph_service import graph_service
     from topology.sniffer.sniffing_service import sniffing_service
     from database.database_service import database_service
@@ -29,7 +29,7 @@ def services(benchmark, device_name=None, filter_mask=None, batch_threads=1):
         processes.append(Process(target=database_service))
         processes.append(Process(target=inference_service))
 
-    processes.append(Process(target=graph_service, args=(str(batch_threads))))
+    processes.append(Process(target=graph_service, args=(str(batch_threads), str(no_scans))))
     processes.append(Process(target=sniffing_service, args=(device_name, filter_mask)))
 
 def bind_simulation(simulation):
@@ -123,6 +123,8 @@ if __name__ == "__main__":
         help="Disables database and inference engine for benchmarking.")
     parser.add_argument("-t", "--batch_threads", type=int, default=1,
         help="Number of threads that should run host discovery.")
+    parser.add_argument("-n", "--no-scan", dest='no_scan', action='store_true',
+        help="Disables database and inference engine for benchmarking.")
     parser.set_defaults(verbose=False)
 
     args = parser.parse_args()

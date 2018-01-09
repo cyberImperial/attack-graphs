@@ -29,7 +29,10 @@ function getReachability() {
             console.log(data.hosts);
             let totalVuls = 0, vuls = [];
             data.hosts.forEach(function(item, index) {
-                let services = item.running.Host.RunningServices;
+                let services = [];
+                if (item.running.Host !== undefined) {
+                  services = item.running.Host.RunningServices;
+                }
                 for (var i = 0; i < services.length; i++) {
                     if(services[i].Vulnerability instanceof Array) {
                         totalVuls += services[i].Vulnerability.length;
@@ -116,8 +119,10 @@ function getReachability() {
                 .attr('class', 'd3-tip')
                 .offset([-10, 0])
                 .html(function (d) {
-                    // console.log(d);
-                    let services = d.running.Host.RunningServices;
+                    let services = [];
+                    if (d.running.Host !== undefined) {
+                      services = d.running.Host.RunningServices;
+                    }
                     if (typeof d.running.Host === 'object' && d.ip != "255.255.255.255") {
                         var result = "";
                         if(services.length > 0) {
