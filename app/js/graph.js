@@ -43,7 +43,6 @@ function getReachability() {
             document.getElementById("detectedLinks").innerHTML = "Active Links: " + data.links.length;
             document.getElementById("vulnerabilities").innerHTML = "Vulnerabilities (" + totalVuls + ")";
             // console.log(vuls);
-            vuls.push({id: "CVE-2124", impact: {baseMetricV2: {}}, description: "Double free vulnerability in inspect-fs.c in Libgu… denial of service (crash) via empty guest files."});
 
             let vulHtml = "<br>";
             vuls.forEach(function(item, index) {

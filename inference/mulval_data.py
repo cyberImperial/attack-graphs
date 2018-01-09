@@ -51,22 +51,22 @@ class TranslatorBuilder():
         self.data = {
           "links" : [
                   {
-                    "source":"127.0.0.1",
-                    "target":"127.0.0.2",
+                    "source":"10.1.3.1",
+                    "target":"10.1.3.2",
                     "value":1
                   },
                   {
-                    "source":"127.0.0.1",
-                    "target":"127.0.0.3",
+                    "source":"10.1.3.1",
+                    "target":"10.1.3.3",
                     "value":1
                   },
                   {
-                    "source":"127.0.0.2",
-                    "target":"127.0.0.4",
+                    "source":"10.1.3.2",
+                    "target":"10.1.3.4",
                     "value":1
                   }],
           "hosts":[
-                  {"ip":"127.0.0.1","running": {
+                  {"ip":"10.1.3.1","running": {
                  "scanned" : "true",
                  "RunningServices":[
                      {
@@ -86,13 +86,13 @@ class TranslatorBuilder():
                      }
                      ]
                   }},
-                  {"ip":"127.0.0.2","running": {
+                  {"ip":"10.1.3.2","running": {
                     "scanned" : "true"
                   }},
-                  {"ip":"127.0.0.3","running": {
+                  {"ip":"10.1.3.3","running": {
                     "scanned" : "true"
                   }},
-                  {"ip":"127.0.0.4","running": {
+                  {"ip":"10.1.3.4","running": {
                     "scanned" : "true"
                   }}
            ]
