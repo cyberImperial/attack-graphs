@@ -29,7 +29,10 @@ function getReachability() {
             console.log(data.hosts);
             let totalVuls = 0, vuls = [];
             data.hosts.forEach(function(item, index) {
-                let services = item.running.Host.RunningServices;
+                let services = [];
+                if (item.running.Host !== undefined) {
+                  services = item.running.Host.RunningServices;
+                }
                 for (var i = 0; i < services.length; i++) {
                     if(services[i].Vulnerability instanceof Array) {
                         totalVuls += services[i].Vulnerability.length;
