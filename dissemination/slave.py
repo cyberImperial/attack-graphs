@@ -37,7 +37,7 @@ class MessageReceiver(Component):
         self.slave = slave
 
     def process(self, message):
-        logging.info("Received message: {}".format(str(message)))
+        logger.info("Received message.")
         self.slave.graph_sharing.update(message["graph"])
 
 class Slave():
@@ -58,21 +58,25 @@ class Slave():
         self.graph_sharing = GraphSharing()
 
     def join(self):
+        logger.info("Slave requesting join.")
         self.master_client.post("/register", {
             "ip" : self.slave_ip,
             "port" : self.server.port
         })
 
     def update_membership(self, membership_list):
-        logging.info("Updating membership....")
+        logger.info("Updating membership....")
         if "members" not in membership_list:
             return
         membership_list = membership_list["members"]
 
         self.membership_list = []
         for member in membership_list:
+            if self.slave_ip == member["ip"] and self.slave_port == member["port"]:
+                continue
             client = self.client_cls("http://" + member["ip"], member["port"])
             self.membership_list.append(client)
+        logger.info("Membership list updated: {} members.".format(len(self.membership_list)))
 
     def get_current_broadcast(self):
         return self.membership_list
@@ -84,7 +88,9 @@ class Slave():
         return multicast_list[:self.dissemination_constant]
 
     def disseminate(self, multicast_list, message):
+        logger.info("Running dissemination.")
         for client in multicast_list:
+            logger.info("Sending message to {}:{}.".format(client.url, client.port))
             client.post("/multicast", message)
 
     def run(self):
@@ -100,14 +106,11 @@ class Slave():
             }
             self.disseminate(multicast_list, multicast_message)
 
-if __name__ == "__main__":
+def slave_service(master_ip, slave_port):
+    time.sleep(3)
+
     master_port = MASTER_DEFAULT_PORT
-
-    # Need to give port as an argument
-    master_ip = sys.argv[1]
-    slave_port = sys.argv[2]
-
     slave = Slave(slave_port, master_ip, master_port)
 
     threading.Thread(target=slave.server.run).start()
-    threading.Thread(target=slave.run).start()
+    slave.run()

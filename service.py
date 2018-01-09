@@ -4,12 +4,12 @@ import os
 import signal
 import argparse
 import random
-import subprocess
 
 import logging
 logger = logging.getLogger(__name__)
 
-from multiprocessing import Process
+from multiprocessing import Process, Value
+from dissemination.util import get_host_ip
 
 def signal_handler(siganl, frames):
     logger.warn("Killing the running services.")
@@ -18,23 +18,19 @@ def signal_handler(siganl, frames):
         os.system("kill -9 {}".format(process.pid))
     sys.exit(0)
 
-def services(device_name=None, filter_mask=None):
+def services(benchmark, device_name=None, filter_mask=None, batch_threads=1):
     from topology.graph.graph_service import graph_service
     from topology.sniffer.sniffing_service import sniffing_service
     from database.database_service import database_service
     from inference.inference_service import inference_service
 
     global processes
-    processes = [
-        Process(target=database_service),
-        Process(target=graph_service),
-        Process(target=inference_service),
-    ]
+    if benchmark is not None:
+        processes.append(Process(target=database_service))
+        processes.append(Process(target=inference_service))
 
+    processes.append(Process(target=graph_service, args=(str(batch_threads))))
     processes.append(Process(target=sniffing_service, args=(device_name, filter_mask)))
-
-    for process in processes:
-        process.start()
 
 def bind_simulation(simulation):
     # Overrides the default services with a simulation
@@ -84,6 +80,29 @@ def setup_loggers(verbose):
         handlers=[stderr_handler, file_handler]
     )
 
+def setup_dissemination(args):
+    if args.type == "master":
+        from dissemination.master import master_service
+        from dissemination.slave import slave_service
+
+        port_offset = 30000
+        port = port_offset + random.randint(0, port_offset)
+
+        # When running a master we need a slave as well as only the slave keeps the graph
+        processes.append(Process(target=master_service))
+        processes.append(Process(target=slave_service, args=(get_host_ip(), port)))
+
+    if args.type == "slave":
+        master_ip = args.master
+        port      = args.port
+
+        if master_ip is None or port is None:
+            logger.error("Not enough arguments provided for slave mode.")
+            os.kill(os.getpid(), signal.SIGINT)
+
+        from dissemination.slave import slave_service
+        processes.append(Process(target=slave_service, args=(master_ip, port)))
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("type", type=str,
@@ -100,6 +119,10 @@ if __name__ == "__main__":
         help="Specify a mask for filtering the packets. (e.g. '10.1.1.1/16' would keep packets starting with '10.1')")
     parser.add_argument("-v", '--verbose', dest='verbose', action='store_true',
         help="Set the logging level to DEBUG.")
+    parser.add_argument("-b" , "--benchmark", dest='benchmark', action='store_true',
+        help="Disables database and inference engine for benchmarking.")
+    parser.add_argument("-t", "--batch_threads", type=int, default=1,
+        help="Number of threads that should run host discovery.")
     parser.set_defaults(verbose=False)
 
     args = parser.parse_args()
@@ -116,21 +139,16 @@ if __name__ == "__main__":
 
         bind_simulation(Simulation(args.simulation))
 
+    global processes
+    processes = []
+
     set_ports(args.type)
-    services(args.interface, args.filter)
+    services(args.benchmark, args.interface, args.filter, args.batch_threads)
+    setup_dissemination(args)
+
     signal.signal(signal.SIGINT, signal_handler)
 
-    if args.type == "master":
-        master_proc = subprocess.Popen(['python3', 'dissemination/master.py'], shell=False)
-        processes.append(master_proc)
-
-    if args.type == "slave":
-        master_ip = args.master
-        port      = args.port
-
-        if master_ip is None or port is None:
-            logger.error("Not enough arguments provided for slave mode.")
-            os.kill(os.getpid(), signal.SIGINT)
-
-        slave_proc = subprocess.Popen(['python3', 'dissemination/slave.py', master_ip, port],  shell=False)
-        processes.append(slave_proc)
+    for process in processes:
+        process.start()
+    for process in processes:
+        process.join()

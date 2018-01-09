@@ -48,6 +48,9 @@ class GraphMerge(Component):
         self.graph.lock.acquire()
         self.graph.merge(Graph.from_json(graph))
         self.graph.lock.release()
+        return {
+            "success" : "true"
+        }
 
 class GraphService():
     """
@@ -57,13 +60,13 @@ class GraphService():
       * a server
       * a populator
     """
-    def __init__(self, graph, sniffer_client=LocalClient(config["sniffer"])):
+    def __init__(self, graph, sniffer_client=LocalClient(config["sniffer"]), batch_threads=1):
         self.graph = graph
-        self.populator = Populator(self.graph)
+        self.populator = Populator(self.graph, batch_threads=batch_threads)
 
         self.server = Server("graph", config["graph"])
         self.server.add_component_get("/graph", GraphExporter(graph))
-        self.server.add_component_get("/merge", GraphMerge(graph))
+        self.server.add_component_post("/merge", GraphMerge(graph))
 
         self.sniffer_client = sniffer_client
 
@@ -81,20 +84,20 @@ class GraphService():
                 self.graph.add_edge(*edge)
         self.graph.lock.release()
 
-def graph_service():
+def graph_service(batch_threads=1):
     """
     The graph_service method represents the runtime of the GraphService class.
     """
     graph = Graph()
-    service = GraphService(graph)
+    service = GraphService(graph, batch_threads=int(batch_threads))
 
     threading.Thread(target=service.server.run).start()
     threading.Thread(target=service.populator.populate_loop).start()
     while True:
         service.update()
 
-        time.sleep(5)
-        logger.debug(LocalClient(config["graph"]).get("/graph"))
+        time.sleep(10)
+        # logger.debug(LocalClient(config["graph"]).get("/graph"))
 
 if __name__ == "__main__":
     graph_service()

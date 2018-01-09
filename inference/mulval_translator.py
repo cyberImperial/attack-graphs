@@ -10,6 +10,8 @@ import json, subprocess
 from service.client import LocalClient
 from service.server import Server, config
 
+import xml.etree.ElementTree as ET
+
 from inference.mulval_data import TranslatorBuilder
 
 class MulvalTranslator():
@@ -69,6 +71,24 @@ class MulvalTranslator():
         with open('AttackGraph.txt', 'r') as output:
             return output.read()
 
+    def _graphXMLtoJSON(self):
+        tree = ET.parse('AttackGraph.xml')
+        root = tree.getroot()
+        arcs = root[0]
+        nodes = root[1]
+        return json.dumps({
+            "nodes" : [{
+                "id" : node[0].text,
+                "fact" : node[1].text,
+                "metric" : node[2].text,
+                "type" : node[3].text,
+            } for node in nodes],
+            "arcs" : [{
+                "source" : arc[1].text,
+                "target" : arc[0].text,
+            } for arc in arcs]
+        })
+
     def generate_attack_graph(self):
         logger.info("Generating attack graph.")
         files_before = os.listdir()
@@ -84,16 +104,22 @@ class MulvalTranslator():
         if "XSB_DIR" not in env:
             env["XSB_DIR"] = os.path.join(env["HOME"], "mulval", "XSB")
 
+        logger.error(env["MULVALROOT"])
+        logger.error(env["XSB_DIR"])
+
         env["PATH"] = "{}:{}".format(env["PATH"], os.path.join(env["MULVALROOT"], "bin"))
         env["PATH"] = "{}:{}".format(env["PATH"], os.path.join(env["MULVALROOT"], "utils"))
         env["PATH"] = "{}:{}".format(env["PATH"], os.path.join(env["XSB_DIR"], "bin"))
 
+        logger.error(env["PATH"])
+
         subprocess.Popen(['graph_gen.sh mulval_input.P -v -p'], shell=True, env=env).wait()
-        output = self._save_output()
+        self._save_output()
+        attackGraphJSON = self._graphXMLtoJSON()
 
         self._cleanup(files_before)
 
-        return output
+        return attackGraphJSON
 
 def generate_attack_graph(client):
     return TranslatorBuilder(client) \
