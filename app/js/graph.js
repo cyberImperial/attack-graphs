@@ -119,8 +119,10 @@ function getReachability() {
                 .attr('class', 'd3-tip')
                 .offset([-10, 0])
                 .html(function (d) {
-                    // console.log(d);
-                    let services = d.running.Host.RunningServices;
+                    let services = [];
+                    if (d.running.Host !== undefined) {
+                      services = d.running.Host.RunningServices;
+                    }
                     if (typeof d.running.Host === 'object' && d.ip != "255.255.255.255") {
                         var result = "";
                         if(services.length > 0) {
