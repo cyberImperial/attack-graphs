@@ -72,8 +72,6 @@ class GraphService():
 
     def get_edge(self, packet):
         src, dest = packet["src"], packet["dest"]
-        if "255" in src or "255" in dest:
-            return None
         return Node(src), Node(dest)
 
     def update(self):

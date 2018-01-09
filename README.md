@@ -7,7 +7,7 @@ To install the dependecies:
 ```
 apt-get install libboost-all-dev -y
 apt-get install libpcap-dev -y
-python3 service.py install
+sudo python3 setup.py install
 make
 npm install
 cd database && python3 load.py -r
@@ -16,7 +16,7 @@ cd database && python3 load.py -r
 Run tests:
 ```
 make test
-python3 setup.py test
+sudo python3 setup.py test
 ```
 
 The inference engine depends on `mulval`. Please follow the instructions for installation from [here](http://people.cs.ksu.edu/~xou/mulval/). To run the inference engine, you need to set the following path variables: (in case they are not set, the module will try some default paths)

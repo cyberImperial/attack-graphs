@@ -1,0 +1,82 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "metric": "0",
+      "fact": "execCode('127.0.0.1',root)",
+      "type": "OR"
+    },
+    {
+      "id": "2",
+      "metric": "0",
+      "fact": "RULE 2 (remote exploit of a server program)",
+      "type": "AND"
+    },
+    {
+      "id": "3",
+      "metric": "0",
+      "fact": "netAccess('127.0.0.1',tcp,'443')",
+      "type": "OR"
+    },
+    {
+      "id": "4",
+      "metric": "0",
+      "fact": "RULE 6 (direct network access)",
+      "type": "AND"
+    },
+    {
+      "id": "5",
+      "metric": "1",
+      "fact": "hacl(internet,'127.0.0.1',tcp,'443')",
+      "type": "LEAF"
+    },
+    {
+      "id": "6",
+      "metric": "1",
+      "fact": "attackerLocated(internet)",
+      "type": "LEAF"
+    },
+    {
+      "id": "7",
+      "metric": "1",
+      "fact": "networkServiceInfo('127.0.0.1','GitHub.com',tcp,'443',root)",
+      "type": "LEAF"
+    },
+    {
+      "id": "8",
+      "metric": "1",
+      "fact": "vulExists('127.0.0.1','CVE-2015-2478','GitHub.com',remoteExploit,privEscalation)",
+      "type": "LEAF"
+    }
+  ],
+  "arcs": [
+    {
+      "target": "5",
+      "source": "4"
+    },
+    {
+      "target": "6",
+      "source": "4"
+    },
+    {
+      "target": "4",
+      "source": "3"
+    },
+    {
+      "target": "3",
+      "source": "2"
+    },
+    {
+      "target": "7",
+      "source": "2"
+    },
+    {
+      "target": "8",
+      "source": "2"
+    },
+    {
+      "target": "2",
+      "source": "1"
+    }
+  ]
+}
