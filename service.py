@@ -124,7 +124,7 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--batch_threads", type=int, default=1,
         help="Number of threads that should run host discovery.")
     parser.add_argument("-n", "--no-scan", dest='no_scan', action='store_true',
-        help="Disables database and inference engine for benchmarking.")
+        help="Disable port scanning.")
     parser.set_defaults(verbose=False)
 
     args = parser.parse_args()
