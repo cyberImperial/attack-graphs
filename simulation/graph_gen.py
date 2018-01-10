@@ -13,7 +13,10 @@ def generate_graph(nodes, max_edges, decorate=False):
 
     def int_to_ip(value):
         if decorate:
-            a = int(random() * 255)
+            if random() > 0.5:
+               a = int(random() * 255)
+            else:
+               a = (value >> 24) & 255
         else:
             a = (value >> 24) & 255
         b = (value >> 16) & 255
@@ -23,14 +26,65 @@ def generate_graph(nodes, max_edges, decorate=False):
 
     nodes = [Node(int_to_ip(i)) for i in range(0, nodes)]
     for n in nodes:
-        n.running = {
-            "scanned" : "false",
-            "Host": {
-              "os" : "ACER RT-N56U WAP (Linux 3.2)",
-              "ip" : n.ip,
-              "RunningServices": []
-          }
-        }
+        r = random()
+        if r < 0.25:
+            n.running = {
+                "scanned" : "false",
+                "Host": {
+                  "os" : "ACER RT-N56U WAP (Linux 3.2)",
+                  "ip" : n.ip,
+                  "RunningServices": [{
+        "Port":{
+        "portid":"443",
+        "protocol":"tcp"
+      },
+      "Service" : {
+        "name":"libguestfs",
+        "product":"libguestfs",
+        "version":"1.21.24",
+        "state_open":"open",
+        "reason":"syn-ack"
+      }}]
+              }
+            }
+        elif r < 0.5:
+            n.running = {
+                "scanned" : "false",
+                "Host": {
+                  "os" : "ASUS K570 (Linux 3.4)",
+                  "ip" : n.ip,
+                  "RunningServices": []
+              }
+            }
+        elif r < 0.75:
+            n.running = {
+                "scanned" : "false",
+                "Host": {
+                  "os" : "windows_server",
+                  "ip" : n.ip,
+                  "RunningServices": [{
+        "Port":{
+        "portid":"80",
+        "protocol":"tcp"
+      },
+      "Service" : {
+        "name":" nginx",
+        "product":"lb",
+        "version":"2.5",
+        "state_open":"open",
+        "reason":"syn-ack"
+      }}]
+              }
+            }
+        else:
+            n.running = {
+                "scanned" : "false",
+                "Host": {
+                  "os" : "ACER RT-N56U WAP (Linux 3.2)",
+                  "ip" : n.ip,
+                  "RunningServices": []
+              }
+            }
 
     edges = [(n1, n2) for n1 in nodes for n2 in nodes]
     shuffle(edges)
