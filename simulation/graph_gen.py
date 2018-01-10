@@ -8,6 +8,8 @@ from topology.graph.graph import Graph
 from topology.graph.graph import Node
 from random import randint, random, shuffle
 
+from clint.textui import colored
+
 def generate_graph(nodes, max_edges, decorate=False):
     graph = Graph()
 
@@ -111,11 +113,11 @@ if __name__ == "__main__":
     edges     = int(sys.argv[2])
     file_name = sys.argv[3]
 
-    print("Generating a graph with {} nodes and {} edges in file {}".format(
-        nodes,
-        edges,
-        file_name
-    ))
+    # print("Generating a graph with {} nodes and {} edges in file {}".format(
+    #     nodes,
+    #     edges,
+    #     file_name
+    # ))
 
     graph = generate_graph(nodes, edges, decorate=True)
 
@@ -123,8 +125,8 @@ if __name__ == "__main__":
     path = os.path.join(path, "confs")
     path = os.path.join(path, "{}.json".format(file_name))
 
-    print("Saving graph to file.")
+    # print("Saving graph to file.")
     os.system("touch {}".format(path))
     with open(path, "w") as output_file:
         output_file.write(str(graph.to_json()))
-    print("Graph saved to file.")
+    # print("Graph saved to file.")

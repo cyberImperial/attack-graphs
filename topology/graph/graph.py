@@ -1,6 +1,9 @@
 import logging
 logger = logging.getLogger(__name__)
 
+
+from clint.textui import colored
+
 from threading import Lock
 
 class Node():
@@ -55,15 +58,13 @@ class Graph():
         graph1 = self
         graph2 = graph
 
-        logger.info("Graph1 to merge: nodes[{}], populated [{}], unpopulated [{}].".format(
+        logger.info("Graph1 to merge: nodes[{}], populated [{}].".format(
             len(graph1.nodes),
-            len(graph1.populated),
-            len(graph1.unpopulated)
+            len(graph1.populated)
         ))
-        logger.info("Graph2 to merge: nodes[{}], populated [{}], unpopulated [{}].".format(
+        logger.info("Graph2 to merge: nodes[{}], populated [{}].".format(
             len(graph2.nodes),
-            len(graph2.populated),
-            len(graph2.unpopulated)
+            len(graph2.populated)
         ))
 
         graph1.edges |= graph2.edges
@@ -76,10 +77,9 @@ class Graph():
         # N = U + P
         graph1.nodes = graph1.populated | graph1.unpopulated
 
-        logger.info("Finished merging: nodes[{}], populated [{}], unpopulated [{}].".format(
+        logger.info("Finished merging: nodes[{}], populated [{}].".format(
             len(graph1.nodes),
-            len(graph1.populated),
-            len(graph1.unpopulated)
+            len(graph1.populated)
         ))
 
     def to_json(self):

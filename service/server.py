@@ -1,6 +1,11 @@
 import threading
 import random
 
+import logging
+
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
+
 from flask import Blueprint, Flask, request
 
 config = {

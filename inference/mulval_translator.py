@@ -98,6 +98,7 @@ class MulvalTranslator():
         self.mulval_file.close()
 
         env = os.environ.copy()
+        print(env)
 
         if "MULVALROOT" not in env:
             env["MULVALROOT"] = os.path.join(env["HOME"], "mulval")
@@ -124,7 +125,6 @@ class MulvalTranslator():
 def generate_attack_graph(client):
     return TranslatorBuilder(client) \
         .from_client_data() \
-        .from_mock_data_if_empty() \
         .build(MulvalTranslator()) \
         .generate_attack_graph()
 

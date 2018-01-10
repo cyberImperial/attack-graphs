@@ -9,6 +9,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from topology.graph.graph import Graph
 from topology.graph.graph import Node
+from clint.textui import colored
 
 import json
 import ast
@@ -59,12 +60,12 @@ class Simulation():
 
     def discovery_ip(self, ip):
         # simulate scan timeout
-        logger.info("Started scan.")
+        logger.info(colored.cyan("Started scan."))
         time.sleep(self.scan_timeout)
 
         for node in self.graph.nodes:
             if Node(ip) == node:
-                logger.info("Succesful scan.")
+                logger.info(colored.green("Successful scan."))
                 return node.running
 
         logger.info("Failed scan.")
