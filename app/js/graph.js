@@ -31,24 +31,33 @@ function getReachability() {
             let totalVuls = 0, vuls = [];
             data.hosts.forEach(function(item, index) {
                 let services = item.running.Host.RunningServices;
-                console.log(item.running.Host.RunningServices);
+                // console.log(item.running.Host.RunningServices);
                 for (var i = 0; i < services.length; i++) {
                     if(services[i].Vulnerability instanceof Array) {
-                        totalVuls += services[i].Vulnerability.length;
+                        let cnt = 0, flag = true;
                         services[i].Vulnerability.forEach(function(item, index) {
-                            vuls.push(item);
+                            for(var i = 0; i < vuls.length; i++) {
+                                if(JSON.stringify(vuls[i]) == JSON.stringify(item)) {
+                                    flag = false;
+                                }
+                            }
+                            if(flag) {
+                                vuls.push(item);
+                                cnt++;
+                            }
                         });
+                        totalVuls += cnt;
                     }
                 }
             });
             document.getElementById("devices").innerHTML = "Devices: " + (data.hosts.length - 1);
             document.getElementById("detectedLinks").innerHTML = "Active Links: " + data.links.length;
             document.getElementById("vulnerabilities").innerHTML = "Vulnerabilities (" + totalVuls + ")";
-            console.log(vuls);
+            // console.log(vuls);
 
             let vulHtml = "<br>";
             vuls.forEach(function(item, index) {
-                console.log(item);
+                // console.log(item);
                 let tid = "det-" + (index + 1);
                 vulHtml += "<li class=\"list-group-item\">\
                     \<div class=\"row toggle\" id=\"dropdown-" + tid + "\" data-toggle=\"" + tid + "\">\
@@ -162,7 +171,9 @@ function getReachability() {
 
             node.append("circle")
                 .attr("r", 60)
-                .style("fill", "url(#server)");
+                .style("fill", "url(#server)")
+                .attr("x", -20)
+                .attr("y", -20);
 
             node.on("mouseover", function (d) {
                 if (showTooltip) {
@@ -259,9 +270,10 @@ function getAttackGraph() {
     var simulation = d3.forceSimulation()
         .force("link", d3.forceLink().id(function (d) {
             return d.id;
-        }).distance(100).strength(1))
-        .force("charge", d3.forceManyBody())
-        .force("center", d3.forceCenter(width / 2, height / 2));
+        }).distance(150).strength(1))
+        .force("charge", d3.forceManyBody().strength(-5))
+        .force("center", d3.forceCenter(650, 400))
+        .force("collide", d3.forceCollide(100));
 
     // get the new data
     jquery.ajax({
@@ -279,26 +291,21 @@ function getAttackGraph() {
                     .enter()
                     .append("line")
                     .attr("class", "link-attack-graph")
-                    .attr('marker-end', 'url(#arrowhead)')
+                    .attr('marker-end', 'url(#arrowhead)');
 
-                link.append("title")
-                    .text(function (d) {
-                        return "NO TYPE (title)";
-                    });
-
-                edgepaths = svg.selectAll(".edgepath")
-                    .data(data.links)
-                    .enter()
-                    .append('path')
-                    .attrs({
-                        'class': 'edgepath',
-                        'fill-opacity': 0,
-                        'stroke-opacity': 0,
-                        'id': function (d, i) {
-                            return 'edgepath' + i
-                        }
-                    })
-                    .style("pointer-events", "none");
+                // edgepaths = svg.selectAll(".edgepath")
+                //     .data(data.links)
+                //     .enter()
+                //     .append('path')
+                //     .attrs({
+                //         'class': 'edgepath',
+                //         'fill-opacity': 0,
+                //         'stroke-opacity': 0,
+                //         'id': function (d, i) {
+                //             return 'edgepath' + i
+                //         }
+                //     })
+                //     .style("pointer-events", "none");
 
                 edgelabels = svg.selectAll(".edgelabel")
                     .data(data.links)
@@ -314,16 +321,13 @@ function getAttackGraph() {
                         'fill': '#aaa'
                     });
 
-                edgelabels.append('textPath')
-                    .attr('xlink:href', function (d, i) {
-                        return '#edgepath' + i
-                    })
-                    .style("text-anchor", "middle")
-                    .style("pointer-events", "none")
-                    .attr("startOffset", "50%")
-                    .text(function (d) {
-                        return "NO TYPE"
-                    });
+                // edgelabels.append('textPath')
+                //     .attr('xlink:href', function (d, i) {
+                //         return '#edgepath' + i
+                //     })
+                //     .style("text-anchor", "middle")
+                //     .style("pointer-events", "none")
+                //     .attr("startOffset", "50%");
 
                 node = svg.selectAll(".node")
                     .data(data.nodes)
@@ -343,16 +347,18 @@ function getAttackGraph() {
                         // }
                         if (d.fact === "attackerLocated(internet)") {
                             return "img/internet.png"
-                        } else if (d.fact.match(/RULE/g) === null) {
-                            return "img/server.png"
+                        } else if (d.fact.match(/RULE/g)) {
+                            return "img/circle.png"
+                        } else if (d.fact.match(/execCode/g)) {
+                            return "img/goal.png"
                         } else {
-                            return "img/circle.svg"
+                            return "img/server.png"
                         }
                     })
                     .attr("width", 40)
                     .attr("height", 40)
-                    .attr("x", -10)
-                    .attr("y", -10);
+                    .attr("x", -20)
+                    .attr("y", -20);
 
                 let tip = d3.tip()
                     .attr('class', 'd3-tip')
@@ -360,7 +366,7 @@ function getAttackGraph() {
                     .html(function (d) {
                         // console.log(d);
                         if (d.type != "AND") {
-                            var result = "<br><strong style='color:red'> Fact : </strong><span>" + d.fact + "<hr>";
+                            var result = "<br><strong style='color:red'> Fact : </strong><span>" + d.fact;
                             return result;
                         }
                     });
