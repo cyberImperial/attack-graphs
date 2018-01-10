@@ -33,11 +33,12 @@ function getReachability() {
                 if (item.running.Host !== undefined) {
                   services = item.running.Host.RunningServices;
                 }
+                console.log(services);
                 for (var i = 0; i < services.length; i++) {
                     if(services[i].Vulnerability instanceof Array) {
                         totalVuls += services[i].Vulnerability.length;
                         services[i].Vulnerability.forEach(function(item, index) {
-                            vuls.push(item);
+                           vuls.push(item);
                         });
                     }
                 }
@@ -46,11 +47,11 @@ function getReachability() {
             document.getElementById("detectedLinks").innerHTML = "Active Links: " + data.links.length;
             document.getElementById("vulnerabilities").innerHTML = "Vulnerabilities (" + totalVuls + ")";
             // console.log(vuls);
-            vuls.push({id: "CVE-2124", impact: {baseMetricV2: {}}, description: "Double free vulnerability in inspect-fs.c in Libgu… denial of service (crash) via empty guest files."});
+            //vuls.push({id: "CVE-2124", impact: {baseMetricV2: {}}, description: "Double free vulnerability in inspect-fs.c in Libgu… denial of service (crash) via empty guest files."});
 
             let vulHtml = "<br>";
             vuls.forEach(function(item, index) {
-                console.log(item);
+              //  console.log(JSON.stringify(item))
                 let tid = "det-" + (index + 1);
                 vulHtml += "<li class=\"list-group-item\">\
                     \<div class=\"row toggle\" id=\"dropdown-" + tid + "\" data-toggle=\"" + tid + "\">\
@@ -126,38 +127,38 @@ function getReachability() {
                     if (typeof d.running.Host === 'object' && d.ip != "255.255.255.255") {
                         var result = "";
                         if(services.length > 0) {
-                            result += "<br><strong style='color:red'>Running Services:</strong><br><ul>";
+                            result += "<br><strong style='color:#7479d0'>Running Services:</strong><br><ul>";
                             for (var i = 0; i < services.length; i++) {
                                 result += "<li>";
                                 // Usual display attributes
                                 if (services[i].Port.portid != "attributeMissing") {
-                                    result += "<strong style='color:red'> Port : </strong><span>" + services[i].Port.portid;
+                                    result += "<strong style='color:#7479d0'> Port : </strong><span>" + services[i].Port.portid;
                                 }
                                 if (services[i].Port.protocol != "attributeMissing") {
-                                    result += "&nbsp;<span>&#124;</span><strong style='color:red'> Protocol : </strong><span>" + services[i].Port.protocol;
+                                    result += "&nbsp;<span>&#124;</span><strong style='color:#7479d0'> Protocol : </strong><span>" + services[i].Port.protocol;
                                 }
                                 if (services[i].Service.name != "attributeMissing") {
-                                    result += "<br><strong style='color:red'> Service : </strong><span>" + services[i].Service.name;
+                                    result += "<br><strong style='color:#7479d0'> Service : </strong><span>" + services[i].Service.name;
                                 }
                                 if (services[i].Service.product != "attributeMissing") {
-                                    result += "&nbsp;<span>&#124;</span><strong style='color:red'> Product : </strong><span>" + services[i].Service.product;
+                                    result += "&nbsp;<span>&#124;</span><strong style='color:#7479d0'> Product : </strong><span>" + services[i].Service.product;
                                 }
                                 if (services[i].Service.version != "attributeMissing") {
-                                    result += "&nbsp;<span>&#124;</span><strong style='color:red'> Version : </strong><span>" + services[i].Service.version;
+                                    result += "&nbsp;<span>&#124;</span><strong style='color:#7479d0'> Version : </strong><span>" + services[i].Service.version;
                                 }
                                 if (services[i].Service.reason != "attributeMissing") {
-                                    result += "<br><strong style='color:red'> Details : </strong><span>" + services[i].Service.reason;
+                                    result += "<br><strong style='color:#7479d0'> Details : </strong><span>" + services[i].Service.reason;
                                 }
                                 result += "</li>";
                             }
                             result += "</ul>";
                         }
-                        return "<strong style='color:red'>Host : </strong><span>" + d.ip + "</span>&nbsp;<span>&#124;&nbsp;</span><strong style='color:red'>Operating System : </strong>" + d.running.Host.os + result;
+                        return "<strong style='color:#7479d0'>Host : </strong><span>" + d.ip + "</span>&nbsp;<span>&#124;&nbsp;</span><strong style='color:#7479d0'>Operating System : </strong>" + d.running.Host.os + result;
                     } else {
                         if(d.ip != "255.255.255.255") {
-                            return "<strong style='color:red'>Host : </strong><span>" + d.ip + "</span>&nbsp;<span>&#124;&nbsp;</span><strong style='color:red'>Operating System : </strong>unavailable";
+                            return "<strong style='color:#7479d0'>Host : </strong><span>" + d.ip + "</span>&nbsp;<span>&#124;&nbsp;</span><strong style='color:#7479d0'>Operating System : </strong>unavailable";
                         } else {
-                            return "<strong style='color:red'>Internet</strong>&nbsp;<span>&#124;&nbsp;</span><strong>Attacker's Location</strong>";
+                            return "<strong style='color:#7479d0'>Internet</strong>&nbsp;<span>&#124;&nbsp;</span><strong>Attacker's Location</strong>";
                         }
                     }
                 });
@@ -345,7 +346,7 @@ function getAttackGraph() {
             .html(function (d) {
                 // console.log(d);
                 if (d.type != "AND") {
-                    var result = "<br><strong style='color:red'> Fact : </strong><span>" + d.fact + "<hr>";
+                    var result = "<br><strong style='color:#7479d0'> Fact : </strong><span>" + d.fact + "<hr>";
                     return result;
                 }
             });

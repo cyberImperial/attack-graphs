@@ -4,6 +4,7 @@ import os
 import signal
 import argparse
 import random
+import time
 
 import logging
 logger = logging.getLogger(__name__)
@@ -126,6 +127,9 @@ def setup_dissemination(args):
         processes.append(Process(target=slave_service, args=(master_ip, port)))
 
 if __name__ == "__main__":
+    os.system("python3 simulation/graph_gen.py 20 50 test_conf")
+    time.sleep(0.5)
+
     parser = argparse.ArgumentParser()
     parser.add_argument("type", type=str,
         help="The type of node run: 'master' or 'slave'")
