@@ -8,6 +8,9 @@ import random
 import logging
 logger = logging.getLogger(__name__)
 
+from clint.textui import colored
+from clint.textui.colored import ColoredString
+
 from multiprocessing import Process, Value
 from dissemination.util import get_host_ip
 
@@ -62,11 +65,30 @@ def set_ports(node_type):
 
 def setup_loggers(verbose):
     stderr_handler = logging.StreamHandler(sys.stderr)
+
+    class MyFormatter(logging.Formatter):
+        def format(self, record):
+            msg = record.getMessage()
+
+            out_msg = '{}:{}:{}'.format(
+                str(record.levelname),
+                record.name,
+                str(msg)
+            )
+
+            if hasattr(record.msg, 'color'):
+                color = record.msg.color
+
+                colored_msg = str(ColoredString(color, str(out_msg)))
+                return colored_msg
+
+            return out_msg
+
     if args.verbose:
         stderr_handler.setLevel(logging.DEBUG)
     else:
         stderr_handler.setLevel(logging.INFO)
-    stderr_handler.setFormatter(logging.Formatter(logging.BASIC_FORMAT))
+    stderr_handler.setFormatter(MyFormatter())
 
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
@@ -130,6 +152,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     setup_loggers(args.verbose)
+
+    logger.info(colored.yellow('Started loggers.'))
 
     if os.getuid() != 0:
         logger.error("Must be run as root.")
