@@ -22,6 +22,12 @@ def format_out(struct):
         return [format_out(v) for v in struct]
     if isinstance(struct, bool):
         return str(struct).lower()
+    if isinstance(struct, str):
+        formatted = ""
+        for x in struct:
+            if x != "\"":
+                formatted += x
+        return formatted
     return struct
 
 class Populator():

@@ -39,7 +39,9 @@ class MulvalTranslator():
             if host["running"]["scanned"] == "false":
                 continue
             running = host["running"]
+            print(running)
             if running != {"scanned" : "true"}:
+                running = running["Host"]
                 for service in running["RunningServices"]:
                     ip = host["ip"]
                     application = service["Service"]["product"]
@@ -48,10 +50,10 @@ class MulvalTranslator():
 
                     if service["Privileges"]["user"]:
                         privileges = "user"
-                    if service["Privileges"]["root"]:
+                    if service["Privileges"]["all"]:
                         privileges = "root"
-                    vulnerability = service["Vulnerability"]["id"]
-                    access = service["Vulnerability"]["impact"]["baseMetricV2"]["cvssV2"]["accessVector"]
+                    vulnerability = service["Vulnerability"][0]["id"]
+                    access = service["Vulnerability"][0]["impact"]["baseMetricV2"]["cvssV2"]["accessVector"]
 
                     if access == "LOCAL": access = "localExploit"
                     if access == "NETWORK": access = "remoteExploit"
@@ -98,11 +100,12 @@ class MulvalTranslator():
         self.mulval_file.close()
 
         env = os.environ.copy()
+        env["HOME"] = "/home/ioanbudea"
 
         if "MULVALROOT" not in env:
-            env["MULVALROOT"] = os.path.join(env["HOME"], "mulval")
+            env["MULVALROOT"] = os.path.join(env["HOME"], "Documents", "mulval")
         if "XSB_DIR" not in env:
-            env["XSB_DIR"] = os.path.join(env["HOME"], "mulval", "XSB")
+            env["XSB_DIR"] = os.path.join(env["HOME"], "Documents", "XSB")
 
         logger.error(env["MULVALROOT"])
         logger.error(env["XSB_DIR"])
@@ -114,17 +117,16 @@ class MulvalTranslator():
         logger.error(env["PATH"])
 
         subprocess.Popen(['graph_gen.sh mulval_input.P -v -p'], shell=True, env=env).wait()
-        self._save_output()
+        # self._save_output()
         attackGraphJSON = self._graphXMLtoJSON()
 
-        self._cleanup(files_before)
+        # self._cleanup(files_before)
 
         return attackGraphJSON
 
 def generate_attack_graph(client):
     return TranslatorBuilder(client) \
         .from_client_data() \
-        .from_mock_data_if_empty() \
         .build(MulvalTranslator()) \
         .generate_attack_graph()
 
