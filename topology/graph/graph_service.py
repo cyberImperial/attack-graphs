@@ -98,8 +98,8 @@ def graph_service(batch_threads=1, no_scan=False):
     service = GraphService(graph, batch_threads=int(batch_threads))
 
     threading.Thread(target=service.server.run).start()
-    if not no_scan:
-        threading.Thread(target=service.populator.populate_loop).start()
+    # if not no_scan:
+    threading.Thread(target=service.populator.populate_loop).start()
 
     while True:
         service.update()
