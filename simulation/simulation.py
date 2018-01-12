@@ -18,7 +18,27 @@ import time
 from random import randrange
 
 class Simulation():
+    """
+    Class used to mock sniffer connections and ip discovery for running
+    simulations.
+
+    General description: The simulation module is lightweight and can easily
+    handle overlay topologies of magnitude of thousands. The simulations are
+    run on random overlay topologies with fixed number of nodes and edges.
+    Random packets get generated whenever the simulation module connection gets
+    a call within a fixed timeout of 0.5 seconds, whereas the scans are
+    generated within a timeout of 3 seconds.
+    """
     def __init__(self, conf_file, connection_timeout = 0.5, scan_timeout = 10):
+        """
+        Construct a new simulation object from a given configuartion file.
+
+        :param conf_file: The configuration file must be a json that contains
+            a graph. For an example see: `confs/simple.json`
+        :param connection_timeout: packets get generated each
+            connection_timeout seconds
+        :param scan_timeout: the time to run a scan
+        """
         self.connection_timeout = connection_timeout
         self.scan_timeout = scan_timeout
 
@@ -34,6 +54,10 @@ class Simulation():
         logger.info("Graph successfully loaded...")
 
     def connection(self):
+        """
+        Return a Connection class. The internals of the topology module use
+        only the next function from the `libpcap` Python wrapper.
+        """
         def build_packet(src, dest):
             time.sleep(self.connection_timeout)
             return "header", {
@@ -59,7 +83,10 @@ class Simulation():
         return Connection(self.graph)
 
     def discovery_ip(self, ip):
-        # simulate scan timeout
+        """
+        Function used as a seam instead of the original `discovery_ip` function.
+        See sniffer module for more details.
+        """
         logger.info(colored.cyan("Started scan."))
         time.sleep(self.scan_timeout)
 
@@ -70,12 +97,3 @@ class Simulation():
 
         logger.info("Failed scan.")
         return {}
-
-if __name__ == "__main__":
-    simulation = Simulation("simple.json")
-    logger.debug(simulation.discovery_ip("10.1.3.1"))
-    connection = simulation.connection()
-    packets = 10
-    while packets > 0:
-        logger.debug(connection.next())
-        packets -= 1
