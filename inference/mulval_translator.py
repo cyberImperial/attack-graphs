@@ -39,28 +39,35 @@ class MulvalTranslator():
             if host["running"]["scanned"] == "false":
                 continue
             running = host["running"]
-            print(running)
             if running != {"scanned" : "true"}:
                 running = running["Host"]
                 for service in running["RunningServices"]:
+                    # Getting service information
                     ip = host["ip"]
                     application = service["Service"]["product"]
                     port = service["Port"]["portid"]
                     protocol = service["Port"]["protocol"]
 
-                    if service["Privileges"]["user"]:
-                        privileges = "user"
-                    if service["Privileges"]["all"]:
-                        privileges = "root"
-                    vulnerability = service["Vulnerability"][0]["id"]
-                    access = service["Vulnerability"][0]["impact"]["baseMetricV2"]["cvssV2"]["accessVector"]
+                    # We look at all probabilities
+                    for idx in range(len(service["Privileges"])):
+                        if "unknown" in service["Privileges"][idx]:
+                            continue
 
-                    if access == "LOCAL": access = "localExploit"
-                    if access == "NETWORK": access = "remoteExploit"
+                        # Privileges are combined privileges for all the vulenrabilities
+                        if service["Privileges"][idx]["user"]:
+                            privileges = "user"
+                        if service["Privileges"][idx]["all"]:
+                            privileges = "root"
 
-                    self.mulval_file.write("networkServiceInfo('%s', '%s', '%s', '%s', '%s').\n" % (ip, application, protocol, port, privileges))
-                    self.mulval_file.write("vulExists('%s', '%s', '%s').\n" % (ip, vulnerability, application))
-                    self.mulval_file.write("vulProperty('%s', %s, %s).\n" % (vulnerability, access, 'privEscalation'))
+                        vulnerability = service["Vulnerability"][idx]["id"]
+                        access = service["Vulnerability"][idx]["impact"]["baseMetricV2"]["cvssV2"]["accessVector"]
+
+                        if access == "LOCAL": access = "localExploit"
+                        if access == "NETWORK": access = "remoteExploit"
+
+                        self.mulval_file.write("networkServiceInfo('%s', '%s', '%s', '%s', '%s').\n" % (ip, application, protocol, port, privileges))
+                        self.mulval_file.write("vulExists('%s', '%s', '%s').\n" % (ip, vulnerability, application))
+                        self.mulval_file.write("vulProperty('%s', %s, %s).\n" % (vulnerability, access, 'privEscalation'))
 
     def _cleanup(self, files_before):
         # clean all the files produced by mulval
@@ -91,7 +98,7 @@ class MulvalTranslator():
             } for arc in arcs]
         })
 
-    def generate_attack_graph(self):
+    def generate_attack_graph(self, env):
         logger.info("Generating attack graph.")
         files_before = os.listdir()
 
@@ -99,22 +106,20 @@ class MulvalTranslator():
         self._add_vulnerabilities()
         self.mulval_file.close()
 
-        env = os.environ.copy()
-        # env["HOME"] = "/home/ioanbudea"
+        def missing_env(name):
+            if name not in env:
+                logger.error("{} not present in environment.".format(name))
+                return True
+            return False
 
-        if "MULVALROOT" not in env:
-            env["MULVALROOT"] = os.path.join(env["HOME"], "Documents", "mulval")
-        if "XSB_DIR" not in env:
-            env["XSB_DIR"] = os.path.join(env["HOME"], "Documents", "XSB")
-
-        logger.error(env["MULVALROOT"])
-        logger.error(env["XSB_DIR"])
+        if missing_env("MULVALROOT"): return None
+        if missing_env("XSB_DIR"): return None
+        if missing_env("JAVA_HOME"): return None
 
         env["PATH"] = "{}:{}".format(env["PATH"], os.path.join(env["MULVALROOT"], "bin"))
         env["PATH"] = "{}:{}".format(env["PATH"], os.path.join(env["MULVALROOT"], "utils"))
         env["PATH"] = "{}:{}".format(env["PATH"], os.path.join(env["XSB_DIR"], "bin"))
-
-        logger.error(env["PATH"])
+        env["PATH"] = "{}:{}".format(env["PATH"], os.path.join(env["JAVA_HOME"], "bin"))
 
         subprocess.Popen(['graph_gen.sh mulval_input.P -v -p'], shell=True, env=env).wait()
         # self._save_output()
@@ -124,11 +129,11 @@ class MulvalTranslator():
 
         return attackGraphJSON
 
-def generate_attack_graph(client):
+def generate_attack_graph(client, env=os.environ.copy()):
     return TranslatorBuilder(client) \
         .from_client_data() \
         .build(MulvalTranslator()) \
-        .generate_attack_graph()
+        .generate_attack_graph(env)
 
 if __name__ == "__main__":
     logger.info(generate_attack_graph(LocalClient(config["graph"])))

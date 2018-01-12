@@ -11,8 +11,9 @@ from service.client import LocalClient
 from inference.mulval_translator import generate_attack_graph
 
 class AttackGraphExporter(Component):
-    def __init__(self, client):
+    def __init__(self, client, env):
         self.client = client
+        self.env    = env
 
     def process(self, _):
         """
@@ -21,20 +22,20 @@ class AttackGraphExporter(Component):
 
            Returns the JSON formatted string of the mulval attack graph.
         """
-        return generate_attack_graph(self.client)
+        return generate_attack_graph(self.client, self.env)
 
 class InferenceClient(LocalClient):
     def get_attack_graph(self):
         return self.get("/attack_graph")
 
-def inference_service():
+def inference_service(env=os.environ.copy()):
     """
     The inference service provides an overlay over the Mulval service.
     """
 
     client = LocalClient(config["graph"])
     server = Server("inference", config["inference"])
-    server.add_component_get("/attack_graph", AttackGraphExporter(client))
+    server.add_component_get("/attack_graph", AttackGraphExporter(client, env))
     server.run()
 
 if __name__ == "__main__":

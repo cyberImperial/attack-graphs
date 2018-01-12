@@ -139,7 +139,6 @@ class Populator():
         return results
 
     def populate_loop(self):
-        time.sleep(45)
         while True:
             if not self.populate_nodes():
                 # If there are no new nodes avaiable, we don't want to take the lock uselessly
