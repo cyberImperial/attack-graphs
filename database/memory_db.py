@@ -47,7 +47,10 @@ class MemoryDB():
         for vulnerability in vulenerability_list:
             if "impact" in vulnerability:
                 v2_out = parse_metric_v2(vulnerability["impact"])
-                levels.append(v2_out)
+                if v2_out is not None:
+                    levels.append(v2_out)
+                else:
+                    levels.append({"unknown" : True})
             else:
                 levels.append({"unknown" : True})
 
