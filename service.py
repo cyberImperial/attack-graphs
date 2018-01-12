@@ -35,7 +35,7 @@ def services(benchmark, device_name=None, filter_mask=None, batch_threads=1, no_
     global processes
     if benchmark is not None:
         processes.append(Process(target=database_service))
-        processes.append(Process(target=inference_service))
+        processes.append(Process(target=inference_service, kwargs ={'env' : os.environ.copy()}))
 
     processes.append(Process(target=graph_service, args=(str(batch_threads), str(no_scans))))
     processes.append(Process(target=sniffing_service, args=(device_name, filter_mask)))

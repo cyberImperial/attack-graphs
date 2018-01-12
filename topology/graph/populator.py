@@ -24,6 +24,12 @@ def format_out(struct):
         return [format_out(v) for v in struct]
     if isinstance(struct, bool):
         return str(struct).lower()
+    if isinstance(struct, str):
+        formatted = ""
+        for x in struct:
+            if x != "\"":
+                formatted += x
+        return formatted
     return struct
 
 class Populator():
@@ -133,7 +139,6 @@ class Populator():
         return results
 
     def populate_loop(self):
-        time.sleep(45)
         while True:
             if not self.populate_nodes():
                 # If there are no new nodes avaiable, we don't want to take the lock uselessly

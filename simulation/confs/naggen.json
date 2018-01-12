@@ -1,0 +1,318 @@
+{
+//  "config":{"mode":"privilege"},
+//  "subnets":[
+//    {
+//      "id":"internet",
+//      "name":"Internet",
+//      "desc":"Outside network",
+//      "zone":"zone0",
+//      "cidr":"200.40.47.120/29"
+//    },
+//    {
+//      "id":"sn1",
+//      "name":"DMZ",
+//      "desc":"Demilitarized zone",
+//      "zone":"zone1",
+//      "cidr":"192.168.1.0/24"
+//    },
+//    {
+//      "id":"sn2",
+//      "name":"lan1",
+//      "desc":"Internal network",
+//      "zone":"zone2",
+//      "cidr":"192.168.17.0/24"
+//    }
+//  ],
+  "links": [
+    {
+      "source": "10.1.3.1",
+      "target": "255.255.255.255"
+    }
+  ],
+
+  "hosts":[
+    {
+//      "id":"inet",
+//      "name":"Internet",
+//      "label":"Internet",
+//      "desc":"Attacker's location",
+//      "roles":["Internet"],
+//      "group":0,
+//      "locations":[
+//        {"ip":"200.40.47.121","subnetId":"internet"}
+//      ],
+//      "vulnerabilities":[]
+      "ip" : "255.255.255.255",
+      "running" : {
+        "Host": {
+          "os" : "Internet",
+          "ip" : "255.255.255.255",
+          "RunningServices":[]
+        }}
+    },
+
+    {
+//      "id":"sysadmin1",
+//      "name":"sysadmin",
+//      "label":"sysadmin host",
+//      "desc":"Administration host",
+//      "roles":["AdministrationHost"],
+//      "attributes":{"platform":"macos"},
+//      "group":2,
+//      "locations":[
+//        {"ip":"192.168.17.5","subnetId":"sn2"}
+//      ],
+//      "vulnerabilities":[
+//        {"id":"3","score":"6.8","ports":["22"]}
+//      ]
+      "ip" : "10.1.3.1",
+      "running" : {
+        "Host": {
+          "os": "ASUS RT-N56U WAP (Linux 3.4)",
+          "ip": "10.1.3.1",
+          "RunningServices": [
+            {
+              "Port": {
+                "portid": "443",
+                "protocol": "tcp"
+              },
+              "Service": {
+                "name": "OpenSSH",
+                "product": "openssh",
+                "version": "6.2"
+              }
+            }
+          ]
+        }
+      }
+    },
+
+    {
+      "id":"testing1",
+      "name":"testing-server",
+      "label":"testing-server (LAN)",
+      "desc":"Internal testing server",
+      "roles":["InternalServer"],
+      "attributes":{"platform":"linux"},
+      "group":2,
+      "locations":[
+        {"ip":"192.168.17.20","subnetId":"sn2"}
+      ],
+      "vulnerabilities":[
+        {"id":"3","score":"6.8","ports":["22"]}
+      ]
+    },
+
+    {
+      "id":"ws1_internal",
+      "name":"internal-web-server",
+      "label":"web-server (LAN)",
+      "desc":"Internal Web Server",
+      "roles":["InternalServer"],
+      "attributes":{"platform":"linux"},
+      "group":2,
+      "locations":[
+        {"ip":"192.168.17.35","subnetId":"sn2"}
+      ],
+      "vulnerabilities":[
+        {"id":"1","score":"7.3","ports":["80","8080"]},
+        {"id":"2","score":"9.5","ports":["80","8080"]},
+        {"id":"3","score":"6.8","ports":["22"]},
+        {"id":"4","score":"9.3","ports":["0"]}
+      ]
+    },
+
+//    {
+//      "id":"win1",
+//      "name":"win1-workstation",
+//      "label":"win1-workstation (LAN)",
+//      "desc":"Windows Workstation 1",
+//      "roles":["SingleHost"],
+//      "attributes":{"platform":"windows"},
+//      "group":2,
+//      "locations":[
+//        {"ip":"192.168.17.51","subnetId":"sn2"}
+//      ],
+//      "vulnerabilities":[
+//        {"id":"5","score":"8.3","ports":[445]}
+//      ]
+//    },
+//    {
+//      "id":"win2",
+//      "name":"win2-workstation",
+//      "label":"win2-workstation (LAN)",
+//      "desc":"Windows Workstation 2",
+//      "roles":["SingleHost"],
+//      "attributes":{"platform":"windows"},
+//      "group":2,
+//      "locations":[
+//        {"ip":"192.168.17.52","subnetId":"sn2"}
+//      ],
+//      "vulnerabilities":[
+//        {"id":"5","score":"8.3","ports":[445]}
+//      ]
+//    },
+//    {
+//      "id":"win3",
+//      "name":"win3-workstation",
+//      "label":"win3-workstation (LAN)",
+//      "desc":"Windows Workstation 3",
+//      "roles":["SingleHost"],
+//      "attributes":{"platform":"windows"},
+//      "group":2,
+//      "locations":[
+//        {"ip":"192.168.17.53","subnetId":"sn2"}
+//      ],
+//      "vulnerabilities":[
+//        {"id":"5","score":"8.3","ports":[445]}
+//      ]
+//    },
+//
+//    {
+//      "id":"linux1",
+//      "name":"linux1-workstation",
+//      "label":"linux1-workstation",
+//      "desc":"Linux Workstation 1",
+//      "roles":["SingleHost"],
+//      "attributes":{"platform":"linux"},
+//      "group":2,
+//      "locations":[
+//        {"ip":"192.168.17.81","subnetId":"sn2"}
+//      ],
+//      "vulnerabilities":[
+//        {"id":"3","score":"6.8","ports":["22"]}
+//      ]
+//    },
+//    {
+//      "id":"linux2",
+//      "name":"linux2-workstation",
+//      "label":"linux2-workstation (LAN)",
+//      "desc":"Linux Workstation 2",
+//      "roles":["SingleHost"],
+//      "attributes":{"platform":"linux"},
+//      "group":2,
+//      "locations":[
+//        {"ip":"192.168.17.82","subnetId":"sn2"}
+//      ],
+//      "vulnerabilities":[
+//        {"id":"3","score":"6.8","ports":["22"]}
+//      ]
+//    },
+//    {
+//      "id":"linux3",
+//      "name":"linux3-workstation",
+//      "label":"linux3-workstation (LAN)",
+//      "desc":"Linux Workstation 3",
+//      "roles":["SingleHost"],
+//      "attributes":{"platform":"linux"},
+//      "group":2,
+//      "locations":[
+//        {"ip":"192.168.17.83","subnetId":"sn2"}
+//      ],
+//      "vulnerabilities":[
+//        {"id":"3","score":"6.8","ports":["22"]}
+//      ]
+//    },
+
+    {
+      "id":"superDB",
+      "name":"db-master",
+      "label":"db-master (LAN)",
+      "desc":"Internal Database Server",
+      "roles":["InternalServer"],
+      "attributes":{"platform":"linux"},
+      "group":2,
+      "locations":[
+        {"ip":"192.168.17.100","subnetId":"sn2"}
+      ],
+      "vulnerabilities":[
+        {"id":"3","score":"6.8","ports":["22"]}
+      ]
+    }
+  ],
+
+  "vulnerabilities":[
+    {
+      "id":"1",
+      "score":"7.3",
+      "externalId":"CVE-2013-07-15",
+      "source":"CVE",
+      "cvss2":"7.3",
+      "shortDesc":"Login bypass (SQL injection)",
+      "description":"This vulnerability allows a remote attacker to bypass the PHP authentication process via an SQL injection attack and obtain access as a registered user.",
+      "type":"injection",
+      "requires":"none",
+      "provides":"app_user_priv",
+      "vector":"remote"
+    },
+    {
+      "id":"2",
+      "score":"9.5",
+      "externalId":"CVE-2015-01-01",
+      "source":"CVE",
+      "cvss2":"9.5",
+      "shortDesc":"PHP command injection",
+      "description":"This vulnerability allows an authenticated user to inject system commands via malformed requests sent to the PHP server.",
+      "type":"injection",
+      "requires":"app_user_priv",
+      "provides":"sys_user_priv",
+      "vector":"local"
+      // openssh 7.5
+    },
+//    {
+//      "id":"3",
+//      "score":"6.8",
+//      "externalId":"CVE-2009-10-15",
+//      "source":"CVE",
+//      "cvss2":"6.8",
+//      "shortDesc":"SSH buffer overflow",
+//      "description":"This vulnerability allows a remote attacker to establish an SSH connection to the remote host via a buffer overflow insertion method.",
+//      "type":"buffer_overflow",
+//      "requires":"sys_user_priv",
+//      "provides":"sys_root_priv",
+//      "vector":"remote"
+    // ispconfig 3.1.8
+//    },
+    {
+      "id":"4",
+      "score":"9.3",
+      "externalId":"CVE-2017-6074",
+      "source":"CVE",
+      "cvss2":"9.3",
+      "cvss3":"7.8",
+      "shortDesc":"Privilege escalation",
+      "description":"The dccp_rcv_state_process function in net/dccp/input.c in the Linux kernel through 4.9.11 mishandles DCCP_PKT_REQUEST packet data structures in the LISTEN state, which allows local users to obtain root privileges or cause a denial of service (double free) via an application that makes an IPV6_RECVPKTINFO setsockopt system call.",
+      "type":"escalation",
+      "requires":"sys_user_priv",
+      "provides":"sys_root_priv",
+      "vector":"local"
+      // dropbear_ssh 2016.74
+    }
+//    {
+//      "id":"5",
+//      "score":"8.3",
+//      "externalId":"51027",
+//      "source":"NESSUS",
+//      "shortDesc":"SMB unauthorized resource mapping R/W",
+//      "description":"SMB unauthorized resource mapping R/W.",
+//      "type":"buffer_overflow",
+//      "requires":"sys_user_priv",
+//      "provides":"sys_user_priv",
+//      "vector":"network"
+//    }
+  ]}
+//
+//  "reachability": {
+//    "defaultPolicy" : "DENY",
+//    "rules" : [
+//      {"source":["internet"],"destination":["fw1","ws1_dmz","db1_dmz","mail1_dmz","sysadmin1"],"ports":["22","80","8080"],"action":"ACCEPT"},
+//      {"source":["sysadmin1","fw1","ws1_dmz","db1_dmz","mail1_dmz"],"destination":["fw1","ws1_dmz","db1_dmz","mail1_dmz"],"ports":["*"],"action":"ACCEPT"},
+//      {"source":["sysadmin1","ws1_dmz"],"destination":["testing1"],"ports":["*"],"action":"ACCEPT"},
+//      {"source":["sysadmin1","testing1"],"destination":["ws1_internal"],"ports":["*"],"action":"ACCEPT"},
+//      {"source":["sysadmin1","ws1_internal"],"destination":["superDB"],"ports":["*"],"action":"ACCEPT"},
+//      {"source":["win1","win2","win3","linux1","linux2","linux3"],"destination":["win1","win2","win3","linux1","linux2","linux3"],"ports":["*"],"action":"ACCEPT"},
+//      {"source":["win1","win2","win3","linux1","linux2","linux3"],"destination":["fw1","ws1_dmz","db1_dmz","mail1_dmz","testing1","ws1_internal"],"ports":["*"],"action":"ACCEPT"},
+//      {"source":["sn1","sn2"],"destination":["internet"],"ports":["*"],"action":"ACCEPT"}
+//    ]
+//  }
+//    ]}

@@ -1,5 +1,6 @@
 const jquery = require("jquery");
-const host = "http://127.0.0.1:29003/graph";
+const graph_url = "http://127.0.0.1:29003/graph";
+const attack_graph_url = "http://127.0.0.1:29000/attack_graph";
 
 let svg = d3.select("#graph-container")
         .append("svg")
@@ -23,60 +24,40 @@ function getReachability() {
     // get the new data
     jquery.ajax({
         type: "GET",
-        url: host,
+        url: graph_url,
         success: function (data) {
+            console.log(data);
             data = JSON.parse(data.replace(/\'/g, "\""));
-            console.log(data.hosts);
             let totalVuls = 0, vuls = [];
             data.hosts.forEach(function(item, index) {
-                let services = [];
-                if (item.running.Host !== undefined) {
-                  services = item.running.Host.RunningServices;
-                }
-                console.log(services);
+                let services = item.running.Host.RunningServices;
+                // console.log(item.running.Host.RunningServices);
                 for (var i = 0; i < services.length; i++) {
                     if(services[i].Vulnerability instanceof Array) {
-                        totalVuls += services[i].Vulnerability.length;
+                        let cnt = 0, flag = true;
                         services[i].Vulnerability.forEach(function(item, index) {
-                           //vuls.push(item);
+                            for(var i = 0; i < vuls.length; i++) {
+                                if(JSON.stringify(vuls[i]) == JSON.stringify(item)) {
+                                    flag = false;
+                                }
+                            }
+                            if(flag) {
+                                vuls.push(item);
+                                cnt++;
+                            }
                         });
+                        totalVuls += cnt;
                     }
                 }
             });
             document.getElementById("devices").innerHTML = "Devices: " + (data.hosts.length - 1);
             document.getElementById("detectedLinks").innerHTML = "Active Links: " + data.links.length;
-            document.getElementById("vulnerabilities").innerHTML = "Vulnerabilities (" + 1 + ")";
+            document.getElementById("vulnerabilities").innerHTML = "Vulnerabilities (" + totalVuls + ")";
             // console.log(vuls);
-             vuls.push({
-   "id":"CVE-2013-2124",
-   "impact":{
-      "baseMetricV2":{
-         "cvssV2":{
-            "accessComplexity":"MEDIUM",
-            "baseScore":4.3,
-            "integrityImpact":"NONE",
-            "vectorString":"(AV:N/AC:M/Au:N/C:N/I:N/A:P)",
-            "authentication":"NONE",
-            "accessVector":"NETWORK",
-            "availabilityImpact":"PARTIAL",
-            "confidentialityImpact":"NONE",
-            "version":"2.0"
-         },
-         "severity":"MEDIUM",
-         "userInteractionRequired":"false",
-         "impactScore":2.9,
-         "obtainUserPrivilege":"false",
-         "obtainOtherPrivilege":"false",
-         "exploitabilityScore":8.6,
-         "obtainAllPrivilege":"false"
-      }
-   },
-   "description":"Double free vulnerability in inspect-fs.c in LibguestFS 1.20.x before 1.20.7, 1.21.x, 1.22.0, and 1.23.0 allows remote attackers to cause a denial of service (crash) via empty guest files."
-});
 
             let vulHtml = "<br>";
             vuls.forEach(function(item, index) {
-              //  console.log(JSON.stringify(item))
+                // console.log(item);
                 let tid = "det-" + (index + 1);
                 vulHtml += "<li class=\"list-group-item\">\
                     \<div class=\"row toggle\" id=\"dropdown-" + tid + "\" data-toggle=\"" + tid + "\">\
@@ -145,45 +126,43 @@ function getReachability() {
                 .attr('class', 'd3-tip')
                 .offset([-10, 0])
                 .html(function (d) {
-                    let services = [];
-                    if (d.running.Host !== undefined) {
-                      services = d.running.Host.RunningServices;
-                    }
+                    // console.log(d);
+                    let services = d.running.Host.RunningServices;
                     if (typeof d.running.Host === 'object' && d.ip != "255.255.255.255") {
                         var result = "";
                         if(services.length > 0) {
-                            result += "<br><strong style='color:#7479d0'>Running Services:</strong><br><ul>";
+                            result += "<br><strong style='color:red'>Running Services:</strong><br><ul>";
                             for (var i = 0; i < services.length; i++) {
                                 result += "<li>";
                                 // Usual display attributes
                                 if (services[i].Port.portid != "attributeMissing") {
-                                    result += "<strong style='color:#7479d0'> Port : </strong><span>" + services[i].Port.portid;
+                                    result += "<strong style='color:red'> Port : </strong><span>" + services[i].Port.portid;
                                 }
                                 if (services[i].Port.protocol != "attributeMissing") {
-                                    result += "&nbsp;<span>&#124;</span><strong style='color:#7479d0'> Protocol : </strong><span>" + services[i].Port.protocol;
+                                    result += "&nbsp;<span>&#124;</span><strong style='color:red'> Protocol : </strong><span>" + services[i].Port.protocol;
                                 }
                                 if (services[i].Service.name != "attributeMissing") {
-                                    result += "<br><strong style='color:#7479d0'> Service : </strong><span>" + services[i].Service.name;
+                                    result += "<br><strong style='color:red'> Service : </strong><span>" + services[i].Service.name;
                                 }
                                 if (services[i].Service.product != "attributeMissing") {
-                                    result += "&nbsp;<span>&#124;</span><strong style='color:#7479d0'> Product : </strong><span>" + services[i].Service.product;
+                                    result += "&nbsp;<span>&#124;</span><strong style='color:red'> Product : </strong><span>" + services[i].Service.product;
                                 }
                                 if (services[i].Service.version != "attributeMissing") {
-                                    result += "&nbsp;<span>&#124;</span><strong style='color:#7479d0'> Version : </strong><span>" + services[i].Service.version;
+                                    result += "&nbsp;<span>&#124;</span><strong style='color:red'> Version : </strong><span>" + services[i].Service.version;
                                 }
                                 if (services[i].Service.reason != "attributeMissing") {
-                                    result += "<br><strong style='color:#7479d0'> Details : </strong><span>" + services[i].Service.reason;
+                                    result += "<br><strong style='color:red'> Details : </strong><span>" + services[i].Service.reason;
                                 }
                                 result += "</li>";
                             }
                             result += "</ul>";
                         }
-                        return "<strong style='color:#7479d0'>Host : </strong><span>" + d.ip + "</span>&nbsp;<span>&#124;&nbsp;</span><strong style='color:#7479d0'>Operating System : </strong>" + d.running.Host.os + result;
+                        return "<strong style='color:red'>Host : </strong><span>" + d.ip + "</span>&nbsp;<span>&#124;&nbsp;</span><strong style='color:red'>Operating System : </strong>" + d.running.Host.os + result;
                     } else {
                         if(d.ip != "255.255.255.255") {
-                            return "<strong style='color:#7479d0'>Host : </strong><span>" + d.ip + "</span>&nbsp;<span>&#124;&nbsp;</span><strong style='color:#7479d0'>Operating System : </strong>unavailable";
+                            return "<strong style='color:red'>Host : </strong><span>" + d.ip + "</span>&nbsp;<span>&#124;&nbsp;</span><strong style='color:red'>Operating System : </strong>unavailable";
                         } else {
-                            return "<strong style='color:#7479d0'>Internet</strong>&nbsp;<span>&#124;&nbsp;</span><strong>Attacker's Location</strong>";
+                            return "<strong style='color:red'>Internet</strong>&nbsp;<span>&#124;&nbsp;</span><strong>Attacker's Location</strong>";
                         }
                     }
                 });
@@ -192,7 +171,9 @@ function getReachability() {
 
             node.append("circle")
                 .attr("r", 60)
-                .style("fill", "url(#server)");
+                .style("fill", "url(#server)")
+                .attr("x", -20)
+                .attr("y", -20);
 
             node.on("mouseover", function (d) {
                 if (showTooltip) {
@@ -271,180 +252,210 @@ function getAttackGraph() {
     var colors = d3.scaleOrdinal(d3.schemeCategory10);
 
     svg.append('defs').append('marker')
-        .attrs({'id':'arrowhead',
-            'viewBox':'-0 -5 10 10',
-            'refX':13,
-            'refY':0,
-            'orient':'auto',
-            'markerWidth':5,
-            'markerHeight':5,
-            'xoverflow':'visible'})
+        .attrs({
+            'id': 'arrowhead',
+            'viewBox': '-0 -5 10 10',
+            'refX': 13,
+            'refY': 0,
+            'orient': 'auto',
+            'markerWidth': 5,
+            'markerHeight': 5,
+            'xoverflow': 'visible'
+        })
         .append('svg:path')
         .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
         .attr('fill', '#999')
-        .style('stroke','none');
+        .style('stroke', 'none');
 
     var simulation = d3.forceSimulation()
-        .force("link", d3.forceLink().id(function (d) {return d.id;}).distance(100).strength(1))
-        .force("charge", d3.forceManyBody())
-        .force("center", d3.forceCenter(width / 2, height / 2));
+        .force("link", d3.forceLink().id(function (d) {
+            return d.id;
+        }).distance(150).strength(1))
+        .force("charge", d3.forceManyBody().strength(-5))
+        .force("center", d3.forceCenter(650, 400))
+        .force("collide", d3.forceCollide(100));
 
-    d3.json("js/graph.json", function (error, graph) {
-        if (error) throw error;
-        update(graph.links, graph.nodes);
+    // get the new data
+    jquery.ajax({
+        type: "GET",
+        url: attack_graph_url,
+        success: function (data) {
+            console.log(data);
+            data = JSON.parse(data);
+            data.links = data.arcs;
+            update(data.links, data.nodes);
+
+            function update(links, nodes) {
+                link = svg.selectAll(".link")
+                    .data(data.links)
+                    .enter()
+                    .append("line")
+                    .attr("class", "link-attack-graph")
+                    .attr('marker-end', 'url(#arrowhead)');
+
+                // edgepaths = svg.selectAll(".edgepath")
+                //     .data(data.links)
+                //     .enter()
+                //     .append('path')
+                //     .attrs({
+                //         'class': 'edgepath',
+                //         'fill-opacity': 0,
+                //         'stroke-opacity': 0,
+                //         'id': function (d, i) {
+                //             return 'edgepath' + i
+                //         }
+                //     })
+                //     .style("pointer-events", "none");
+
+                edgelabels = svg.selectAll(".edgelabel")
+                    .data(data.links)
+                    .enter()
+                    .append('text')
+                    .style("pointer-events", "none")
+                    .attrs({
+                        'class': 'edgelabel',
+                        'id': function (d, i) {
+                            return 'edgelabel' + i
+                        },
+                        'font-size': 10,
+                        'fill': '#aaa'
+                    });
+
+                // edgelabels.append('textPath')
+                //     .attr('xlink:href', function (d, i) {
+                //         return '#edgepath' + i
+                //     })
+                //     .style("text-anchor", "middle")
+                //     .style("pointer-events", "none")
+                //     .attr("startOffset", "50%");
+
+                node = svg.selectAll(".node")
+                    .data(data.nodes)
+                    .enter()
+                    .append("g")
+                    .attr("class", "node")
+                    .call(d3.drag()
+                            .on("start", dragstarted)
+                            .on("drag", dragged)
+                        //.on("end", dragended)
+                    )
+                    .append("svg:image")
+                    .attr("xlink:href", function (d) {
+                        // console.log(d);
+                        // if(d.fact === "attackerLocated(internet)") {
+                        //     return "img/blackhat.png";
+                        // }
+                        if (d.fact === "attackerLocated(internet)") {
+                            return "img/internet.png"
+                        } else if (d.fact.match(/RULE/g)) {
+                            return "img/circle.png"
+                        } else if (d.fact.match(/execCode/g)) {
+                            return "img/goal.png"
+                        } else {
+                            return "img/server.png"
+                        }
+                    })
+                    .attr("width", 40)
+                    .attr("height", 40)
+                    .attr("x", -20)
+                    .attr("y", -20);
+
+                let tip = d3.tip()
+                    .attr('class', 'd3-tip')
+                    .offset([-10, 0])
+                    .html(function (d) {
+                        // console.log(d);
+                        if (d.type != "AND") {
+                            var result = "<br><strong style='color:red'> Fact : </strong><span>" + d.fact;
+                            return result;
+                        }
+                    });
+
+                svg.call(tip);
+
+                node.on("mouseover", function (d) {
+                    if (showTooltip && d.type != "AND") {
+                        tip.show(d, this);
+                    }
+                }).on("mouseout", function (d) {
+                    tip.hide();
+                });
+
+                // node.append("circle")
+                //     .attr("r", 5)
+                //     .style("fill", function (d, i) {return colors(i);})
+
+                node.append("title")
+                    .text(function (d) {
+                        return d.id;
+                    });
+
+                node.append("text")
+                    .attr("dy", -3)
+                    .text(function (d) {
+                        return d.fact + ":" + d.type + ":" + d.metric;
+                    });
+
+                simulation
+                    .nodes(data.nodes)
+                    .on("tick", ticked);
+
+                simulation.force("link")
+                    .links(links);
+            }
+
+            function ticked() {
+                link
+                    .attr("x1", function (d) {
+                        return d.source.x;
+                    })
+                    .attr("y1", function (d) {
+                        return d.source.y;
+                    })
+                    .attr("x2", function (d) {
+                        return d.target.x;
+                    })
+                    .attr("y2", function (d) {
+                        return d.target.y;
+                    });
+
+                node
+                    .attr("transform", function (d) {
+                        return "translate(" + d.x + ", " + d.y + ")";
+                    });
+
+                edgepaths.attr('d', function (d) {
+                    return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
+                });
+
+                edgelabels.attr('transform', function (d) {
+                    if (d.target.x < d.source.x) {
+                        var bbox = this.getBBox();
+
+                        rx = bbox.x + bbox.width / 2;
+                        ry = bbox.y + bbox.height / 2;
+                        return 'rotate(180 ' + rx + ' ' + ry + ')';
+                    }
+                    else {
+                        return 'rotate(0)';
+                    }
+                });
+            }
+
+            function dragstarted(d) {
+                if (!d3.event.active) simulation.alphaTarget(0.3).restart()
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+
+            function dragged(d) {
+                d.fx = d3.event.x;
+                d.fy = d3.event.y;
+            }
+        }
     })
-
-    function update(links, nodes) {
-        link = svg.selectAll(".link")
-            .data(links)
-            .enter()
-            .append("line")
-            .attr("class", "link-attack-graph")
-            .attr('marker-end','url(#arrowhead)')
-
-        link.append("title")
-            .text(function (d) {return "NO TYPE (title)";});
-
-        edgepaths = svg.selectAll(".edgepath")
-            .data(links)
-            .enter()
-            .append('path')
-            .attrs({
-                'class': 'edgepath',
-                'fill-opacity': 0,
-                'stroke-opacity': 0,
-                'id': function (d, i) {return 'edgepath' + i}
-            })
-            .style("pointer-events", "none");
-
-        edgelabels = svg.selectAll(".edgelabel")
-            .data(links)
-            .enter()
-            .append('text')
-            .style("pointer-events", "none")
-            .attrs({
-                'class': 'edgelabel',
-                'id': function (d, i) {return 'edgelabel' + i},
-                'font-size': 10,
-                'fill': '#aaa'
-            });
-
-        edgelabels.append('textPath')
-            .attr('xlink:href', function (d, i) {return '#edgepath' + i})
-            .style("text-anchor", "middle")
-            .style("pointer-events", "none")
-            .attr("startOffset", "50%")
-            .text(function (d) {return "NO TYPE"});
-
-        node = svg.selectAll(".node")
-            .data(nodes)
-            .enter()
-            .append("g")
-            .attr("class", "node")
-            .call(d3.drag()
-                    .on("start", dragstarted)
-                    .on("drag", dragged)
-                //.on("end", dragended)
-            )
-            .append("svg:image")
-            .attr("xlink:href", function(d) {
-                // console.log(d);
-                // if(d.fact === "attackerLocated(internet)") {
-                //     return "img/blackhat.png";
-                // }
-                if(d.fact === "attackerLocated(internet)") {
-                    return "img/internet.png"
-                } else if(d.fact.match(/RULE/g) === null) {
-                    return "img/server.png"
-                } else {
-                   return "img/circle.svg"
-                }
-          })
-            .attr("width", 40)
-            .attr("height", 40)
-            .attr("x", -10)
-            .attr("y", -10);
-
-        let tip = d3.tip()
-            .attr('class', 'd3-tip')
-            .offset([-10, 0])
-            .html(function (d) {
-                // console.log(d);
-                if (d.type != "AND") {
-                    var result = "<br><strong style='color:#7479d0'> Fact : </strong><span>" + d.fact + "<hr>";
-                    return result;
-                }
-            });
-
-        svg.call(tip);
-
-        node.on("mouseover", function (d) {
-            if (showTooltip && d.type != "AND") {
-                tip.show(d, this);
-            }
-        }).on("mouseout", function (d) {
-            tip.hide();
-        });
-
-        // node.append("circle")
-        //     .attr("r", 5)
-        //     .style("fill", function (d, i) {return colors(i);})
-
-        node.append("title")
-            .text(function (d) {return d.id;});
-
-        node.append("text")
-            .attr("dy", -3)
-            .text(function (d) {return d.fact+":"+d.type+":"+d.metric;});
-
-        simulation
-            .nodes(nodes)
-            .on("tick", ticked);
-
-        simulation.force("link")
-            .links(links);
-    }
-
-    function ticked() {
-        link
-            .attr("x1", function (d) {return d.source.x;})
-            .attr("y1", function (d) {return d.source.y;})
-            .attr("x2", function (d) {return d.target.x;})
-            .attr("y2", function (d) {return d.target.y;});
-
-        node
-            .attr("transform", function (d) {return "translate(" + d.x + ", " + d.y + ")";});
-
-        edgepaths.attr('d', function (d) {
-            return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
-        });
-
-        edgelabels.attr('transform', function (d) {
-            if (d.target.x < d.source.x) {
-                var bbox = this.getBBox();
-
-                rx = bbox.x + bbox.width / 2;
-                ry = bbox.y + bbox.height / 2;
-                return 'rotate(180 ' + rx + ' ' + ry + ')';
-            }
-            else {
-                return 'rotate(0)';
-            }
-        });
-    }
-
-    function dragstarted(d) {
-        if (!d3.event.active) simulation.alphaTarget(0.3).restart()
-        d.fx = d.x;
-        d.fy = d.y;
-    }
-
-    function dragged(d) {
-        d.fx = d3.event.x;
-        d.fy = d3.event.y;
-    }
-
 }
+
 
 function getGraphInfo() {
     if(reachabilityMode) {

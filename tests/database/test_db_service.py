@@ -27,13 +27,29 @@ class TestMemoryDB(TestCase):
         self.assertTrue(self.check_for_CVE('windows_10', '1511', "CVE-2017-0001"))
 
     def test_privileges_none(self):
-        privs = self.DB.get_privileges('libguestfs', '1.21.24')
+        privs = self.DB.get_privileges('libguestfs', '1.21.24')[0]
         self.assertFalse(privs["user"])
         self.assertFalse(privs["other"])
         self.assertFalse(privs["all"])
 
     def test_privileges_all(self):
-        privs = self.DB.get_privileges('windows_2000', '*')
+        privs = {
+            "all" : False,
+            "user" : False,
+            "other" : False
+        }
+        priv_list = self.DB.get_privileges('windows_2000', '*')
+        for priv in priv_list:
+            if "unknown" in priv:
+                continue
+            privs["all"] |= priv["all"]
+            privs["user"] |= priv["user"]
+            privs["other"] |= priv["other"]
         self.assertTrue(privs["user"])
         self.assertTrue(privs["other"])
         self.assertTrue(privs["all"])
+
+    def test_same_number_privileges_vulnerabilities(self):
+        privs = self.DB.get_privileges('windows_2000', '*')
+        vuls = self.DB.query('windows_2000', '*')
+        self.assertEqual(len(privs), len(vuls))

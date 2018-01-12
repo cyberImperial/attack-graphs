@@ -43,17 +43,15 @@ class MemoryDB():
             }
 
         vulenerability_list = self.query(product, version)
-        levels = {
-            "all" : False,
-            "user" : False,
-            "other" : False
-        }
+        levels = []
         for vulnerability in vulenerability_list:
             if "impact" in vulnerability:
                 v2_out = parse_metric_v2(vulnerability["impact"])
-                # Will add V3 only if needed
+                if v2_out is not None:
+                    levels.append(v2_out)
+                else:
+                    levels.append({"unknown" : True})
+            else:
+                levels.append({"unknown" : True})
 
-                if not v2_out is None:
-                    for k in levels:
-                        levels[k] = levels[k] or v2_out[k]
         return levels
