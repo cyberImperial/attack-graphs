@@ -11,7 +11,13 @@ import subprocess
 import json
 
 def discovery_ip(ip):
-    # 172.18.0.1
+    """
+    A wrapper over Nmap that does OS discovery and port mapping. The wrapper is
+    written in C++ and interfaced in Python, thus allowing parallel scanning.
+
+    :param ip: given IP to scan as a string
+    :return: JSON of the scan or {} when a scan fails
+    """
     default = {}
 
     # Getting host information for ip
