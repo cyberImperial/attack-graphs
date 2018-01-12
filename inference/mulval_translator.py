@@ -100,7 +100,7 @@ class MulvalTranslator():
         self.mulval_file.close()
 
         env = os.environ.copy()
-        env["HOME"] = "/home/ioanbudea"
+        # env["HOME"] = "/home/ioanbudea"
 
         if "MULVALROOT" not in env:
             env["MULVALROOT"] = os.path.join(env["HOME"], "Documents", "mulval")

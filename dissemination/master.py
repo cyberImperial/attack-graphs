@@ -11,6 +11,8 @@ from service.client import Client
 from service.server import Server
 from service.components import Component
 from dissemination.util import get_host_ip
+from clint.textui import colored
+
 
 MASTER_DEFAULT_PORT = 5000
 
@@ -19,6 +21,7 @@ class MasterReceive(Component):
         self.master = master
 
     def process(self, message):
+        logger.info(colored.green("Received slave join request."))
         self.master.register(message)
         self.master.broadcast()
 
@@ -40,7 +43,7 @@ class Master():
         self.membership_list.append(client)
 
     def broadcast(self):
-        logger.info("Broadcasting membership....")
+        logger.info(colored.yellow("Broadcasting membership...."))
         broadcast = {
             "members" : [{
                 "ip" : client.url.split("/")[2],

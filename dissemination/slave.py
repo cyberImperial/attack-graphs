@@ -13,6 +13,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from service.client import Client
 from service.server import Server
 from service.components import Component
+from clint.textui import colored
 
 from dissemination.master import MASTER_DEFAULT_PORT
 from dissemination.graph_sharing import GraphSharing
@@ -23,7 +24,7 @@ class SlaveMembership(Component):
         self.slave = slave
 
     def process(self, membership_list):
-        logging.info("Received membership list.")
+        logging.info(colored.green("Received membership list."))
         self.slave.update_membership(membership_list)
 
 class HealthCheck(Component):
@@ -37,7 +38,7 @@ class MessageReceiver(Component):
         self.slave = slave
 
     def process(self, message):
-        logger.info("Received message.")
+        logger.info(colored.green("Received message."))
         self.slave.graph_sharing.update(message["graph"])
 
 class Slave():
@@ -58,14 +59,14 @@ class Slave():
         self.graph_sharing = GraphSharing()
 
     def join(self):
-        logger.info("Slave requesting join.")
+        logger.info(colored.yellow("Slave requesting join."))
         self.master_client.post("/register", {
             "ip" : self.slave_ip,
             "port" : self.server.port
         })
 
     def update_membership(self, membership_list):
-        logger.info("Updating membership....")
+        logger.info(colored.green("Updating membership...."))
         if "members" not in membership_list:
             return
         membership_list = membership_list["members"]
@@ -95,9 +96,10 @@ class Slave():
 
     def run(self):
         self.join()
+        time.sleep(5)
 
         while True:
-            time.sleep(5)
+            time.sleep(10)
             multicast_list = self.get_current_multicast()
             multicast_message = {
                 "ip" : self.slave_ip,

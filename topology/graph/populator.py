@@ -11,6 +11,8 @@ from topology.graph.graph import Node
 
 from threading import Lock, Thread
 
+from clint.textui import colored
+
 db_client = DBClient(config["database"])
 
 def format_out(struct):
@@ -86,7 +88,7 @@ class Populator():
             graph.unpopulated.remove(Node(ip))
 
             # updating populated
-            logger.info("Node {} scanned.".format(ip))
+            logger.info(colored.green("Node {} scanned.".format(ip)))
             node = Node(ip)
             node.running = results[i]
             node.running["scanned"] = "true"
@@ -137,10 +139,10 @@ class Populator():
         return results
 
     def populate_loop(self):
-        time.sleep(10)
+        time.sleep(45)
         while True:
             if not self.populate_nodes():
                 # If there are no new nodes avaiable, we don't want to take the lock uselessly
                 time.sleep(2)
             else:
-                logger.info("Graph populated.")
+                logger.info(colored.green("Graph populated."))
