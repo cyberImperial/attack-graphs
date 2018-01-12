@@ -17,11 +17,20 @@ from service.server import Server
 from service.server import config
 
 class PacketExporter(Component):
+    """
+    Component used to export packets.
+
+    The packets that are taken from the list of shared packets are then
+    discarded from the list of shared packets.
+    """
     def __init__(self, shared_packets, lock):
         self.shared_packets = shared_packets
         self.lock = lock
 
     def process(self, unused=None):
+        """
+        :return: returns a list of packets as a dictionary
+        """
         self.lock.acquire()
 
         packets = self.shared_packets[:]
@@ -31,6 +40,13 @@ class PacketExporter(Component):
         return packets
 
 class SniffingService():
+    """
+    Wrapper over:
+      - the server with a PacketExporter component
+      - the shared_list of packets and the shared_lock
+
+    Shares the `shared_list` of packets with the sniffing daemon.
+    """
     def __init__(self, device):
         shared_lock = Lock()
         shared_list = []
@@ -45,6 +61,9 @@ class SniffingService():
             self.daemon = SniffingDaemon(shared_list, shared_lock, connections=open_connection(device))
 
 def sniffing_service(device=None, filter_mask=None):
+    """
+    Function used to start the sniffing microservice.
+    """
     service = SniffingService(device)
 
     threading.Thread(target=service.server.run).start()

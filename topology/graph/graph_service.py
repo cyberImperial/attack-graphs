@@ -31,6 +31,9 @@ class GraphExporter(Component):
         self.graph = graph
 
     def process(self, unused):
+        """
+        :return: returns a Graph class instance in json form
+        """
         self.graph.lock.acquire()
         export = self.graph.to_json()
         self.graph.lock.release()
@@ -39,12 +42,16 @@ class GraphExporter(Component):
 
 class GraphMerge(Component):
     """
-    A component that allows exporting a graph.
+    A component that allows listening for merge requests for a graph.
     """
     def __init__(self, graph):
         self.graph = graph
 
     def process(self, graph):
+        """
+        :param graph: a Graph class instance to be merged
+        :return: returns {"success" : "true"} if merge sucessful
+        """
         self.graph.lock.acquire()
         self.graph.merge(Graph.from_json(graph))
         self.graph.lock.release()
@@ -71,10 +78,18 @@ class GraphService():
         self.sniffer_client = sniffer_client
 
     def get_edge(self, packet):
+        """
+        Returns an edges from a packet dictionary. The packet must have
+        fields "src" and "dest".
+        """
         src, dest = packet["src"], packet["dest"]
         return Node(src), Node(dest)
 
     def update(self):
+        """
+        Updates a graph with new packets requested from the sniffer
+        microservice.
+        """
         new_packets = self.sniffer_client.get("/newpackets", default=[])
 
         self.graph.lock.acquire()

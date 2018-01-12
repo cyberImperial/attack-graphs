@@ -111,6 +111,26 @@ def plot(file_name, all_stats, label, selector):
     plt.gcf().clear()
 
 def scenario_stats(name, nodes, edges, snaps, pause, slaves_list, batch_threads):
+    """
+    Generates graphics from periodic snapshots to evaluate performance.
+    We do a run for each pair of (slaves, batch_size).
+
+    Produces 3 files in the 'res' folder:
+      - hosts
+      - edges
+      - scanned
+
+    :param name: Simulation name.
+    :param nodes: Number of nodes in the random graph.
+    :param edges: Number of edges in the random graph.
+    :param snaps: The total number of snapshots taken. When no more snapshots
+        are to be taken all the processes are killed.
+    :param pause: The time interval that between taking 2 snapshots from
+        the master node.
+    :param slaves_list: The list of slaves to select from during each run.
+    :param batch_threads: The list of batch threads to select from during
+        each run.
+    """
     all_stats = {}
     for batch_threads in batch_threads:
         for slaves in slaves_list:

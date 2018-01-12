@@ -47,6 +47,11 @@ class SniffingDaemon():
     and gets sniffed devices.
     """
     def __init__(self, shared_packets, lock, connections=discover_devices):
+        """
+        :param shared_packets: a list of packets discovered by the sniffer
+        :param lock: the lock that protects the shared_packets list
+        :connections: the connections used to pool packets
+        """
         self.packets = shared_packets
         self.lock = lock
 
@@ -57,8 +62,17 @@ class SniffingDaemon():
             self.connections = connections
 
     def get_new_packets(self, filter_mask="10.1.1.1/32"):
-        # For the moment we ask each device for a packet. If this proves to
-        # be a problem, we need to group the reads.
+        """
+        Updates the list of shared packets via new packests provided through
+        scans.
+
+        For the moment we ask each device for a packet. If this proves to
+        be a problem, we need to group the reads.
+
+        :param filter_mask: the filter mask of form `IP/bits` used to filter
+            the GOOD packets
+        :return: returns nothing
+        """
         new_packets = []
         for connection in self.connections:
             try:

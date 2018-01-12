@@ -7,6 +7,11 @@ from clint.textui import colored
 from threading import Lock
 
 class Node():
+    """
+    The class used to encapsulate a node.
+
+    Ip contains the mutable filds `ip` and `running`.
+    """
     def __init__(self, ip):
         self.ip = ip
         self.running = {"scanned": "false"}
@@ -31,6 +36,15 @@ class Node():
         return numbers[0] * 256 ** 3 + numbers[1] * 256 ** 2 + numbers[2] * 256 + numbers[3]
 
 class Graph():
+    """
+    The class used to encapsulate a graph.
+
+    The graph is modelled as the following sets:
+      - edges
+      - nodes
+      - unpopulated
+      - populated
+    """
     def __init__(self):
         self.edges = set()
         self.nodes = set()
@@ -40,6 +54,11 @@ class Graph():
         self.populated = set()
 
     def add_edge(self, n1, n2):
+        """
+        :param n1: the starting point of the edge
+        :param n2: the arriving point of the edge
+        :return: returns nothing
+        """
         self.nodes.add(n1)
         self.nodes.add(n2)
 
@@ -54,6 +73,10 @@ class Graph():
         self.edges.add((n1, n2))
 
     def merge(self, graph):
+        """
+        :param graph: a Graph structure to merge with the current graph
+        :return: returns nothing
+        """
         logger.info("Merging graphs.")
         graph1 = self
         graph2 = graph
@@ -83,6 +106,9 @@ class Graph():
         ))
 
     def to_json(self):
+        """
+        :return: returns a JSON-convertible dictionary representing the graph
+        """
         return {
             "hosts" : [{
                 "ip" : node.ip,
@@ -97,6 +123,9 @@ class Graph():
 
     @staticmethod
     def from_json(json_input):
+        """
+        Static method that build a graph from a JSON-convertible dictionary.
+        """
         res = Graph()
 
         for link in json_input["links"]:

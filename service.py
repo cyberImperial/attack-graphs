@@ -9,6 +9,7 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 
+# Hide requests from the logs
 import requests
 requests_log = logging.getLogger("requests.packages.urllib3")
 requests_log.setLevel(logging.ERROR)
@@ -20,6 +21,9 @@ from multiprocessing import Process, Value
 from dissemination.util import get_host_ip
 
 def signal_handler(siganl, frames):
+    """
+    Signal handler that kills all the processes created by the application.
+    """
     logger.warn("Killing the running services.")
     for process in processes:
         logger.warn("Killing process {}".format(process.pid))
@@ -27,6 +31,18 @@ def signal_handler(siganl, frames):
     sys.exit(0)
 
 def services(benchmark, device_name=None, filter_mask=None, batch_threads=1, no_scans=False):
+    """
+    Starts all the bussiness-logic microservices.
+
+    :param benchmark: When benchmark parameter is True, we disable the database
+        and inference services for the purpose of benchmarking.
+    :param device_name: Device name passed to sniffing_service
+    :param filter_mask: Filter mask passed to sniffing_service.
+    :param batch_threads: Batch size passes to graph_service(and the populator).
+    :param no_scans: When no scans is True, the populator is disabled.
+    :return: returns nothing
+    """
+
     from topology.graph.graph_service import graph_service
     from topology.sniffer.sniffing_service import sniffing_service
     from database.database_service import database_service
@@ -41,7 +57,11 @@ def services(benchmark, device_name=None, filter_mask=None, batch_threads=1, no_
     processes.append(Process(target=sniffing_service, args=(device_name, filter_mask)))
 
 def bind_simulation(simulation):
-    # Overrides the default services with a simulation
+    """
+    Overrides the default services with a simulation.
+
+    The seam points are devices.open_connection and discovery.discovery_ip.
+    """
     import topology.sniffer.devices as devices
     import topology.discovery.discovery as discovery
 
@@ -49,6 +69,10 @@ def bind_simulation(simulation):
     discovery.discovery_ip  = lambda ip: simulation.discovery_ip(ip)
 
 def set_ports(node_type):
+    """
+    Provides dynamic port binding for slave services and fixed port binding
+    for master services.
+    """
     import service.server as config_keeper
 
     port_offset = 30000
@@ -69,9 +93,21 @@ def set_ports(node_type):
     setattr(config_keeper, 'config', config)
 
 def setup_loggers(verbose):
+    """
+    Sets up loggers by the given level of verbosity. We also provide file
+    logging in the file 'attack-graph.log' (with DEBUG verbosity level).
+
+    :param verbose: when the flag for verbosity is set, the logging level is set
+        to DEBUG.
+    :return: returns nothing
+    """
+
     stderr_handler = logging.StreamHandler(sys.stderr)
 
-    class MyFormatter(logging.Formatter):
+    class ColoredFormatter(logging.Formatter):
+        """
+        Formatter that allows coloring logs via Clint library.
+        """
         def format(self, record):
             msg = record.getMessage()
 
@@ -93,7 +129,7 @@ def setup_loggers(verbose):
         stderr_handler.setLevel(logging.DEBUG)
     else:
         stderr_handler.setLevel(logging.INFO)
-    stderr_handler.setFormatter(MyFormatter())
+    stderr_handler.setFormatter(ColoredFormatter())
 
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
@@ -108,6 +144,13 @@ def setup_loggers(verbose):
     )
 
 def setup_dissemination(args):
+    """
+    Dissemination module setup.
+
+    :param args: the arguments received by the function are the arguments
+        received by the main application under the form of a dictionary.
+    :return: returns nothing
+    """
     if args.type == "master":
         from dissemination.master import master_service
         from dissemination.slave import slave_service
@@ -130,10 +173,12 @@ def setup_dissemination(args):
         from dissemination.slave import slave_service
         processes.append(Process(target=slave_service, args=(master_ip, port)))
 
-if __name__ == "__main__":
-    os.system("python3 simulation/graph_gen.py 20 50 test_conf")
-    time.sleep(0.5)
+def setup_argparser():
+    """
+    Argument parser setup using argparse library.
 
+    :return: returns an ArgumentParser
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("type", type=str,
         help="The type of node run: 'master' or 'slave'")
@@ -156,12 +201,14 @@ if __name__ == "__main__":
     parser.add_argument("-n", "--no-scan", dest='no_scan', action='store_true',
         help="Disable port scanning.")
     parser.set_defaults(verbose=False)
+    return parser
 
+
+if __name__ == "__main__":
+    parser = setup_argparser()
     args = parser.parse_args()
 
     setup_loggers(args.verbose)
-
-    logger.info(colored.yellow('Started loggers.'))
 
     if os.getuid() != 0:
         logger.error("Must be run as root.")
