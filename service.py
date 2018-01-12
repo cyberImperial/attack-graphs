@@ -9,6 +9,10 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 
+import requests
+requests_log = logging.getLogger("requests.packages.urllib3")
+requests_log.setLevel(logging.ERROR)
+
 from clint.textui import colored
 from clint.textui.colored import ColoredString
 

@@ -7,7 +7,7 @@ class TranslatorBuilder():
 
     def from_client_data(self):
         try:
-            self.data = client.get("/graph")
+            self.data = self.client.get("/graph")
         except Exception as e:
             return self
         return self

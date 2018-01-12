@@ -38,16 +38,41 @@ function getReachability() {
                     if(services[i].Vulnerability instanceof Array) {
                         totalVuls += services[i].Vulnerability.length;
                         services[i].Vulnerability.forEach(function(item, index) {
-                           vuls.push(item);
+                           //vuls.push(item);
                         });
                     }
                 }
             });
             document.getElementById("devices").innerHTML = "Devices: " + (data.hosts.length - 1);
             document.getElementById("detectedLinks").innerHTML = "Active Links: " + data.links.length;
-            document.getElementById("vulnerabilities").innerHTML = "Vulnerabilities (" + totalVuls + ")";
+            document.getElementById("vulnerabilities").innerHTML = "Vulnerabilities (" + 1 + ")";
             // console.log(vuls);
-            //vuls.push({id: "CVE-2124", impact: {baseMetricV2: {}}, description: "Double free vulnerability in inspect-fs.c in Libgu… denial of service (crash) via empty guest files."});
+             vuls.push({
+   "id":"CVE-2013-2124",
+   "impact":{
+      "baseMetricV2":{
+         "cvssV2":{
+            "accessComplexity":"MEDIUM",
+            "baseScore":4.3,
+            "integrityImpact":"NONE",
+            "vectorString":"(AV:N/AC:M/Au:N/C:N/I:N/A:P)",
+            "authentication":"NONE",
+            "accessVector":"NETWORK",
+            "availabilityImpact":"PARTIAL",
+            "confidentialityImpact":"NONE",
+            "version":"2.0"
+         },
+         "severity":"MEDIUM",
+         "userInteractionRequired":"false",
+         "impactScore":2.9,
+         "obtainUserPrivilege":"false",
+         "obtainOtherPrivilege":"false",
+         "exploitabilityScore":8.6,
+         "obtainAllPrivilege":"false"
+      }
+   },
+   "description":"Double free vulnerability in inspect-fs.c in LibguestFS 1.20.x before 1.20.7, 1.21.x, 1.22.0, and 1.23.0 allows remote attackers to cause a denial of service (crash) via empty guest files."
+});
 
             let vulHtml = "<br>";
             vuls.forEach(function(item, index) {
