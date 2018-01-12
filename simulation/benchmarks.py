@@ -16,6 +16,8 @@ from service.client import LocalClient
 from random import randint, random, shuffle
 from dissemination.util import get_host_ip
 
+from graph_gen import generate_graph
+
 from math import exp
 
 ROOT = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..")
@@ -41,39 +43,6 @@ def add_process(command):
     print("> {}".format(command))
     slave_proc = subprocess.Popen(command.split(" "),  shell=False)
     processes.append(slave_proc)
-
-def generate_graph(nodes, max_edges):
-    graph = Graph()
-
-    def int_to_ip(value):
-        a = (value >> 24) & 255
-        b = (value >> 16) & 255
-        c = (value >> 8) & 255
-        d = (value >> 0) & 255
-        return "{}.{}.{}.{}".format(a, b, c, d)
-
-    nodes = [Node(int_to_ip(i)) for i in range(0, nodes)]
-    for n in nodes:
-        n.running = {
-            "scanned" : "false",
-            "Host": {
-              "os" : "ACER RT-N56U WAP (Linux 3.2)",
-              "ip" : n.ip,
-              "RunningServices": []
-          }
-        }
-
-    edges = [(n1, n2) for n1 in nodes for n2 in nodes]
-    shuffle(edges)
-
-    for n1, n2 in edges:
-        if max_edges == 0:
-            break
-        before = len(graph.edges)
-        graph.add_edge(n1, n2)
-        if len(graph.edges) > before:
-            max_edges -= 1
-    return graph
 
 def export_graph(graph, benchmark):
     os.system("touch {}".format(get_path(benchmark)))

@@ -4,9 +4,13 @@ import os
 import signal
 import argparse
 import random
+import time
 
 import logging
 logger = logging.getLogger(__name__)
+
+from clint.textui import colored
+from clint.textui.colored import ColoredString
 
 from multiprocessing import Process, Value
 from dissemination.util import get_host_ip
@@ -18,7 +22,7 @@ def signal_handler(siganl, frames):
         os.system("kill -9 {}".format(process.pid))
     sys.exit(0)
 
-def services(benchmark, device_name=None, filter_mask=None, batch_threads=1):
+def services(benchmark, device_name=None, filter_mask=None, batch_threads=1, no_scans=False):
     from topology.graph.graph_service import graph_service
     from topology.sniffer.sniffing_service import sniffing_service
     from database.database_service import database_service
@@ -29,7 +33,7 @@ def services(benchmark, device_name=None, filter_mask=None, batch_threads=1):
         processes.append(Process(target=database_service))
         processes.append(Process(target=inference_service))
 
-    processes.append(Process(target=graph_service, args=(str(batch_threads))))
+    processes.append(Process(target=graph_service, args=(str(batch_threads), str(no_scans))))
     processes.append(Process(target=sniffing_service, args=(device_name, filter_mask)))
 
 def bind_simulation(simulation):
@@ -62,11 +66,30 @@ def set_ports(node_type):
 
 def setup_loggers(verbose):
     stderr_handler = logging.StreamHandler(sys.stderr)
+
+    class MyFormatter(logging.Formatter):
+        def format(self, record):
+            msg = record.getMessage()
+
+            out_msg = '{}:{}:{}'.format(
+                str(record.levelname),
+                record.name,
+                str(msg)
+            )
+
+            if hasattr(record.msg, 'color'):
+                color = record.msg.color
+
+                colored_msg = str(ColoredString(color, str(out_msg)))
+                return colored_msg
+
+            return out_msg
+
     if args.verbose:
         stderr_handler.setLevel(logging.DEBUG)
     else:
         stderr_handler.setLevel(logging.INFO)
-    stderr_handler.setFormatter(logging.Formatter(logging.BASIC_FORMAT))
+    stderr_handler.setFormatter(MyFormatter())
 
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
@@ -104,6 +127,9 @@ def setup_dissemination(args):
         processes.append(Process(target=slave_service, args=(master_ip, port)))
 
 if __name__ == "__main__":
+    os.system("python3 simulation/graph_gen.py 20 50 test_conf")
+    time.sleep(0.5)
+
     parser = argparse.ArgumentParser()
     parser.add_argument("type", type=str,
         help="The type of node run: 'master' or 'slave'")
@@ -123,11 +149,15 @@ if __name__ == "__main__":
         help="Disables database and inference engine for benchmarking.")
     parser.add_argument("-t", "--batch_threads", type=int, default=1,
         help="Number of threads that should run host discovery.")
+    parser.add_argument("-n", "--no-scan", dest='no_scan', action='store_true',
+        help="Disable port scanning.")
     parser.set_defaults(verbose=False)
 
     args = parser.parse_args()
 
     setup_loggers(args.verbose)
+
+    logger.info(colored.yellow('Started loggers.'))
 
     if os.getuid() != 0:
         logger.error("Must be run as root.")

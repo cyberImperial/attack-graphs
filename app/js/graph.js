@@ -30,12 +30,21 @@ function getReachability() {
             data = JSON.parse(data.replace(/\'/g, "\""));
             let totalVuls = 0, vuls = [];
             data.hosts.forEach(function(item, index) {
+<<<<<<< HEAD
                 let services = item.running.Host.RunningServices;
                 // console.log(item.running.Host.RunningServices);
+=======
+                let services = [];
+                if (item.running.Host !== undefined) {
+                  services = item.running.Host.RunningServices;
+                }
+                console.log(services);
+>>>>>>> master
                 for (var i = 0; i < services.length; i++) {
                     if(services[i].Vulnerability instanceof Array) {
                         let cnt = 0, flag = true;
                         services[i].Vulnerability.forEach(function(item, index) {
+<<<<<<< HEAD
                             for(var i = 0; i < vuls.length; i++) {
                                 if(JSON.stringify(vuls[i]) == JSON.stringify(item)) {
                                     flag = false;
@@ -45,6 +54,9 @@ function getReachability() {
                                 vuls.push(item);
                                 cnt++;
                             }
+=======
+                           vuls.push(item);
+>>>>>>> master
                         });
                         totalVuls += cnt;
                     }
@@ -54,10 +66,18 @@ function getReachability() {
             document.getElementById("detectedLinks").innerHTML = "Active Links: " + data.links.length;
             document.getElementById("vulnerabilities").innerHTML = "Vulnerabilities (" + totalVuls + ")";
             // console.log(vuls);
+<<<<<<< HEAD
 
             let vulHtml = "<br>";
             vuls.forEach(function(item, index) {
                 // console.log(item);
+=======
+            //vuls.push({id: "CVE-2124", impact: {baseMetricV2: {}}, description: "Double free vulnerability in inspect-fs.c in Libgu… denial of service (crash) via empty guest files."});
+
+            let vulHtml = "<br>";
+            vuls.forEach(function(item, index) {
+              //  console.log(JSON.stringify(item))
+>>>>>>> master
                 let tid = "det-" + (index + 1);
                 vulHtml += "<li class=\"list-group-item\">\
                     \<div class=\"row toggle\" id=\"dropdown-" + tid + "\" data-toggle=\"" + tid + "\">\
@@ -126,43 +146,45 @@ function getReachability() {
                 .attr('class', 'd3-tip')
                 .offset([-10, 0])
                 .html(function (d) {
-                    // console.log(d);
-                    let services = d.running.Host.RunningServices;
+                    let services = [];
+                    if (d.running.Host !== undefined) {
+                      services = d.running.Host.RunningServices;
+                    }
                     if (typeof d.running.Host === 'object' && d.ip != "255.255.255.255") {
                         var result = "";
                         if(services.length > 0) {
-                            result += "<br><strong style='color:red'>Running Services:</strong><br><ul>";
+                            result += "<br><strong style='color:#7479d0'>Running Services:</strong><br><ul>";
                             for (var i = 0; i < services.length; i++) {
                                 result += "<li>";
                                 // Usual display attributes
                                 if (services[i].Port.portid != "attributeMissing") {
-                                    result += "<strong style='color:red'> Port : </strong><span>" + services[i].Port.portid;
+                                    result += "<strong style='color:#7479d0'> Port : </strong><span>" + services[i].Port.portid;
                                 }
                                 if (services[i].Port.protocol != "attributeMissing") {
-                                    result += "&nbsp;<span>&#124;</span><strong style='color:red'> Protocol : </strong><span>" + services[i].Port.protocol;
+                                    result += "&nbsp;<span>&#124;</span><strong style='color:#7479d0'> Protocol : </strong><span>" + services[i].Port.protocol;
                                 }
                                 if (services[i].Service.name != "attributeMissing") {
-                                    result += "<br><strong style='color:red'> Service : </strong><span>" + services[i].Service.name;
+                                    result += "<br><strong style='color:#7479d0'> Service : </strong><span>" + services[i].Service.name;
                                 }
                                 if (services[i].Service.product != "attributeMissing") {
-                                    result += "&nbsp;<span>&#124;</span><strong style='color:red'> Product : </strong><span>" + services[i].Service.product;
+                                    result += "&nbsp;<span>&#124;</span><strong style='color:#7479d0'> Product : </strong><span>" + services[i].Service.product;
                                 }
                                 if (services[i].Service.version != "attributeMissing") {
-                                    result += "&nbsp;<span>&#124;</span><strong style='color:red'> Version : </strong><span>" + services[i].Service.version;
+                                    result += "&nbsp;<span>&#124;</span><strong style='color:#7479d0'> Version : </strong><span>" + services[i].Service.version;
                                 }
                                 if (services[i].Service.reason != "attributeMissing") {
-                                    result += "<br><strong style='color:red'> Details : </strong><span>" + services[i].Service.reason;
+                                    result += "<br><strong style='color:#7479d0'> Details : </strong><span>" + services[i].Service.reason;
                                 }
                                 result += "</li>";
                             }
                             result += "</ul>";
                         }
-                        return "<strong style='color:red'>Host : </strong><span>" + d.ip + "</span>&nbsp;<span>&#124;&nbsp;</span><strong style='color:red'>Operating System : </strong>" + d.running.Host.os + result;
+                        return "<strong style='color:#7479d0'>Host : </strong><span>" + d.ip + "</span>&nbsp;<span>&#124;&nbsp;</span><strong style='color:#7479d0'>Operating System : </strong>" + d.running.Host.os + result;
                     } else {
                         if(d.ip != "255.255.255.255") {
-                            return "<strong style='color:red'>Host : </strong><span>" + d.ip + "</span>&nbsp;<span>&#124;&nbsp;</span><strong style='color:red'>Operating System : </strong>unavailable";
+                            return "<strong style='color:#7479d0'>Host : </strong><span>" + d.ip + "</span>&nbsp;<span>&#124;&nbsp;</span><strong style='color:#7479d0'>Operating System : </strong>unavailable";
                         } else {
-                            return "<strong style='color:red'>Internet</strong>&nbsp;<span>&#124;&nbsp;</span><strong>Attacker's Location</strong>";
+                            return "<strong style='color:#7479d0'>Internet</strong>&nbsp;<span>&#124;&nbsp;</span><strong>Attacker's Location</strong>";
                         }
                     }
                 });
@@ -321,6 +343,7 @@ function getAttackGraph() {
                         'fill': '#aaa'
                     });
 
+<<<<<<< HEAD
                 // edgelabels.append('textPath')
                 //     .attr('xlink:href', function (d, i) {
                 //         return '#edgepath' + i
@@ -370,6 +393,54 @@ function getAttackGraph() {
                             return result;
                         }
                     });
+=======
+        edgelabels.append('textPath')
+            .attr('xlink:href', function (d, i) {return '#edgepath' + i})
+            .style("text-anchor", "middle")
+            .style("pointer-events", "none")
+            .attr("startOffset", "50%")
+            .text(function (d) {return "NO TYPE"});
+
+        node = svg.selectAll(".node")
+            .data(nodes)
+            .enter()
+            .append("g")
+            .attr("class", "node")
+            .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                //.on("end", dragended)
+            )
+            .append("svg:image")
+            .attr("xlink:href", function(d) {
+                // console.log(d);
+                // if(d.fact === "attackerLocated(internet)") {
+                //     return "img/blackhat.png";
+                // }
+                if(d.fact === "attackerLocated(internet)") {
+                    return "img/internet.png"
+                } else if(d.fact.match(/RULE/g) === null) {
+                    return "img/server.png"
+                } else {
+                   return "img/circle.svg"
+                }
+          })
+            .attr("width", 40)
+            .attr("height", 40)
+            .attr("x", -10)
+            .attr("y", -10);
+
+        let tip = d3.tip()
+            .attr('class', 'd3-tip')
+            .offset([-10, 0])
+            .html(function (d) {
+                // console.log(d);
+                if (d.type != "AND") {
+                    var result = "<br><strong style='color:#7479d0'> Fact : </strong><span>" + d.fact + "<hr>";
+                    return result;
+                }
+            });
+>>>>>>> master
 
                 svg.call(tip);
 
