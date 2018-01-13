@@ -12,6 +12,8 @@ class TestMemoryDB(TestCase):
                 return True
         return False
 
+    # Tests are providing the product name, the versiona and the vulnerability
+    # and are checking whether the query detects the correct vulnerability.
     def test_query_simple(self):
         self.assertTrue(self.check_for_CVE('libguestfs', '1.21.24', "CVE-2013-2124"))
 

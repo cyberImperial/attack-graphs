@@ -8,6 +8,7 @@ from dissemination.slave import Slave
 
 class SlaveTest(TestCase):
     def setUp(self):
+        """Setup test membership list for mock clients."""
         use_mock_client(self)
 
         self.master_port = 1001

@@ -21,6 +21,10 @@ class MasterReceive(Component):
         self.master = master
 
     def process(self, message):
+        """
+        REST component request processing. Broadcasts membership
+        list to other slaves.
+        """
         logger.info(colored.green("Received slave join request."))
         self.master.register(message)
         self.master.broadcast()
@@ -33,6 +37,9 @@ class Master():
         self.server.add_component_post("/register", MasterReceive(self))
 
     def register(self, registration, client_cls=Client):
+        """
+        Register slave in membership list.
+        """
         logger.info("Received register {}:{}".format(
             registration["ip"],
             registration["port"]
@@ -43,6 +50,11 @@ class Master():
         self.membership_list.append(client)
 
     def broadcast(self):
+        """
+        Create a JSON with information about each client, i.e. slave
+        in the membership list and send the broadcast data to all
+        other slaves.
+        """
         logger.info(colored.yellow("Broadcasting membership...."))
         broadcast = {
             "members" : [{
@@ -57,6 +69,8 @@ class Master():
             client.post("/membership", broadcast)
 
 def master_service():
+    """Main function for running a master. Used to initialize a thread's
+    target."""
     master = Master()
     logger.info("Master running on ip: {}".format(get_host_ip()))
 

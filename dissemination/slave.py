@@ -24,11 +24,16 @@ class SlaveMembership(Component):
         self.slave = slave
 
     def process(self, membership_list):
+        """
+        REST component request processing. Register the master on the slave.
+        """
         logging.info(colored.green("Received membership list."))
         self.slave.update_membership(membership_list)
 
 class HealthCheck(Component):
     def process(self, _):
+        """The health check component is responsible for anouncing
+        each slave that the master is working."""
         return {
             "healty" : "true"
         }
@@ -38,6 +43,7 @@ class MessageReceiver(Component):
         self.slave = slave
 
     def process(self, message):
+        """Graph partial component receiver."""
         logger.info(colored.green("Received message."))
         self.slave.graph_sharing.update(message["graph"])
 
@@ -59,6 +65,8 @@ class Slave():
         self.graph_sharing = GraphSharing()
 
     def join(self):
+        """Send request to the master for addition to membership list.
+        Slave sends its IP and port number."""
         logger.info(colored.yellow("Slave requesting join."))
         self.master_client.post("/register", {
             "ip" : self.slave_ip,
@@ -66,6 +74,7 @@ class Slave():
         })
 
     def update_membership(self, membership_list):
+        """Epidemic style dissemination to slave neighbours."""
         logger.info(colored.green("Updating membership...."))
         if "members" not in membership_list:
             return
@@ -80,21 +89,27 @@ class Slave():
         logger.info("Membership list updated: {} members.".format(len(self.membership_list)))
 
     def get_current_broadcast(self):
+        """Returns the membership list for this slave."""
         return self.membership_list
 
     def get_current_multicast(self):
+        """Returns the list of slaves this slave can send messages to.
+        This is the randomized part that can be proven to be O(log n) for
+        the whole dissemination."""
         multicast_list = list(self.membership_list[:])
         random.shuffle(multicast_list)
 
         return multicast_list[:self.dissemination_constant]
 
     def disseminate(self, multicast_list, message):
+        """Send message to all multicast nodes this slave can communicate to.""""
         logger.info("Running dissemination.")
         for client in multicast_list:
             logger.info("Sending message to {}:{}.".format(client.url, client.port))
             client.post("/multicast", message)
 
     def run(self):
+        """Slave main function loop.""""
         self.join()
         time.sleep(5)
 

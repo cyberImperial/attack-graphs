@@ -60,6 +60,7 @@ class Network():
         })
 
 def default_network():
+    """Creates Docker simulation."""
     network = Network()
     return network \
         .add_node(Network.metasploitable) \
