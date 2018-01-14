@@ -102,14 +102,14 @@ class Slave():
         return multicast_list[:self.dissemination_constant]
 
     def disseminate(self, multicast_list, message):
-        """Send message to all multicast nodes this slave can communicate to.""""
-        logger.info("Running dissemination.")
+        """Send message to all multicast nodes this slave can communicate to."""
+        logger.info("Running dissemination.")01
         for client in multicast_list:
             logger.info("Sending message to {}:{}.".format(client.url, client.port))
             client.post("/multicast", message)
 
     def run(self):
-        """Slave main function loop.""""
+        """Slave main function loop."""
         self.join()
         time.sleep(5)
 
