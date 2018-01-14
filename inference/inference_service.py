@@ -9,7 +9,6 @@ from service.server import Server, config
 from service.client import LocalClient
 
 from inference.mulval_translator import generate_attack_graph
-
 class AttackGraphExporter(Component):
     def __init__(self, client, env):
         self.client = client

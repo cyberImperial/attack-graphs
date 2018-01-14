@@ -5,7 +5,7 @@ import os, sys, time
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from service.client import Client
-
+"""Gets the graph that will be translated into MulVAL predicates"""
 class TranslatorBuilder():
     def __init__(self, client):
         self.data = None

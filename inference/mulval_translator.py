@@ -18,7 +18,7 @@ class MulvalTranslator():
     def __init__(self):
         self.mulval_file = open('mulval_input.P', 'w')
         self.active_set = set()
-
+    """ Translates information about the topology to MulVAL predicates"""
     def _make_topology(self):
         self.mulval_file.write("attackerLocated(internet).\n")
         self.mulval_file.write("attackGoal(execCode(_, _)).\n")
@@ -33,7 +33,7 @@ class MulvalTranslator():
 
         for link in self.data["links"]:
             add_edge(link["source"], link["target"])
-
+    """ Translates vulnerabilities of hosts to MulVAL predicates """
     def _add_vulnerabilities(self):
         for host in self.data["hosts"]:
             if host["running"]["scanned"] == "false":
@@ -105,7 +105,9 @@ class MulvalTranslator():
         self._make_topology()
         self._add_vulnerabilities()
         self.mulval_file.close()
-
+        """ Checks that all environment variables needed to run MulVAL are
+            defined
+        """
         def missing_env(name):
             if name not in env:
                 logger.error("{} not present in environment.".format(name))
@@ -128,7 +130,7 @@ class MulvalTranslator():
         # self._cleanup(files_before)
 
         return attackGraphJSON
-
+ """Main function"""
 def generate_attack_graph(client, env=os.environ.copy()):
     return TranslatorBuilder(client) \
         .from_client_data() \
