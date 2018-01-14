@@ -32,7 +32,7 @@ class MasterTest(TestCase):
             self.assertEqual(len(self.master.membership_list), list_len)
 
     def test_broadcast_sends_healthchecks_to_all_slaves(self):
-        """"Check health packet is send between message exchange."""
+        """Check health packet is send between message exchange."""
         self.set_membership_list()
         self.master.broadcast()
 
