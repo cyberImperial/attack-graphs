@@ -103,7 +103,7 @@ class Slave():
 
     def disseminate(self, multicast_list, message):
         """Send message to all multicast nodes this slave can communicate to."""
-        logger.info("Running dissemination.")01
+        logger.info("Running dissemination.")
         for client in multicast_list:
             logger.info("Sending message to {}:{}.".format(client.url, client.port))
             client.post("/multicast", message)
