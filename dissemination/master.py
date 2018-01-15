@@ -69,8 +69,10 @@ class Master():
             client.post("/membership", broadcast)
 
 def master_service():
-    """Main function for running a master. Used to initialize a thread's
-    target."""
+    """
+    Main function for running a master. Used to initialize a thread's
+    target.
+    """
     master = Master()
     logger.info("Master running on ip: {}".format(get_host_ip()))
 
