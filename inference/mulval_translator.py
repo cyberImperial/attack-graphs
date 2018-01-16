@@ -128,11 +128,11 @@ class MulvalTranslator():
         if "JAVA_HOME" in env:
             env["PATH"] = "{}:{}".format(env["PATH"], os.path.join(env["JAVA_HOME"], "bin"))
 
-        subprocess.Popen(['graph_gen.sh mulval_input.P -v -p'], shell=True, env=env).wait()
+        subprocess.Popen(['graph_gen.sh mulval_input.P -p'], shell=True, env=env).wait()
         # self._save_output()
         attackGraphJSON = self._graphXMLtoJSON()
 
-        # self._cleanup(files_before)
+        self._cleanup(files_before)
 
         return attackGraphJSON
 
