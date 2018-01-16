@@ -18,8 +18,10 @@ class MulvalTranslator():
     def __init__(self):
         self.mulval_file = open('mulval_input.P', 'w')
         self.active_set = set()
-    """ Translates information about the topology to MulVAL predicates"""
+
     def _make_topology(self):
+        """ Translates information about the topology to MulVAL predicates"""
+
         self.mulval_file.write("attackerLocated(internet).\n")
         self.mulval_file.write("attackGoal(execCode(_, _)).\n")
 
@@ -33,8 +35,10 @@ class MulvalTranslator():
 
         for link in self.data["links"]:
             add_edge(link["source"], link["target"])
-    """ Translates vulnerabilities of hosts to MulVAL predicates """
+
     def _add_vulnerabilities(self):
+        """ Translates vulnerabilities of hosts to MulVAL predicates """
+
         for host in self.data["hosts"]:
             if host["running"]["scanned"] == "false":
                 continue
@@ -105,10 +109,9 @@ class MulvalTranslator():
         self._make_topology()
         self._add_vulnerabilities()
         self.mulval_file.close()
-        """ Checks that all environment variables needed to run MulVAL are
-            defined
-        """
+
         def missing_env(name):
+            # checks that all environment variables needed to run MulVAL are defined
             if name not in env:
                 logger.error("{} not present in environment.".format(name))
                 return True
@@ -116,12 +119,14 @@ class MulvalTranslator():
 
         if missing_env("MULVALROOT"): return None
         if missing_env("XSB_DIR"): return None
-        if missing_env("JAVA_HOME"): return None
 
         env["PATH"] = "{}:{}".format(env["PATH"], os.path.join(env["MULVALROOT"], "bin"))
         env["PATH"] = "{}:{}".format(env["PATH"], os.path.join(env["MULVALROOT"], "utils"))
         env["PATH"] = "{}:{}".format(env["PATH"], os.path.join(env["XSB_DIR"], "bin"))
-        env["PATH"] = "{}:{}".format(env["PATH"], os.path.join(env["JAVA_HOME"], "bin"))
+
+        # Handle some types of installation for different distributions
+        if "JAVA_HOME" in env:
+            env["PATH"] = "{}:{}".format(env["PATH"], os.path.join(env["JAVA_HOME"], "bin"))
 
         subprocess.Popen(['graph_gen.sh mulval_input.P -v -p'], shell=True, env=env).wait()
         # self._save_output()
@@ -130,7 +135,7 @@ class MulvalTranslator():
         # self._cleanup(files_before)
 
         return attackGraphJSON
- """Main function"""
+
 def generate_attack_graph(client, env=os.environ.copy()):
     return TranslatorBuilder(client) \
         .from_client_data() \
