@@ -2,6 +2,14 @@
 
 # Attack-graphs
 
+### Description
+
+Attack graphs illustrate ways in which an adversary can exploit vulnerabilities to break into a system. System administrators evaluate attack graphs to find where their system’s weaknesses might be and to decide which security measures should be taken in order to defend their systems.
+
+Our product helps security administrators reason about the risk posed to the various system components and to evaluate adversarial and defense strategies when signs of compromise have been found. For the future, this tool should be made available to anyone who wants to monitor and solve network vulnerability issues.
+
+### Demo
+
 Click on the first picture to watch the demo:
 
 <a href="https://www.doc.ic.ac.uk/~ab7515/attack.ogv" target="_blank"><img src="https://www.doc.ic.ac.uk/~ad5915/pic1.png" 
