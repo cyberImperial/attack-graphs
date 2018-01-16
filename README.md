@@ -2,6 +2,13 @@
 
 # Attack-graphs
 
+Click on the first picture to watch the demo:
+
+<a href="https://www.doc.ic.ac.uk/~ab7515/attack.ogv" target="_blank"><img src="https://www.doc.ic.ac.uk/~ad5915/pic1.png" 
+alt="IMAGE ALT TEXT HERE" border="10" /></a>
+
+![ ](https://www.doc.ic.ac.uk/~ad5915/pic2.png)
+
 ### Install
 To install the dependecies:
 ```
