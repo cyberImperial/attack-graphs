@@ -5,7 +5,7 @@ HOST_SOURCES = topology/discovery/parser/Host.cpp
 PORT_SOURCES = topology/discovery/parser/Port.cpp
 SERVICE_SOURCES = topology/discovery/parser/Service.cpp
 OBJECT_FILES = Service.o Port.o Host.o
-CATCH_LINK=https://raw.githubusercontent.com/philsquared/Catch/master/single_include/catch.hpp
+CATCH_LINK=https://raw.githubusercontent.com/cyberImperial/Catch2/master/single_include/catch2/catch.hpp
 
 all: Main.o $(OBJECT_FILES)
 	$(CXX) Main.o $(OBJECT_FILES) $(CXXFLAGS) -o build_topology
