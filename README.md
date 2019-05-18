@@ -8,20 +8,12 @@ Attack graphs illustrate ways in which an adversary can exploit vulnerabilities 
 
 Our product helps security administrators reason about the risk posed to the various system components and to evaluate adversarial and defense strategies when signs of compromise have been found. For the future, this tool should be made available to anyone who wants to monitor and solve network vulnerability issues.
 
-### Demo
-
-Click on the first picture to watch the demo:
-
-<a href="https://www.doc.ic.ac.uk/~ab7515/attack.ogv" target="_blank"><img src="https://www.doc.ic.ac.uk/~ad5915/pic1.png" 
-alt="IMAGE ALT TEXT HERE" border="10" /></a>
-
-![ ](https://www.doc.ic.ac.uk/~ad5915/pic2.png)
-
 ### Install
 To install the dependecies:
 ```
 apt-get install libboost-all-dev -y
 apt-get install libpcap-dev -y
+apt-get install libpq-dev -y
 sudo python3 setup.py install
 make
 npm install
